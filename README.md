@@ -74,6 +74,12 @@ HOLBERY Intelligence OS (HIO) is a private system for discovering, organizing, e
 - [Architecture decision record template](docs/31-architecture-decision-record-template.md)
 - [Operator runbook](docs/32-operator-runbook.md)
 - [Product readiness checklist](docs/33-product-readiness-checklist.md)
+- [Plugin Platform Architecture](docs/34-plugin-platform-architecture.md)
+- [Plugin Manifest & Capability Contract](docs/35-plugin-manifest-and-capability-contract.md)
+- [MCP Integration Architecture](docs/36-mcp-integration-architecture.md)
+- [Plugin SDK & Developer Experience](docs/37-plugin-sdk-and-developer-experience.md)
+- [Plugin Trust, Permissions & Lifecycle Security](docs/38-plugin-security-lifecycle.md)
+- [Plugin Roadmap & Reference Architecture](docs/39-plugin-roadmap-and-reference-architecture.md)
 
 ## Current implementation status
 This repository contains the concept and design documents only. No ingestion pipeline, dashboard, database migrations, production credentials, deployment, or live customer validation is claimed by these documents. Implementation must begin with a repository/environment audit and proceed through the roadmap.
