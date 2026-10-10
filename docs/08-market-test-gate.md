@@ -1,0 +1,46 @@
+# 08 — Market-Test Readiness Gate
+
+Passing this gate means a bounded experiment may be approved. It does **not** mean demand or product-market fit has been proven.
+
+## Required dossier
+- [ ] Clear problem statement and target segment.
+- [ ] At least three attributable evidence records where feasible, across at least two independent source types; explain exceptions.
+- [ ] Independence/repost check completed.
+- [ ] Commercial-intent evidence or an explicit plan to test the missing commercial assumption.
+- [ ] Counter-evidence and alternative explanations documented.
+- [ ] Buyer, user, payer, and decision-maker hypotheses.
+- [ ] Existing alternatives and current workaround documented.
+- [ ] One small offer with a concrete outcome, price hypothesis, scope, and delivery plan.
+- [ ] Unit economics estimate: revenue, variable cost, payment fees, support, refunds, acquisition cost assumptions.
+- [ ] Channel plan with policy/permission review.
+- [ ] Privacy, legal, claims, and fulfillment readiness reviewed.
+- [ ] Event tracking and attribution defined.
+- [ ] Budget cap, duration, sample target, success thresholds, and stop rules set.
+- [ ] Owner approval recorded.
+
+## Test design
+A test should isolate one or two critical assumptions. Avoid building a full product when a lawful, honest offer page, waitlist, concierge prototype, or narrow paid pilot can answer the question.
+
+## Example metrics
+- Qualified impressions and visits.
+- Qualified conversion rate.
+- Opt-in / demo request / checkout initiation.
+- Paid conversion and payment reconciliation.
+- Refund/cancellation rate.
+- Delivery completion and customer-reported outcome.
+- Gross margin and contribution after acquisition/support costs.
+- Repeat usage or repeat purchase where appropriate.
+
+Metrics must have precise definitions and denominators. A large number of unqualified views is not a substitute for buyer evidence.
+
+## Stop conditions
+Stop or pause when:
+- Budget/time cap is reached.
+- Source/channel access or policy status changes.
+- Unexpected privacy or security risk appears.
+- Delivery cannot meet the stated promise.
+- Thresholds show the hypothesis is not supported.
+- Tracking is broken enough that results cannot be interpreted.
+
+## Decision after experiment
+Record actuals, deviations, costs, sample limitations, failed assumptions, and decision: continue, iterate, pivot, or stop. Never rewrite success thresholds after seeing results without marking the experiment as changed.
