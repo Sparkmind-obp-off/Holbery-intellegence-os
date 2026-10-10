@@ -86,3 +86,6 @@ This repository contains the concept and design documents only. No ingestion pip
 
 ## Decision authority
 The system prepares evidence, alternatives, risks, and recommendations. The owner retains final authority for consequential decisions, public launch, spending, data access, and market experiments.
+
+- [End-to-end implementation plan](docs/40-end-to-end-implementation-plan.md)
+- [In-app Manual and Help Center specification](docs/41-in-app-manual-and-help-center.md)
