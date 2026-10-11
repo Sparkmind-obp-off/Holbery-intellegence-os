@@ -19,7 +19,7 @@
 - Fail-closed signed/revocable HttpOnly/SameSite owner session, origin/header CSRF checks, body/rate limits, CSP and safe errors.
 - Owner-only `/secrets`: allowlisted runtime readiness, other environments unknown, non-secret copy/recovery instructions and persistent owner-reported rotation metadata. No secret value/fragment/hash reveal, Cloudflare write token, or secret storage in browser.
 
-[Portfolio consolidation & acquisition operating model](docs/49-portfolio-consolidation-and-acquisition-operating-model.md) · [ORDVELA internal acquisition decision](docs/portfolio/acquisitions/ordvela-internal-acquisition-2026-10-11.md) · [Researched operating model and gap analysis](docs/47-discovery-demand-opportunity-operating-model.md) · [Audit/release evidence](docs/implementation-status-and-audit.md) · [Resource inventory](docs/cloudflare-resource-inventory.json).
+[Portfolio consolidation & acquisition operating model](docs/49-portfolio-consolidation-and-acquisition-operating-model.md) · [ORDVELA internal acquisition decision](docs/portfolio/acquisitions/ordvela-internal-acquisition-2026-10-11.md) · [HIO Master Command Center — ORDVELA Capability Integration Plan](docs/architecture/hio-master-command-center-ordvela-integration-plan.md) · [Researched operating model and gap analysis](docs/47-discovery-demand-opportunity-operating-model.md) · [Audit/release evidence](docs/implementation-status-and-audit.md) · [Resource inventory](docs/cloudflare-resource-inventory.json).
 
 ## Resources and URLs
 
