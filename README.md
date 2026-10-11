@@ -39,22 +39,16 @@ After secure owner setup and redeploy: login → Intelligence Desk → create a 
 
 For synthetic workflow: install hio.fixture → explicitly grant fixture.read/enable → enable fixture source → run → inspect evidence/provenance and dossier → record human rationale/review date → approve fixture Rp0 → experiment → outcome. hio.mcp-fixture/evidence.read is approved separately. E2E ends with source/plugins disabled. No real market-entry or outreach permission is granted by fixture approval.
 
-## Owner setup — never send secrets in chat
+## Owner setup — autonomous production release
 
-Owner Cloudflare page:
+**Current required workflow:** use [Master Prompt 48 — Autonomous Secrets & Production Release](docs/48-autonomous-production-secrets-and-release-master-prompt.md). The authorized coding agent must generate independent `OPERATOR_SECRET` and `SESSION_SECRET` values, configure them as encrypted Production Secrets through the existing Cloudflare BYOK connection, redeploy, validate the authenticated workflow, and return both actual values to the owner in the final private response. Do not make the owner type secrets into the dashboard or terminal when the agent already has the necessary access.
+
+The raw values must not enter this public repo, client code, APIs, application logs or build artifacts. Since Cloudflare does not allow secret readback after saving, the agent must retain the values it generated and return those same values at handoff; do not claim access to an old value.
+
+Resource management page, for reference only:
 https://dash.cloudflare.com/a167a50f1272635d3c1145aab3cd8f98/pages/view/holbery-intelligence-os/settings
 
-Generate/save **independent** production OPERATOR_SECRET (32–256 characters) and SESSION_SECRET (>=32 random characters) in your own password manager. Enter directly as encrypted Secrets in Production Variables and Secrets, then redeploy. OPERATOR_NAME is an optional non-secret label. No production credential was generated because secure owner-vault handoff is unavailable.
-
-Alternative in an owner-controlled secure interactive terminal:
-
-```sh
-npx wrangler pages secret put OPERATOR_SECRET --project-name holbery-intelligence-os --env production
-npx wrangler pages secret put SESSION_SECRET --project-name holbery-intelligence-os --env production
-npx wrangler pages secret list --project-name holbery-intelligence-os --env production
-```
-
-Values go into prompts, not arguments/history. Pinned Wrangler supports secret `--env production|preview`; Pages deploy selects environment by branch. Old raw values may be unrecoverable: replace, not reveal. Rotate both credentials if compromised; SESSION_SECRET rotation rejects existing signed sessions on the new deployment. Inventory rotation metadata never changes Cloudflare values. [Full provisioning/recovery runbook](docs/cloudflare-provisioning-and-secrets-owner.md).
+[Operational details and recovery notes](docs/cloudflare-provisioning-and-secrets-owner.md).
 
 ## Local development
 
@@ -130,7 +124,7 @@ Start: [charter](docs/00-project-charter.md), [principles](docs/01-strategy-prin
 
 Product: [scope](docs/17-product-scope-and-personas.md), [UX](docs/18-ux-information-architecture.md), [API](docs/20-backend-api-architecture.md), [lifecycle](docs/21-database-and-data-lifecycle.md), [connectors](docs/22-integrations-and-connector-contract.md), [AI/security](docs/23-ai-evaluation-and-prompt-security.md), [privacy](docs/24-privacy-and-compliance-matrix.md), [learning](docs/27-experiment-and-learning-architecture.md), [release](docs/28-environments-deployment-and-release.md), [runbook](docs/32-operator-runbook.md), [readiness](docs/33-product-readiness-checklist.md).
 
-Plugins: [platform](docs/34-plugin-platform-architecture.md), [manifest](docs/35-plugin-manifest-and-capability-contract.md), [MCP](docs/36-mcp-integration-architecture.md), [SDK](docs/37-plugin-sdk-and-developer-experience.md), [trust](docs/38-plugin-security-lifecycle.md), [roadmap](docs/39-plugin-roadmap-and-reference-architecture.md). Delivery: [plan](docs/40-end-to-end-implementation-plan.md), [Manual](docs/41-in-app-manual-and-help-center.md), [master prompt](docs/42-holbery-intelligence-os-master-system-prompt.md), [phase gates](docs/43-one-shot-execution-plan-and-phase-gates.md), [contract](docs/44-one-shot-delivery-contract.md), [owner prompt](docs/46-cloudflare-pages-d1-secrets-owner-access-master-prompt.md), [0.2 operating model](docs/47-discovery-demand-opportunity-operating-model.md). Other original specifications remain in docs/.
+Plugins: [platform](docs/34-plugin-platform-architecture.md), [manifest](docs/35-plugin-manifest-and-capability-contract.md), [MCP](docs/36-mcp-integration-architecture.md), [SDK](docs/37-plugin-sdk-and-developer-experience.md), [trust](docs/38-plugin-security-lifecycle.md), [roadmap](docs/39-plugin-roadmap-and-reference-architecture.md). Delivery: [plan](docs/40-end-to-end-implementation-plan.md), [Manual](docs/41-in-app-manual-and-help-center.md), [master prompt](docs/42-holbery-intelligence-os-master-system-prompt.md), [phase gates](docs/43-one-shot-execution-plan-and-phase-gates.md), [contract](docs/44-one-shot-delivery-contract.md), [legacy owner prompt](docs/46-cloudflare-pages-d1-secrets-owner-access-master-prompt.md), [current autonomous secrets + deploy prompt](docs/48-autonomous-production-secrets-and-release-master-prompt.md), [0.2 operating model](docs/47-discovery-demand-opportunity-operating-model.md). Other original specifications remain in docs/.
 
 ## Boundaries
 
