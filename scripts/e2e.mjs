@@ -52,10 +52,25 @@ page.on("console", (m) => {
   if (m.type() === "error" && !/401/.test(m.text())) errors.push(m.text());
 });
 try {
+  // Real local API, delayed before initial session lookup: login must wait for bootstrap.
+  await page.route(
+    "**/api/v1/me",
+    async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await route.continue();
+    },
+    { times: 1 },
+  );
   await page.goto(base);
   await expect(page.locator("#login-panel")).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Masuk ke workspace" }),
+  ).toBeDisabled();
+  await expect(page.getByLabel("Kredensial operator")).toBeDisabled();
   await page.getByLabel("Kredensial operator").fill(secret);
   await page.getByRole("button", { name: "Masuk ke workspace" }).click();
+  await expect(page.locator("#workspace")).toBeVisible();
+  await page.waitForTimeout(1800);
   await expect(page.locator("#workspace")).toBeVisible();
   await expect(page.locator("#page-content h1")).toHaveText(
     "Evidence before exposure.",

@@ -24,6 +24,8 @@ const labels = {
 };
 let currentPage = "overview";
 let renderToken = 0;
+let bootstrapping = true;
+const loginLocked = $("#operator-secret").dataset.locked === "true";
 const timestamp = (s) =>
   s
     ? new Date(s).toLocaleString("id-ID", {
@@ -720,6 +722,7 @@ document.addEventListener("submit", async (e) => {
 });
 $("#login-form").addEventListener("submit", async (e) => {
   e.preventDefault();
+  if (bootstrapping || loginLocked) return;
   const button = e.target.querySelector("button");
   button.disabled = true;
   $("#login-error").textContent = "";
@@ -761,5 +764,9 @@ window.addEventListener("popstate", render);
     await render();
   } catch {
     showLogin();
+  } finally {
+    bootstrapping = false;
+    $("#operator-secret").disabled = loginLocked;
+    $("#login-form button").disabled = loginLocked;
   }
 })();
