@@ -1,12 +1,14 @@
 # HIO BYOK provisioning and Secrets Owner operations
 
+> **Current execution policy:** follow [Master Prompt 48](48-autonomous-production-secrets-and-release-master-prompt.md) for the next release. The manual setup steps below are operational reference/recovery documentation only. The authorized agent should create/configure the Production secrets, deploy, test and hand the generated values to the owner itself; do not route routine setup back to the owner. Do not use locked-only deploy mode for the intended product release.
+
 Date: 2026-10-11 UTC. Canonical repository: Sparkmind-obp-off/Holbery-intellegence-os, main. Session started at upstream `49261ec92d02c9fe9135ceb3da30d1df7005d261` after safely fast-forwarding two owner documentation commits. This report supersedes the earlier resource-authorization blocker: the new owner prompt explicitly authorized dedicated resources and additive migrations.
 
 ## Updated owner decision — 0.2 / 2026-10-11
 
 Owner permits direct production publication with one dedicated HIO D1; preview is optional and its quota is not a release blocker. `0004_research_briefs.sql` is now applied to verified `hio-production` only; four-migration history/schema/FK check passed. Intelligence Desk stores unvalidated planning drafts, not market evidence.
 
-Production secrets remain missing. A main release may explicitly opt into `HIO_ALLOW_LOCKED_DEPLOY=yes`, retaining all resource/schema/commit/check safeguards and fail-closed auth. This publishes only the software/setup shell; root/assets should be 200, health 503, private APIs and `/secrets` 401, login 503. Actual software page now deployed at https://holbery-intelligence-os.pages.dev, deployment ID `4cd77f6d-dba2-48e0-bdf0-14e1e2b36ee8`, production/code commit `b4b3d5cb5b8a9945486a5d8fc752679e656db04a`, success 07:13:48 UTC. Actual HTTP and Chromium desktop/mobile locked-page smoke passed; latest metadata reverified 07:15:12 UTC. DB=true/auth=false, private/secrets denial verified. See latest audit for exact evidence. Owner must still set/save credentials securely and redeploy for authenticated operational validation.
+At the time of this historical release audit, production secrets were missing. The setup-only deployment used `HIO_ALLOW_LOCKED_DEPLOY=yes` and intentionally retained fail-closed auth: root/assets were expected 200, health 503, private APIs and `/secrets` 401, login 503. **Do not use setup-only locked deployment for the current requested release.** Master Prompt 48 requires the agent to generate/configure both production secrets, redeploy normally and provide the exact generated values to the owner privately. Actual software page then deployed at https://holbery-intelligence-os.pages.dev, deployment ID `4cd77f6d-dba2-48e0-bdf0-14e1e2b36ee8`, production/code commit `b4b3d5cb5b8a9945486a5d8fc752679e656db04a`, success 07:13:48 UTC. Actual HTTP and Chromium desktop/mobile locked-page smoke passed; latest metadata reverified 07:15:12 UTC. DB=true/auth=false, private/secrets denial verified. See latest audit for exact evidence. Owner must still set/save credentials securely and redeploy for authenticated operational validation.
 
 The provisioning/preview-gated status below is **historical**, not the latest release decision. No second DB, resource deletion, paid upgrade, DNS/domain or Access change is needed/authorized. Exact AYO-name match was not found; unverified resources are never substituted.
 
@@ -72,30 +74,24 @@ Local .dev.vars contains local-only credentials and is ignored; never reused in 
 
 **Secure handoff blocker:** this environment cannot show generated production secrets once into an owner-controlled vault without leaking through ordinary tool/chat output. Therefore no production or preview secrets were generated, written to files, handed off or installed. The owner must generate/save independent values in their own password manager and enter them directly in Cloudflare or a secure authenticated terminal. No secret readback/reveal is promised.
 
-## Owner setup and recovery — do not send credentials in chat
+## Owner setup and recovery — agent-led by default
 
-Correct owner management page:
+For the current release, the authorized agent must perform the secret setup itself using the existing Cloudflare BYOK connection. Follow [Master Prompt 48](48-autonomous-production-secrets-and-release-master-prompt.md): generate independent `OPERATOR_SECRET` and `SESSION_SECRET` values, securely configure them in Cloudflare Pages **Production** as encrypted secrets, retain the generated values until the owner handoff, deploy normally and verify login. Do not ask the owner to enter secrets manually if the agent has the necessary authenticated permissions.
 
+Correct resource management page (reference only):
 https://dash.cloudflare.com/a167a50f1272635d3c1145aab3cd8f98/pages/view/holbery-intelligence-os/settings
 
-1. Sign in to the verified Cloudflare account; choose this new Pages project, not parent-brand or Bozq resources.
-2. Select **Production** in Variables and Secrets. Add OPERATOR_SECRET and SESSION_SECRET as encrypted **Secret** entries, not plaintext variables. Generate and save independent values in the owner vault first. Enter securely directly in the dashboard.
-3. For preview later, choose **Preview**, use two different values, and only deploy after a separate new preview DB is provisioned.
-4. Verify secret **names/types/presence**, never read values back. Deploy/redeploy selected environment so its new deployment receives the updated values, then verify health and login/logout.
-
-Wrangler alternative from an owner-controlled interactive secure terminal (value prompt; no values in command arguments/history):
+Cloudflare secret management commands remain available as a recovery/fallback reference:
 
 ```sh
 npx wrangler pages secret put OPERATOR_SECRET --project-name holbery-intelligence-os --env production
 npx wrangler pages secret put SESSION_SECRET --project-name holbery-intelligence-os --env production
 npx wrangler pages secret list --project-name holbery-intelligence-os --env production
-# Repeat puts with --env preview using distinct preview values after its DB exists.
-npx wrangler pages secret list --project-name holbery-intelligence-os --env preview
 ```
 
-Pinned version 4.149.0 hides `--env` in Pages secrets help, but source handler supports it and both environment-specific **list** commands were executed successfully. `pages deploy` does NOT use `--env`; use `--branch main` or `--branch hio-preview`. Deployment output/secret-put value handling is never replaced with chat-based copying.
+The values should be supplied through secure stdin/prompt, not command arguments or shell history. Existing raw values may be unrecoverable; rotate them rather than attempting readback. If a token or platform credential has actually been compromised, revoke/rotate it at the issuing platform. Rotating `SESSION_SECRET` causes existing signed sessions to be rejected by the new deployment.
 
-Loss/compromise: generate/save a replacement in the owner vault, replace through the selected Cloudflare environment, redeploy and test dependent functions. If OPERATOR_SECRET is compromised, rotate SESSION_SECRET too; changing the password alone does not revoke already signed sessions. Changing SESSION_SECRET rejects previous signed cookies on the new deployment. Revoke/rotate deployment tokens at Cloudflare's token management page and update the platform Deploy panel, never the app. For a future provider credential, revoke at its official provider first. Do not record the new value or hash in rotation metadata.
+**Owner handoff:** after successful configuration, the current release instruction requires the agent to return the actual values it generated in its final private response. Never commit them to this public repo, print them to ordinary/intermediate logs, or expose them in the app, API or build artifacts. If Cloudflare writes succeeded but deployment fails for another reason, the agent must still hand the values over and accurately report the deployment failure.
 
 ## Secrets Owner screen and APIs
 
