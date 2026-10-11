@@ -61,3 +61,8 @@ At the end of each pass, the agent must:
 
 
 > **Superseding delivery rule (2026-10-12):** Treat the passes below as work organization only, not phase-completion claims. Use dependency-aware continuous workstreams and verified acceptance evidence. The canonical product direction, OAuth/Owner visibility requirements, production parity, commercial readiness, and scope boundaries are defined in [the productization contract](50-ai-workspace-productization-and-production-parity.md).
+
+
+## Product direction synchronization (2026-10-12)
+
+HIO's target is an evidence-to-execution business workspace, not a generic chatbot. This target does not imply shipped parity. Use docs/50 for capability states and release truth, docs/51 for Genspark/G2 benchmark, docs/52 for target architecture, docs/53 for production/commercial gates, and docs/54 for market validation. Keep fixtures distinct from live data. Production login remains blocked pending secure Owner configuration of distinct OPERATOR_SECRET and SESSION_SECRET values and verified authenticated production tests.

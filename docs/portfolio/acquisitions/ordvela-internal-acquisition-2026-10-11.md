@@ -71,3 +71,8 @@ The next commercial milestone is to choose the smallest useful capability that c
 5. Revisit technical consolidation only after security and operational gates pass.
 
 **Operating principle:** acquire the project into HOLBERY's portfolio now; migrate infrastructure only when the evidence, safety checks, and a scoped approval justify it.
+
+
+## Product direction synchronization (2026-10-12)
+
+HIO's target is an evidence-to-execution business workspace, not a claim of shipped parity. Use docs/50 for canonical product/release rules, docs/51 for Genspark/G2 research, docs/52 for target architecture, docs/53 for production/commercial gates, and docs/54 for validation. Maintain protected project boundaries and do not migrate code/data/secrets without explicit authorization. Production login remains blocked pending secure Owner configuration and verification.

@@ -34,3 +34,7 @@ Reliability without silent data loss; least privilege; minimum necessary data; m
 12. Retention/deletion jobs report scope and outcome.
 
 A feature is complete only with implementation, automated tests, documented limitations, security/privacy review, operational visibility and rollback behavior. Local tests do not prove production operation or business value.
+
+## Product direction synchronization (2026-10-12)
+
+HIO's target is an evidence-to-execution business workspace, not a generic chatbot. This target does not imply shipped parity. Use docs/50 for capability states and release truth, docs/51 for Genspark/G2 benchmark, docs/52 for target architecture, docs/53 for production/commercial gates, and docs/54 for market validation. Keep fixtures distinct from live data. Production login remains blocked pending secure Owner configuration of distinct OPERATOR_SECRET and SESSION_SECRET values and verified authenticated production tests.

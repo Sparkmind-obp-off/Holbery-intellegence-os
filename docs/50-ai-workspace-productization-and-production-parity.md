@@ -72,3 +72,8 @@ This document does not authorize changes to HOLBERY Commerce, Bozq Cukur / Bozq 
 ## Definition of done
 
 Report separately what is implemented, tested, committed/pushed, deployed, production-verified, and commercially validated. Completion requires code, tests, persisted behavior, security boundaries, user-facing states, documentation, release evidence, and recovery behavior to agree.
+
+
+## Product discovery and production-readiness references (2026-10-12)
+
+Use docs/51 for the dated Genspark/G2 benchmark, docs/52 for the Evidence-to-Execution Business OS target architecture, docs/53 for mandatory production and commercial launch gates, and docs/54 for the market validation playbook. These define target direction and acceptance criteria; they do not claim that unimplemented modules are live. Production readiness requires actual authenticated runtime and D1 verification.

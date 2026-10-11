@@ -70,3 +70,7 @@ This example is documentation, not a real provider integration. The reserved `.i
 
 ## Acceptance
 A malformed manifest is rejected; excessive permissions are visible; disabled plugins cannot execute; incompatible versions are blocked; plugin output is schema-validated; every run identifies exact plugin version and digest.
+
+## Product direction synchronization (2026-10-12)
+
+HIO's target is an evidence-to-execution business workspace, not a generic chatbot. This target does not imply shipped parity. Use docs/50 for capability states and release truth, docs/51 for Genspark/G2 benchmark, docs/52 for target architecture, docs/53 for production/commercial gates, and docs/54 for market validation. Keep fixtures distinct from live data. Production login remains blocked pending secure Owner configuration of distinct OPERATOR_SECRET and SESSION_SECRET values and verified authenticated production tests.

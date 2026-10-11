@@ -41,3 +41,7 @@ A server being MCP-compatible does not prove it is safe, authorized, maintained,
 
 ## Initial scope
 Start with an adapter that can register a reviewed MCP server, enumerate tools, map selected read-only tools into typed calls and log invocation metadata. Defer automatic discovery, unrestricted dynamic tool execution and marketplace installation.
+
+## Product direction synchronization (2026-10-12)
+
+HIO's target is an evidence-to-execution business workspace, not a generic chatbot. This target does not imply shipped parity. Use docs/50 for capability states and release truth, docs/51 for Genspark/G2 benchmark, docs/52 for target architecture, docs/53 for production/commercial gates, and docs/54 for market validation. Keep fixtures distinct from live data. Production login remains blocked pending secure Owner configuration of distinct OPERATOR_SECRET and SESSION_SECRET values and verified authenticated production tests.

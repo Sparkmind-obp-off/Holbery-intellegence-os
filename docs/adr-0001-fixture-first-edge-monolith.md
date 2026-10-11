@@ -13,3 +13,8 @@ No existing HIO cloud project or DB was identified. Do not reuse commerce or Boz
 Retention: fixture source expires after 30 days. Evidence queries exclude expired records; operator-triggered purge minimizes payload while preserving ID/provenance/hash for decisions and audit. No production data is ingested. Real providers need policy/deletion review before implementation.
 
 Rollback: do not reverse by dropping populated production tables. Roll back application to a compatible deployment, preserve additive schema, or forward-fix; local migration restore is tested separately. No paid integrations or live actions.
+
+
+## Product direction synchronization (2026-10-12)
+
+HIO's target is an evidence-to-execution business workspace, not a claim of shipped parity. Use docs/50 for canonical product/release rules, docs/51 for Genspark/G2 research, docs/52 for target architecture, docs/53 for production/commercial gates, and docs/54 for validation. Maintain protected project boundaries and do not migrate code/data/secrets without explicit authorization. Production login remains blocked pending secure Owner configuration and verification.

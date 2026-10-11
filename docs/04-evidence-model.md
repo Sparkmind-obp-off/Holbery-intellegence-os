@@ -47,3 +47,8 @@ Keep source reliability, evidence strength, and model confidence separate. Unkno
 
 ## Privacy and quotation
 Collect the minimum data necessary. Prefer public business/problem evidence over personal profiles. Store short excerpts and source links when sufficient. Do not collect sensitive personal data unless a clearly justified, lawful, approved requirement exists; the default is not to collect it.
+
+
+## Canonical productization baseline — 2026-10-12
+
+HIO's intended direction is an AI Business Command Workspace: evidence → opportunity → approved execution → measurable outcomes. This is a target product direction, not proof that every capability is shipped or commercially ready. Keep fixture/demo evidence distinct from live data, and use [the canonical productization and production-parity contract](50-ai-workspace-productization-and-production-parity.md) for current capability labels, security boundaries, release verification, and SaaS launch gates. Current production login remains blocked until the Owner configures distinct `OPERATOR_SECRET` and `SESSION_SECRET` values securely and the deployed authenticated workflow is verified. Benchmark current Genspark AI Workspace and G2 product evidence before turning assumptions into requirements.

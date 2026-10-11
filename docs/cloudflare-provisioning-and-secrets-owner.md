@@ -121,3 +121,8 @@ The values should be supplied through secure stdin/prompt, not command arguments
 3. **Release engineer:** recheck live resource/secret metadata, update verified inventory/config if needed, run tests/security scan, commit/push, deploy preview with its own DB, verify authenticated flow, then production main with its own DB and verify actual URL/deployment ID. Current safe guard never creates resources or remotely migrates them automatically.
 
 Rollback: retain additive schema when rolling back a compatible app. Prefer forward-fix. Never drop populated tables or restore/delete production data without explicit approval and a verified recovery plan. No production application deployment or cloud backup restore exists to claim rollback rehearsal for.
+
+
+## Product direction synchronization (2026-10-12)
+
+HIO's target is an evidence-to-execution business workspace. This does not authorize changing protected projects or claiming runtime parity without evidence. Use docs/50 for the canonical product/release contract, docs/51 for Genspark/G2 research, docs/52 for target architecture, docs/53 for production/commercial gates, and docs/54 for validation. Keep Owner secrets private; report readiness by name/status only. The current login blocker remains until distinct production secrets are configured and authenticated runtime behavior is verified.
