@@ -1,10 +1,12 @@
 # HIO Cloudflare Pages + D1 Provisioning & Secrets Owner Access — Master Prompt
 
-**Status:** execution prompt; not proof that Cloudflare resources have been created.  
+**Status:** legacy provisioning/security reference. **For the current no-manual production release, follow [Master Prompt 48](48-autonomous-production-secrets-and-release-master-prompt.md) first; it supersedes conflicting secret setup/handoff steps in this document.**  
 **Repository:** `Sparkmind-obp-off/Holbery-intellegence-os`  
-**Current known state:** MVP implementation, local validation and GitHub push were reported complete. Cloudflare production is explicitly **BLOCKED — NOT DEPLOYED**. `wrangler.jsonc` currently uses the local placeholder database `hio-local` and all-zero database ID; do not deploy this configuration as production.
+**Earlier baseline note (superseded by current resource inventory):** do not rely on these original blocked/local-placeholder assumptions; verify the live resources from `docs/cloudflare-resource-inventory.json` and the current README before acting. The latest repository record says dedicated production Pages/D1 exist and the site is deployed in setup-required/locked mode because production secrets were missing.
 
 ---
+
+> **Current execution override (2026-10-11):** Master Prompt 48 is the single operational instruction for the next release. It requires the authorized agent to generate both production secrets, set them directly in Cloudflare using the connected BYOK access, redeploy, verify production, and give the exact values to the owner in the final private response. Do not ask the owner to perform manual secret entry. Never put raw secret values in GitHub, the deployed app, source, APIs, logs, or build artifacts.  
 
 ## MASTER PROMPT — copy into the authorized coding agent
 
@@ -175,7 +177,7 @@ Return a concise evidence-based report with these exact status dimensions:
 - **D1:** newly created / blocked; exact new database name and ID. An old existing database does not satisfy this requirement.
 - **Binding:** environment → database mapping.
 - **Migrations:** exact applied migrations and verification result.
-- **Secrets Owner / Secrets Opener:** authenticated UI route, access-control result, required names and configured/missing/unknown status, owner management location, safe rotation instructions. Never report or display raw values.
+- **Secrets Owner / Secrets Opener:** authenticated UI route, access-control result, required names and configured/missing/unknown status, owner management location, safe rotation instructions. Raw values must never appear in GitHub/docs, application/API, logs or build output; for the latest owner-requested release, deliver generated values only in the final private response as specified by Master Prompt 48.
 - **Tests:** pass/fail/skipped/blocked, with scope.
 - **Deployment:** actual deployment ID and URL, or explicitly **BLOCKED — NOT DEPLOYED**.
 - **Production validation:** each smoke check and evidence.
