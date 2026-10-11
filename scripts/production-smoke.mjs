@@ -205,8 +205,17 @@ try {
     { mode: 0o600 },
   );
   console.log(JSON.stringify(report, null, 2));
-} catch {
-  // Exceptions from browser assertions may include input values; never print them.
+} catch (error) {
+  // Only the first diagnostic line, scrubbed of credentials; never dump browser call logs.
+  let diagnostic = String(error?.message ?? "Unknown failure").split("\n")[0];
+  for (const value of [
+    ...sensitive,
+    cookie,
+    process.env.CLOUDFLARE_API_TOKEN,
+    process.env.GSK_TOKEN,
+  ].filter(Boolean))
+    diagnostic = diagnostic.split(value).join("[REDACTED]");
+  diagnostic = diagnostic.slice(0, 300);
   writeFileSync(
     root + "/production-smoke-failure.json",
     JSON.stringify(
@@ -215,8 +224,7 @@ try {
         gates,
         briefId,
         status: "FAIL",
-        diagnostic:
-          "Failure details suppressed to avoid input/cookie disclosure",
+        diagnostic,
       },
       null,
       2,
