@@ -89,3 +89,6 @@ The system prepares evidence, alternatives, risks, and recommendations. The owne
 
 - [End-to-end implementation plan](docs/40-end-to-end-implementation-plan.md)
 - [In-app Manual and Help Center specification](docs/41-in-app-manual-and-help-center.md)
+
+- [HOLBERY Intelligence OS Master System Prompt](docs/42-holbery-intelligence-os-master-system-prompt.md)
+- [One-Shot Execution Plan and Phase Gates](docs/43-one-shot-execution-plan-and-phase-gates.md)
