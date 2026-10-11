@@ -56,3 +56,6 @@ One approved source → collection run → normalized record → evidence item �
 - Multi-database/microservice architecture.
 - Public multi-tenant SaaS.
 - Complex real-time streaming unless measured need exists.
+
+
+> **Current roadmap rule (2026-10-12):** Treat the numbered stages below as dependency hints, not calendar promises or proof of completion. Prioritize the production login blocker, then feature-to-runtime parity, then narrow customer validation. Use [the canonical productization and production parity contract](50-ai-workspace-productization-and-production-parity.md) as the source of truth for release evidence and capability status.
