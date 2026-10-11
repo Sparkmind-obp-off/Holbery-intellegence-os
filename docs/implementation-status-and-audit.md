@@ -62,6 +62,8 @@ Actual SQLite snapshot backup/restore and failed-batch rollback tested. Local mi
 - Scores/observations are synthetic and deterministic, not real demand, customer evidence or commercial validation.
 
 ## Release state
-Implementation: complete for declared fixture MVP. Tests/build/security/local runtime/browser: verified as above. GitHub push: pending verification at time of this pre-commit report; release evidence will be appended after push. Cloudflare deployment: BLOCKED — NOT DEPLOYED. Production operational validation: NOT PERFORMED.
+Implementation: complete for declared fixture MVP. Tests/build/security/local runtime/browser: verified as above. GitHub push: **VERIFIED** to the canonical repository, branch `main`, implementation commit `47789485c054312eecca4c531d474c2543074c61`. `git push origin main` succeeded as a fast-forward; subsequent `git ls-remote origin refs/heads/main` exactly matched local HEAD. Repository visibility was rechecked: PUBLIC, unchanged. Clean working tree after implementation push. This release-evidence documentation update is a descendant of that verified implementation commit; its final remote SHA is verified separately after pushing and reported in the session report (avoids a self-referential commit hash).
+
+Cloudflare deployment: **BLOCKED — NOT DEPLOYED**. No project/environment/deployment URL or ID exists for HIO in this release. BYOK authorization was verified, but target resource/binding/secret authorization is missing. No deploy/resource/migration action was attempted beyond the guard refusal. Production operational validation: **NOT PERFORMED**. Sandbox-local fixture operational validation: **VERIFIED**. These statuses are distinct; a build or push is not deployment.
 
 Single highest-value next step: explicitly authorize isolated HIO preview Pages/D1 resources and secret setup, deploy this tested slice privately, then validate the same workflow against actual cloud D1 before enabling any real connector.
