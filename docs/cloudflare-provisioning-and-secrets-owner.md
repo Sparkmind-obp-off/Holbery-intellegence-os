@@ -1,6 +1,14 @@
 # HIO BYOK provisioning and Secrets Owner operations
 
-> **Current execution policy:** follow [Master Prompt 48](48-autonomous-production-secrets-and-release-master-prompt.md) for the next release. The manual setup steps below are operational reference/recovery documentation only. The authorized agent should create/configure the Production secrets, deploy, test and hand the generated values to the owner itself; do not route routine setup back to the owner. Do not use locked-only deploy mode for the intended product release.
+> **Current execution policy:** the Owner's latest autonomous secrets/recovery/release instruction supersedes any earlier request to print credentials in a final chat response. Agent-led secure stdin writes and normal guarded release are authorized; raw credentials must only travel through an Owner-restricted authenticated handoff with verified ACL and download access. No ordinary chat or public repository delivery. Do not use locked-only deploy mode for operational releases.
+
+## Current release — 2026-10-11 20:46 UTC
+
+Both independently generated 64-character Production credentials are verified as encrypted `secret_text` on the exact HIO project. Deployment `d8bb62d8-5253-4d2a-9b38-8285f8efbabe`, runtime SHA `32efd13f7816b08ccfb9602da79f832b7e9a57fd`, normal guard/no locked fallback. Real production login, wrong-login denial, Secrets Owner redaction, synthetic D1 persistence, browser reload and logout/revocation PASS. Owner-only handoff and backup archives reside in a dedicated restricted AI Drive folder, with authenticated round-trip verification; private links are not committed. Owner download acknowledgement is still pending; protected ignored local copies retained. This is private file sharing, not a password vault.
+
+Official pre-release D1 export and isolated local SQLite restore PASS; cloud restore and production RPO/RTO NOT TESTED. Current Time Travel bookmark succeeds; account subscription metadata returned 403, so actual plan-specific retention is Not inspectable. One-time private artifact retention is Owner-controlled, not an automated backup schedule. Full technically production-ready claim remains blocked. See the newest [audit acceptance table](implementation-status-and-audit.md) for scope, failures, retries, checksums and remaining risks.
+
+**Everything below this point records historical provisioning/reference procedures, not current Missing/zero-deployment state.**
 
 Date: 2026-10-11 UTC. Canonical repository: Sparkmind-obp-off/Holbery-intellegence-os, main. Session started at upstream `49261ec92d02c9fe9135ceb3da30d1df7005d261` after safely fast-forwarding two owner documentation commits. This report supersedes the earlier resource-authorization blocker: the new owner prompt explicitly authorized dedicated resources and additive migrations.
 
@@ -91,7 +99,7 @@ npx wrangler pages secret list --project-name holbery-intelligence-os --env prod
 
 The values should be supplied through secure stdin/prompt, not command arguments or shell history. Existing raw values may be unrecoverable; rotate them rather than attempting readback. If a token or platform credential has actually been compromised, revoke/rotate it at the issuing platform. Rotating `SESSION_SECRET` causes existing signed sessions to be rejected by the new deployment.
 
-**Owner handoff:** after successful configuration, the current release instruction requires the agent to return the actual values it generated in its final private response. Never commit them to this public repo, print them to ordinary/intermediate logs, or expose them in the app, API or build artifacts. If Cloudflare writes succeeded but deployment fails for another reason, the agent must still hand the values over and accurately report the deployment failure.
+**Owner handoff (current policy):** retain the newly generated values in protected ignored storage, establish a dedicated Owner-restricted authenticated sharing mechanism, verify its ACL and successful authorized download, and provide only its private navigation link in the final response. Do not print raw values in chat. Human acknowledgement is a separate gate; retain the temporary sole-copy safeguard until acknowledgement. Never commit values, backup archives or private signed URLs, and never expose credentials in the app/API/build. If a write or deployment fails, report the verified partial state and preserve the credential copy securely.
 
 ## Secrets Owner screen and APIs
 

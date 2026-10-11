@@ -4,7 +4,7 @@
 
 **Canonical repository:** https://github.com/Sparkmind-obp-off/Holbery-intellegence-os
 
-**Release status (2026-10-11): SOFTWARE PAGE DEPLOYED + CLOUD SMOKE VERIFIED, SETUP-REQUIRED/LOCKED.** Live: https://holbery-intelligence-os.pages.dev. Actual production deployment `4cd77f6d-dba2-48e0-bdf0-14e1e2b36ee8`, deployed code commit `b4b3d5cb5b8a9945486a5d8fc752679e656db04a`, deploy succeeded 07:13:48 UTC; Cloudflare metadata reverified 07:15:12 UTC. Production credentials remain absent, so authenticated operation is **not verified/available**. Root/assets 200, DB connected, private APIs and `/secrets` 401, health/login intentional 503. Browser desktop/mobile and locked-page axe smoke passed.
+**Release status (2026-10-11 20:46 UTC / 2026-10-12 03:46 WIB): PRODUCTION DEPLOYED; AUTHENTICATED SYNTHETIC WORKFLOW VERIFIED.** Live: https://holbery-intelligence-os.pages.dev. Deployment `d8bb62d8-5253-4d2a-9b38-8285f8efbabe`, runtime commit `32efd13f7816b08ccfb9602da79f832b7e9a57fd`, platform created_at `2026-10-11T20:44:02.736281Z`, latest deploy stage success. Both Production secrets are encrypted `secret_text`. Root/assets/health 200; anonymous private APIs and `/secrets` 401. Real valid/invalid login, Secrets Owner redaction, synthetic brief persistence in exact D1, browser reload, logout and revoked-session denial PASS. Full technical-readiness acceptance remains open: human credential receipt, cloud recovery drill and plan-specific Time Travel retention are not verified. Not a commercial-readiness claim.
 
 > Evidence before exposure. A plan, fixture score, AI suggestion or page deployment is not proof of demand.
 
@@ -26,16 +26,16 @@
 | Resource | Dedicated target | State |
 | --- | --- | --- |
 | Account | `a167a50f1272635d3c1145aab3cd8f98` | BYOK verified |
-| Pages | `holbery-intelligence-os`, ID `764e8875-45c9-4621-92c9-af9fd98496e2` | Production page deployed, locked |
+| Pages | `holbery-intelligence-os`, ID `764e8875-45c9-4621-92c9-af9fd98496e2` | Production deployed, authenticated smoke verified |
 | Production DB | `hio-production`, ID `ce92c645-7ce2-4edf-8ffa-ce0d16115bbe`, binding `DB` | Dedicated HIO D1 only |
 | Preview | No DB | Optional; never falls back to production |
 | Local DB | `hio-local`, all-zero ID | Isolated local simulation |
 
-Verified live software page: https://holbery-intelligence-os.pages.dev. Immutable deployment URL: https://4cd77f6d.holbery-intelligence-os.pages.dev. This is actual Cloudflare publication, not the sandbox or just a reserved address. D1 metadata contains no exact “AYO production” match, so no unverified database was substituted. No Commerce/Bozq data/resource was changed, no second DB, paid upgrade, DNS/custom-domain or Access-policy change.
+Verified live software page: https://holbery-intelligence-os.pages.dev. Immutable deployment URL: https://d8bb62d8.holbery-intelligence-os.pages.dev. This is actual Cloudflare publication, not the sandbox or just a reserved address. D1 metadata contains no exact “AYO production” match, so no unverified database was substituted. No Commerce/Bozq data/resource was changed, no second DB, paid upgrade, DNS/custom-domain or Access-policy change.
 
 ## User guide
 
-After secure owner setup and redeploy: login → Intelligence Desk → create a specific brief → inspect saved queries, counter-evidence, commercial unknowns and review gates. Do not enter credentials or personal/sensitive records. Connector selection is planning, not activation. Inspect the list before retrying an interrupted POST; brief creation is not idempotent.
+Retrieve the generated credential through the restricted Owner AI Drive handoff, keep it in a password manager, and confirm receipt without sharing its value. Then login → Intelligence Desk → create a specific brief → inspect saved queries, counter-evidence, commercial unknowns and review gates. Do not enter credentials or personal/sensitive records. Connector selection is planning, not activation. Inspect the list before retrying an interrupted POST; brief creation is not idempotent.
 
 For synthetic workflow: install hio.fixture → explicitly grant fixture.read/enable → enable fixture source → run → inspect evidence/provenance and dossier → record human rationale/review date → approve fixture Rp0 → experiment → outcome. hio.mcp-fixture/evidence.read is approved separately. E2E ends with source/plugins disabled. No real market-entry or outreach permission is granted by fixture approval.
 
@@ -45,9 +45,11 @@ For synthetic workflow: install hio.fixture → explicitly grant fixture.read/en
 
 `OPERATOR_SECRET` (32–256 characters, owner login) and `SESSION_SECRET` (at least 32 characters, session signing) must be encrypted `secret_text` bindings on the exact HIO Production project. Agent-generated values are retained in ignored temporary storage with directory mode 0700/file mode 0600 until owner receipt is confirmed. The authorized private handoff uses a dedicated restricted Owner AI Drive archive: verify file and inherited ACLs, no public/person grants, and authenticated round-trip bytes before calling access verified. This is an authenticated private file-sharing channel, not a password vault; human receipt is a separate acknowledgement. Never publish temporary signed download URLs. Existing Cloudflare secret values cannot be read back through HIO.
 
-**Autonomous pre-release audit — 2026-10-11 20:33 UTC:** exact account/Pages/D1 identity reverified; both new independent 64-character Production bindings verified as `secret_text`. Owner-only credential archive upload and authenticated download match passed; human receipt pending. Official HIO D1 export (14,596 bytes) saved to restricted Owner storage and round-trip verified. Isolated local SQLite restore passed (17 tables, integrity/foreign-key checks); cloud D1 restore and production RPO/RTO are NOT TESTED. Time Travel bookmark available; plan-specific retention not yet attested. Clean install reports zero vulnerabilities; strict checks, 41 tests, build and full local Chromium E2E passed after installing missing browser dependencies. Deployment and authenticated cloud smoke are still pending at this commit. No provider credentials were used; no other project's resources were changed.
+**Current audit — 2026-10-11 20:46 UTC:** agent-led secret writes and guarded production deployments completed. Final real production smoke PASS, including exact D1 synthetic brief `9a44d855-5e9c-41c6-a318-92cf89753119`. Bounded explicit deployment tail observed 29 real smoke invocations and found neither generated secret nor deployment token; raw traces were never persisted. Source/build/PM2 scans also PASS (heuristic scope only). Early production browser runs failed; a delayed-bootstrap race was independently reproduced, fixed by disabling login until startup session lookup settles, and covered by a delayed-response local regression. Later final cloud browser/reload and revocation checks PASS; not every initial timeout is attributed to the race. Backup is a one-time Owner-restricted export, not an automated schedule. Cloud restore and production RPO/RTO remain NOT TESTED. Account subscription metadata returned 403, so plan-specific Time Travel retention is Not inspectable. Owner credential access and authenticated download are verified; human acknowledgement remains pending. No provider integration, OAuth or external notification delivery was activated.
 
-**Readiness audit — 2026-10-11 14:12 UTC:** BYOK authentication verified; production secret metadata lists neither required secret. Both are **Missing**, so authenticated release remains **Blocked**. Live `/` returns 200, `/api/health` returns 503 with database ready/authentication false, and `/api/v1/summary` and `/secrets` return 401. Four migrations are recorded in remote D1; read-only verification wrote no rows. Strict types, lint, formatting, 41 unit tests, build and heuristic credential scan passed. No new deployment, production mutation, provider request or notification delivery was performed in this audit. Provider credentials exposed in chat must be revoked/rotated and will not be used. Real connectors, OAuth and external notifications remain unimplemented/unverified; notifications are **NOT CONFIGURED**.
+**Historical autonomous pre-release audit — 2026-10-11 20:33 UTC:** exact account/Pages/D1 identity reverified; both new independent 64-character Production bindings verified as `secret_text`. Owner-only credential archive upload and authenticated download match passed; human receipt pending. Official HIO D1 export (14,596 bytes) saved to restricted Owner storage and round-trip verified. Isolated local SQLite restore passed (17 tables, integrity/foreign-key checks); cloud D1 restore and production RPO/RTO are NOT TESTED. Time Travel bookmark available; plan-specific retention not yet attested. Clean install reports zero vulnerabilities; strict checks, 41 tests, build and full local Chromium E2E passed after installing missing browser dependencies. Deployment and authenticated cloud smoke are still pending at this commit. No provider credentials were used; no other project's resources were changed.
+
+**Historical readiness audit — 2026-10-11 14:12 UTC:** BYOK authentication verified; production secret metadata lists neither required secret. Both are **Missing**, so authenticated release remains **Blocked**. Live `/` returns 200, `/api/health` returns 503 with database ready/authentication false, and `/api/v1/summary` and `/secrets` return 401. Four migrations are recorded in remote D1; read-only verification wrote no rows. Strict types, lint, formatting, 41 unit tests, build and heuristic credential scan passed. No new deployment, production mutation, provider request or notification delivery was performed in this audit. Provider credentials exposed in chat must be revoked/rotated and will not be used. Real connectors, OAuth and external notifications remain unimplemented/unverified; notifications are **NOT CONFIGURED**.
 
 Resource management page, for reference only:
 https://dash.cloudflare.com/a167a50f1272635d3c1145aab3cd8f98/pages/view/holbery-intelligence-os/settings
@@ -105,15 +107,15 @@ Guarded `npm run deploy` verifies exact HIO account/project/D1 identity, main br
 Approved direct-release command (after remote schema verification and clean committed code):
 
 ```sh
-HIO_RELEASE_APPROVED=yes HIO_PRODUCTION_APPROVED=yes HIO_TARGET_BRANCH=main \
-HIO_REMOTE_MIGRATIONS_VERIFIED=yes HIO_ALLOW_LOCKED_DEPLOY=yes npm run deploy
+env -u HIO_ALLOW_LOCKED_DEPLOY HIO_RELEASE_APPROVED=yes HIO_PRODUCTION_APPROVED=yes \
+HIO_TARGET_BRANCH=main HIO_REMOTE_MIGRATIONS_VERIFIED=yes npm run deploy
 ```
 
-Locked publication: root/assets 200; health 503 with database true/authentication false; private APIs and `/secrets` 401; login 503. Authenticated production workflow is not claimed until owner securely sets secrets, redeploys and actual login/workflow/logout tests pass.
+Historical locked publication returned health/login 503. The current normal release passes authenticated production smoke and health 200; anonymous private access still returns 401. Do not use the locked-deploy fallback for intended operational releases.
 
 ## Remaining work and recommended order
 
-1. Owner secret setup/redeploy and authenticated cloud smoke.
+1. Confirm Owner receipt via private handoff; investigate cloud-only isolated recovery and retention metadata access without touching production or unrelated resources.
 2. One authorized read-only connector with real provenance/dedupe/retention tests; candidate tools are not evidence.
 3. Evaluated evidence-linked AI extraction with owner-approved provider/budget; no unsupported claims or tool grants.
 4. Reviewed remote MCP transport/OAuth and custom API contract importer, exact egress/schema/tool allowlists.

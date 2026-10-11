@@ -8,13 +8,13 @@
     "reservedSubdomain": "holbery-intelligence-os.pages.dev",
     "productionBranch": "main",
     "deployed": true,
-    "deploymentCount": 1,
-    "deploymentId": "4cd77f6d-dba2-48e0-bdf0-14e1e2b36ee8",
-    "deployedCommit": "b4b3d5cb5b8a9945486a5d8fc752679e656db04a",
-    "deploymentUrl": "https://4cd77f6d.holbery-intelligence-os.pages.dev",
+    "deploymentCount": 4,
+    "deploymentId": "d8bb62d8-5253-4d2a-9b38-8285f8efbabe",
+    "deployedCommit": "32efd13f7816b08ccfb9602da79f832b7e9a57fd",
+    "deploymentUrl": "https://d8bb62d8.holbery-intelligence-os.pages.dev",
     "productionUrl": "https://holbery-intelligence-os.pages.dev",
-    "deployedAt": "2026-10-11T07:13:48.51981Z",
-    "releaseState": "SETUP_REQUIRED_LOCKED"
+    "deployedAt": "2026-10-11T20:44:05.187739Z",
+    "releaseState": "AUTHENTICATED_SYNTHETIC_WORKFLOW_VERIFIED_NOT_FULL_TECHNICAL_READINESS"
   },
   "production": {
     "databaseName": "hio-production",
@@ -27,7 +27,7 @@
       "0003_secret_rotation_metadata.sql",
       "0004_research_briefs.sql"
     ],
-    "schemaVerifiedAt": "2026-10-11T07:12:07.976Z",
+    "schemaVerifiedAt": "2026-10-11T20:50:23.566Z",
     "foreignKeyCheck": "passed"
   },
   "preview": {
@@ -37,11 +37,11 @@
     "status": "OPTIONAL_NOT_PROVISIONED_OWNER_APPROVED_DIRECT_PRODUCTION",
     "requestedName": "hio-preview"
   },
-  "verifiedAt": "2026-10-11T07:15:12.449Z",
+  "verifiedAt": "2026-10-11T20:49:51.334Z",
   "secrets": {
     "production": {
-      "OPERATOR_SECRET": "missing",
-      "SESSION_SECRET": "missing"
+      "OPERATOR_SECRET": "verified_secret_text_and_actual_login",
+      "SESSION_SECRET": "verified_secret_text_and_actual_session_revocation"
     },
     "preview": {
       "OPERATOR_SECRET": "missing",
@@ -49,17 +49,32 @@
     }
   },
   "smoke": {
-    "verifiedAt": "2026-10-11T07:15:12.449Z",
+    "verifiedAt": "2026-10-11T20:46:25.188Z",
     "root": 200,
     "assets": 200,
-    "health": 503,
+    "health": 200,
     "database": true,
-    "authentication": false,
+    "authentication": true,
     "privateApis": 401,
     "secretsPage": 401,
-    "login": 503,
-    "browserDesktopMobile": "passed",
-    "axeLockedPage": "passed",
-    "authenticatedWorkflow": "NOT_VERIFIED_OWNER_SECRETS_MISSING"
+    "authenticatedSecretsPage": 200,
+    "login": 200,
+    "wrongLogin": 401,
+    "logoutAndSessionRevocation": "PASS",
+    "browserReload": "PASS",
+    "authenticatedWorkflow": "VERIFIED_SYNTHETIC_ONLY",
+    "syntheticBriefId": "9a44d855-5e9c-41c6-a318-92cf89753119"
+  },
+  "recovery": {
+    "logicalExport": "PASS_PRIVATE_OWNER_STORAGE_ROUNDTRIP",
+    "isolatedLocalSQLiteRestore": "PASS",
+    "cloudRestore": "BLOCKED_NO_ISOLATED_HIO_TARGET",
+    "productionRpoRto": "NOT_TESTED",
+    "timeTravelBookmark": "PASS",
+    "planSpecificRetention": "BLOCKED_SUBSCRIPTION_METADATA_403"
+  },
+  "ownerHandoff": {
+    "privateAccess": "VERIFIED_RESTRICTED_OWNER_DOWNLOAD",
+    "humanReceipt": "NOT_TESTED_ACKNOWLEDGEMENT_PENDING"
   }
 }
