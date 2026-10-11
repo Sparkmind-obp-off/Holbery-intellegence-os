@@ -4,7 +4,7 @@
 
 **Canonical repository:** https://github.com/Sparkmind-obp-off/Holbery-intellegence-os
 
-**Release status (2026-10-11):** locally tested; single-D1 direct production release authorized by owner. Cloud publication pending the guarded deploy command. Production credentials remain absent; the approved publication mode is **setup-required/locked**, not an operational authenticated intelligence service. Actual deployment evidence will be recorded after verification.
+**Release status (2026-10-11): SOFTWARE PAGE DEPLOYED + CLOUD SMOKE VERIFIED, SETUP-REQUIRED/LOCKED.** Live: https://holbery-intelligence-os.pages.dev. Actual production deployment `4cd77f6d-dba2-48e0-bdf0-14e1e2b36ee8`, deployed code commit `b4b3d5cb5b8a9945486a5d8fc752679e656db04a`, deploy succeeded 07:13:48 UTC; Cloudflare metadata reverified 07:15:12 UTC. Production credentials remain absent, so authenticated operation is **not verified/available**. Root/assets 200, DB connected, private APIs and `/secrets` 401, health/login intentional 503. Browser desktop/mobile and locked-page axe smoke passed.
 
 > Evidence before exposure. A plan, fixture score, AI suggestion or page deployment is not proof of demand.
 
@@ -26,12 +26,12 @@
 | Resource | Dedicated target | State |
 | --- | --- | --- |
 | Account | `a167a50f1272635d3c1145aab3cd8f98` | BYOK verified |
-| Pages | `holbery-intelligence-os`, ID `764e8875-45c9-4621-92c9-af9fd98496e2` | Provisioned; publication pending |
+| Pages | `holbery-intelligence-os`, ID `764e8875-45c9-4621-92c9-af9fd98496e2` | Production page deployed, locked |
 | Production DB | `hio-production`, ID `ce92c645-7ce2-4edf-8ffa-ce0d16115bbe`, binding `DB` | Dedicated HIO D1 only |
 | Preview | No DB | Optional; never falls back to production |
 | Local DB | `hio-local`, all-zero ID | Isolated local simulation |
 
-Publication target: https://holbery-intelligence-os.pages.dev — live status must be established by actual deployment/smoke results, not resource creation. D1 metadata contains no exact “AYO production” match, so no unverified database was substituted. No Commerce/Bozq data/resource was changed, no second DB, paid upgrade, DNS/custom-domain or Access-policy change.
+Verified live software page: https://holbery-intelligence-os.pages.dev. Immutable deployment URL: https://4cd77f6d.holbery-intelligence-os.pages.dev. This is actual Cloudflare publication, not the sandbox or just a reserved address. D1 metadata contains no exact “AYO production” match, so no unverified database was substituted. No Commerce/Bozq data/resource was changed, no second DB, paid upgrade, DNS/custom-domain or Access-policy change.
 
 ## User guide
 
@@ -86,7 +86,7 @@ UI: `/`, `/intelligence`, `/sources`, `/runs`, `/evidence?q=...`, `/clusters`, `
 
 D1 only: sources, plugins/grants, runs, evidence/hash, provenance, clusters/memberships, opportunities, decisions/snapshots, experiments/outcomes, audit, quotas, hashed sessions, rotation metadata and research_briefs. No application runtime filesystem/in-memory persistence.
 
-Migrations 0001–0003 already verified remotely. 0004 adds only research_briefs and its index, no destructive SQL or production data seed. Application/test migrations are ordered; Wrangler history makes repeat application safe. Actual remote migration evidence is recorded in the audit. Remote integrity_check is unsupported by observed D1 interface and not claimed; local SQLite integrity/backup restore tests pass. Production recovery/RPO/RTO remains unverified.
+Migrations 0001–0004 applied and verified remotely; repeated invocation reported no migrations to apply. 0004 adds only research_briefs and its index, no destructive SQL or production data seed. Application/test migrations are ordered; Wrangler history makes repeat application safe. Actual remote migration evidence is recorded in the audit. Remote integrity_check is unsupported by observed D1 interface and not claimed; local SQLite integrity/backup restore tests pass. Production recovery/RPO/RTO remains unverified.
 
 Fixture payload expires after 30 days, is hidden from reads and can be explicitly minimized; IDs/hash/provenance/governance remain. Research briefs persist; deletion/retention UI not implemented, so no sensitive data. Decisions/outcomes append-only. Retain additive schema during rollback, prefer forward-fix; no destructive restore/drop without explicit approval and verified recovery.
 

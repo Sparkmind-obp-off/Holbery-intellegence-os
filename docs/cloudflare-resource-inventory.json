@@ -7,8 +7,14 @@
     "createdAt": "2026-10-11T06:21:42.140313Z",
     "reservedSubdomain": "holbery-intelligence-os.pages.dev",
     "productionBranch": "main",
-    "deployed": false,
-    "deploymentCount": 0
+    "deployed": true,
+    "deploymentCount": 1,
+    "deploymentId": "4cd77f6d-dba2-48e0-bdf0-14e1e2b36ee8",
+    "deployedCommit": "b4b3d5cb5b8a9945486a5d8fc752679e656db04a",
+    "deploymentUrl": "https://4cd77f6d.holbery-intelligence-os.pages.dev",
+    "productionUrl": "https://holbery-intelligence-os.pages.dev",
+    "deployedAt": "2026-10-11T07:13:48.51981Z",
+    "releaseState": "SETUP_REQUIRED_LOCKED"
   },
   "production": {
     "databaseName": "hio-production",
@@ -31,7 +37,7 @@
     "status": "OPTIONAL_NOT_PROVISIONED_OWNER_APPROVED_DIRECT_PRODUCTION",
     "requestedName": "hio-preview"
   },
-  "verifiedAt": "2026-10-11T07:12:07.976Z",
+  "verifiedAt": "2026-10-11T07:15:12.449Z",
   "secrets": {
     "production": {
       "OPERATOR_SECRET": "missing",
@@ -41,5 +47,19 @@
       "OPERATOR_SECRET": "missing",
       "SESSION_SECRET": "missing"
     }
+  },
+  "smoke": {
+    "verifiedAt": "2026-10-11T07:15:12.449Z",
+    "root": 200,
+    "assets": 200,
+    "health": 503,
+    "database": true,
+    "authentication": false,
+    "privateApis": 401,
+    "secretsPage": 401,
+    "login": 503,
+    "browserDesktopMobile": "passed",
+    "axeLockedPage": "passed",
+    "authenticatedWorkflow": "NOT_VERIFIED_OWNER_SECRETS_MISSING"
   }
 }

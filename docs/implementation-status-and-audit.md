@@ -1,5 +1,18 @@
 # Implementation status and verified audit
 
+## Actual production publication — 2026-10-11 07:15 UTC
+
+**SOFTWARE PAGE DEPLOYED / CLOUD LOCKED-STATE SMOKE VERIFIED. AUTHENTICATED PRODUCTION OPERATION NOT VERIFIED/AVAILABLE.**
+
+- `git push origin main` succeeded, remote SHA exactly matched code release `b4b3d5cb5b8a9945486a5d8fc752679e656db04a`; clean tree. Guarded approved production deploy with explicit locked opt-in reran check (41/41) and uploaded actual Pages worker/assets successfully.
+- Cloudflare canonical production deployment ID `4cd77f6d-dba2-48e0-bdf0-14e1e2b36ee8`, deploy stage success at `2026-10-11T07:13:48.51981Z`, code commit above. Actual project metadata/list reverified at `2026-10-11T07:15:12.449Z`: one deployment, production, exact dedicated HIO DB binding.
+- Live canonical page https://holbery-intelligence-os.pages.dev; immutable URL https://4cd77f6d.holbery-intelligence-os.pages.dev. Cloudflare project name persisted in project meta.
+- Actual HTTP fetch/assert smoke on canonical URL: `/` and `/intelligence` 200 setup shell; JS/CSS 200; CSP self-only on root. `/api/health` 503 with database=true, authentication=false, releaseState=setup-required-locked, liveCollection=false, aiInference=false. Private intelligence/evidence/secrets APIs and `/secrets` 401; POST login 503. These are intentional fail-closed readiness/auth results, not 200 health or working login claims.
+- Actual production Chromium desktop/mobile: setup message, disabled login, hidden private workspace, no page JS exceptions, no horizontal mobile overflow and zero axe WCAG smoke violations. Screenshots visually read. Initial one-off browser harness used browser.newPage and axe rejected missing explicit context; reran with browser.newContext/newPage, all assertions retained, PASS. No application fix or suppressed check.
+- Required secrets still absent; no credentials generated/transmitted or authenticated cloud data/experiment workflow tested. No real source/model/remote MCP/market/outreach/spend validation. No DNS/domain/Access change or unrelated resource modification.
+
+Release evidence documentation is committed as a descendant of the deployed code SHA; no code change/redeploy required for that documentation-only update. Current release records supersede historical no-deployment statements below.
+
 ## 0.2 continuation — 2026-10-11, pre-deploy evidence
 
 Owner explicitly approved one production D1/direct Pages publication without mandatory cloud preview. Canonical main began at `732a6358b4e781c699ecbc75f71a386e0e9e6e17`, clean and matching upstream. BYOK/GitHub verified. D1 metadata has `hio-production`, no exact AYO production name; existing HIO target retained. Required production secrets still absent. No production values generated or unrelated resources changed.
