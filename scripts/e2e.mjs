@@ -25,6 +25,7 @@ async function call(path, method = "get", data, expected = 200) {
   return r.json();
 }
 await call("/v1/sources", "get", undefined, 401);
+await call("/v1/secrets", "get", undefined, 401);
 await call("/health");
 await call("/session", "post", { secret });
 const registry = await call("/v1/plugins");
@@ -138,6 +139,55 @@ try {
     },
     400,
   );
+  await page.goto(base + "/secrets");
+  await expect(page.locator("#page-content h1")).toHaveText("Secrets Owner");
+  await expect(page.locator("#page-content")).toContainText(
+    "Configured ≠ recoverable",
+  );
+  await expect(page.locator("table tbody tr")).toHaveCount(6);
+  assert.ok(
+    !(await page.content()).includes(secret),
+    "Owner inventory HTML must not contain credential",
+  );
+  const inventory = await call("/v1/secrets");
+  assert.ok(
+    !JSON.stringify(inventory).includes(secret),
+    "Inventory JSON must not contain credential",
+  );
+  assert.ok(
+    inventory.items
+      .filter((s) => s.environment === "local")
+      .every((s) => s.status === "configured"),
+  );
+  assert.ok(
+    inventory.items
+      .filter((s) => s.environment !== "local")
+      .every((s) => s.status === "unknown"),
+  );
+  await page.locator('[data-action="secret-instructions"]').first().click();
+  await expect(page.locator("#notice")).toContainText("Instruksi");
+  const copyVisible = await page.locator("#detail-dialog").isVisible();
+  if (copyVisible) {
+    await expect(page.locator("#dialog-content")).toContainText("No old value");
+    await page.locator("#close-dialog").click();
+  }
+  await page.locator("#field-secretName").selectOption("SESSION_SECRET");
+  await page.locator("#field-secretEnvironment").selectOption("local");
+  await page.locator("#rotation-confirmation").check();
+  await page.locator('#secret-rotation-form button[type="submit"]').click();
+  await expect(page.locator("#detail-dialog")).toBeVisible();
+  await expect(page.locator("#dialog-content")).toContainText(
+    "No Cloudflare secret was changed",
+  );
+  await page.locator("#close-dialog").click();
+  await page.reload();
+  await expect(page.locator("#page-content")).toContainText(
+    "owner-reported metadata",
+  );
+  await page.screenshot({
+    path: "test-results/secrets-owner-desktop.png",
+    fullPage: true,
+  });
   for (const path of [
     "/",
     "/sources",
@@ -149,6 +199,7 @@ try {
     "/experiments",
     "/plugins",
     "/settings",
+    "/secrets",
     "/manual",
   ]) {
     await page.goto(base + path);
@@ -230,7 +281,7 @@ try {
   );
   await call("/v1/sources/fixture", "patch", { enabled: false });
   console.log(
-    "PASS: actual local Wrangler/D1 API + browser source→evidence→decision→experiment→learning; 11 desktop routes WCAG smoke; mobile/keyboard/logout; disabled-plugin checks.",
+    "PASS: actual local Wrangler/D1 API + browser source→evidence→decision→experiment→learning; 12 desktop routes WCAG smoke; Secrets Owner inventory/metadata/redaction; mobile/keyboard/logout; disabled-plugin checks.",
   );
 } finally {
   await browser.close();

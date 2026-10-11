@@ -1,12 +1,27 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "hio-local-only",
+  "name": "holbery-intelligence-os",
   "pages_build_output_dir": "./dist",
   "compatibility_date": "2026-10-10",
+  "vars": {
+    "HIO_ENVIRONMENT": "production",
+    "HIO_ACCOUNT_ID": "a167a50f1272635d3c1145aab3cd8f98",
+    "HIO_PAGES_PROJECT": "holbery-intelligence-os"
+  },
   "d1_databases": [{
     "binding": "DB",
-    "database_name": "hio-local",
-    "database_id": "00000000-0000-0000-0000-000000000000",
+    "database_name": "hio-production",
+    "database_id": "ce92c645-7ce2-4edf-8ffa-ce0d16115bbe",
     "migrations_dir": "migrations"
-  }]
+  }],
+  "env": {
+    "production": {
+      "vars": { "HIO_ENVIRONMENT": "production", "HIO_ACCOUNT_ID": "a167a50f1272635d3c1145aab3cd8f98", "HIO_PAGES_PROJECT": "holbery-intelligence-os" },
+      "d1_databases": [{ "binding": "DB", "database_name": "hio-production", "database_id": "ce92c645-7ce2-4edf-8ffa-ce0d16115bbe", "migrations_dir": "migrations" }]
+    },
+    "preview": {
+      "vars": { "HIO_ENVIRONMENT": "preview", "HIO_ACCOUNT_ID": "a167a50f1272635d3c1145aab3cd8f98", "HIO_PAGES_PROJECT": "holbery-intelligence-os" },
+      "d1_databases": []
+    }
+  }
 }

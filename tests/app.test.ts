@@ -1,6 +1,14 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { DatabaseSync, backup, type SQLInputValue } from "node:sqlite";
-import { readFileSync, readdirSync, mkdirSync, unlinkSync } from "node:fs";
+import {
+  readFileSync,
+  readdirSync,
+  mkdirSync,
+  unlinkSync,
+  writeFileSync,
+} from "node:fs";
+import { spawnSync } from "node:child_process";
+import { secretInventory, canManageSecrets } from "../src/secrets";
 const migrations = () =>
   readdirSync("migrations")
     .filter((f) => f.endsWith(".sql"))
@@ -73,6 +81,7 @@ const env = () => ({
   OPERATOR_SECRET: secret,
   SESSION_SECRET: "test-session-signing-key-not-production-000000",
   OPERATOR_NAME: "fixture-reviewer",
+  HIO_ENVIRONMENT: "local",
 });
 // Test-facing projections: assertions below verify each exercised response shape.
 type TestItem = {
@@ -183,6 +192,193 @@ beforeEach(() => {
 afterEach(() => {
   storage.db.close();
   vi.useRealTimers();
+});
+describe("Secrets Owner safety", () => {
+  it("denies anonymous page/API access and ignores forged role headers", async () => {
+    for (const path of ["/secrets", "/api/v1/secrets"])
+      expect(
+        (await request(path, "GET", undefined, { "X-Role": "owner-operator" }))
+          .status,
+      ).toBe(401);
+    expect(canManageSecrets("viewer")).toBe(false);
+    expect(canManageSecrets("operator")).toBe(false);
+    expect(canManageSecrets(undefined)).toBe(false);
+    expect(canManageSecrets("owner-operator")).toBe(true);
+  });
+  it("serves owner-only inventory and HTML without credentials or credential fingerprints", async () => {
+    await login();
+    const r = await request("/api/v1/secrets");
+    expect(r.status).toBe(200);
+    const body = await r.text();
+    const html = await (await request("/secrets")).text();
+    for (const value of [env().OPERATOR_SECRET, env().SESSION_SECRET])
+      for (const sensitive of [
+        value,
+        value.slice(0, 18),
+        value.slice(-18),
+        await digest(value),
+      ]) {
+        expect(body).not.toContain(sensitive);
+        expect(html).not.toContain(sensitive);
+      }
+    const inventory = JSON.parse(body) as ReturnType<typeof secretInventory>;
+    expect(inventory.items).toHaveLength(6);
+    expect(
+      inventory.items
+        .filter((s) => s.environment === "local")
+        .every((s) => s.status === "configured"),
+    ).toBe(true);
+    expect(
+      inventory.items
+        .filter((s) => s.environment !== "local")
+        .every((s) => s.status === "unknown"),
+    ).toBe(true);
+    expect(inventory.managementUrl).toContain(
+      "/pages/view/holbery-intelligence-os/settings",
+    );
+    expect(
+      JSON.stringify(storage.db.prepare("SELECT * FROM audit_events").all()),
+    ).not.toContain(secret);
+  });
+  it("reports missing/readiness and unknown environment honestly without arbitrary env lookup", () => {
+    const missing = secretInventory(
+      { ...env(), OPERATOR_SECRET: undefined },
+      [],
+    );
+    expect(
+      missing.items.find(
+        (s) => s.name === "OPERATOR_SECRET" && s.environment === "local",
+      )?.status,
+    ).toBe("missing");
+    const invalid = secretInventory(
+      { ...env(), OPERATOR_SECRET: "too-short" },
+      [],
+    );
+    expect(
+      invalid.items.find(
+        (s) => s.name === "OPERATOR_SECRET" && s.environment === "local",
+      )?.status,
+    ).toBe("missing");
+    const unknown = secretInventory(
+      { ...env(), HIO_ENVIRONMENT: undefined },
+      [],
+    );
+    expect(unknown.items.every((s) => s.status === "unknown")).toBe(true);
+    const production = secretInventory(
+      { ...env(), HIO_ENVIRONMENT: "production" },
+      [],
+    );
+    expect(
+      production.items
+        .filter((s) => s.environment === "production")
+        .every((s) => s.status === "configured"),
+    ).toBe(true);
+    expect(
+      production.items.every((s) =>
+        s.storageVerification.startsWith("unknown"),
+      ),
+    ).toBe(true);
+  });
+  it("rejects variable-name probing, secret values, hostile extras and future rotation dates", async () => {
+    await login();
+    expect(
+      (await request("/api/v1/secrets?name=CLOUDFLARE_API_TOKEN")).status,
+    ).toBe(400);
+    for (const body of [
+      {
+        name: "CLOUDFLARE_API_TOKEN",
+        environment: "production",
+        rotatedAt: new Date().toISOString(),
+      },
+      {
+        name: "SESSION_SECRET",
+        environment: "local",
+        rotatedAt: new Date().toISOString(),
+        value: secret,
+      },
+      { name: "SESSION_SECRET", environment: "local", rotatedAt: tomorrow() },
+      {
+        name: "SESSION_SECRET",
+        environment: "all",
+        rotatedAt: new Date().toISOString(),
+      },
+    ]) {
+      const r = await request("/api/v1/secrets/rotation", "POST", body);
+      expect(r.status).toBe(400);
+      expect(await r.text()).not.toContain(secret);
+    }
+    expect(
+      storage.db.prepare("SELECT COUNT(*) count FROM secret_rotations").get()
+        ?.count,
+    ).toBe(0);
+    expect(
+      JSON.stringify(storage.db.prepare("SELECT * FROM audit_events").all()),
+    ).not.toContain(secret);
+  });
+  it("persists only owner-reported rotation metadata without changing configured status", async () => {
+    await login();
+    const rotatedAt = new Date(Date.now() - 60000).toISOString();
+    expect(
+      (
+        await request("/api/v1/secrets/rotation", "POST", {
+          name: "SESSION_SECRET",
+          environment: "production",
+          rotatedAt,
+        })
+      ).status,
+    ).toBe(200);
+    const r = await request("/api/v1/secrets");
+    const inventory = JSON.parse(await r.text()) as ReturnType<
+      typeof secretInventory
+    >;
+    expect(
+      inventory.items.find(
+        (s) => s.name === "SESSION_SECRET" && s.environment === "production",
+      ),
+    ).toMatchObject({
+      lastRotationAt: rotatedAt,
+      status: "unknown",
+      rotationBasis: "owner-reported metadata, not provider attestation",
+    });
+    expect(
+      storage.db.prepare("SELECT recorded_by FROM secret_rotations").get()
+        ?.recorded_by,
+    ).toBe("fixture-reviewer");
+    expect((await request("/api/v1/me")).status).toBe(200);
+  });
+  it("invalidates existing sessions when signing key is replaced", async () => {
+    await login();
+    const response = await app.request(
+      "https://hio.test/api/v1/secrets",
+      { headers: { Cookie: cookie } },
+      {
+        ...env(),
+        SESSION_SECRET: "independent-synthetic-rotation-key-000000000",
+      },
+    );
+    expect(response.status).toBe(401);
+  });
+  it("rejects synthetic secret leakage in supplied build/log fixtures without printing values", () => {
+    mkdirSync("test-results", { recursive: true });
+    const path = "test-results/redaction-" + crypto.randomUUID() + ".txt";
+    const value = "unique-synthetic-scan-secret-000000000000";
+    writeFileSync(path, value);
+    try {
+      const result = spawnSync(
+        process.execPath,
+        ["scripts/security-check.mjs", path],
+        {
+          encoding: "utf8",
+          env: { ...process.env, HIO_SCAN_TEST_SECRET: value },
+        },
+      );
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain("value redacted");
+      expect(result.stdout + result.stderr).not.toContain(value);
+    } finally {
+      unlinkSync(path);
+    }
+  });
 });
 describe("typed policy contracts", () => {
   it("normalizes duplicates without treating text as instructions", async () => {

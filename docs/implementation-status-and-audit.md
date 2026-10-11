@@ -1,5 +1,25 @@
 # Implementation status and verified audit
 
+## Latest continuation — 2026-10-11 06:41 UTC
+
+New owner authorization explicitly required brand-new Pages/D1 resources and Secrets Owner. Repository safely fast-forwarded to `49261ec92d02c9fe9135ceb3da30d1df7005d261`, preserving both upstream prompt commits. Earlier sections below are the historical initial-build audit, not the current provisioning state.
+
+- Newly created Pages `holbery-intelligence-os`, project ID `764e8875-45c9-4621-92c9-af9fd98496e2`, created 06:21:42 UTC.
+- Newly created production D1 `hio-production`, ID `ce92c645-7ce2-4edf-8ffa-ce0d16115bbe`, created 06:21:46 UTC. Only this new HIO DB was remotely migrated.
+- `hio-preview` creation failed with account D1 limit reached; no preview ID, no reuse, no deletion or paid upgrade. Preview binding intentionally empty; production never used as fallback.
+- All three migrations, including `0003_secret_rotation_metadata.sql`, remotely applied, history/schema/indexes/FK verified and repeated migration command no-op. Remote integrity_check returned SQLITE_AUTH; supported read-only checks passed, remote integrity/backup restore not claimed.
+- Owner-only `/secrets` and allowlisted inventory/rotation APIs implemented; unknown cross-environment states, metadata-only persistence and safe copy/recovery instructions. No raw value, hash, token fragment or Cloudflare management token in app APIs/build.
+- Final `npm run check`: PASS, 36 tests + strict types/lint/format/build (56 modules, 113.75 kB). Actual local Wrangler/D1 Chromium E2E PASS: full fixture workflow, Secrets Owner metadata/reload/redaction and 12-route WCAG smoke. `npm audit`: 0 findings. Source/build/local build/supplied PM2 logs credential scan PASS; synthetic leak detection test PASS.
+- Fixed pinned Pages local nested-config rediscovery with actual child cwd and explicit local UUID/environment CLI overrides. Intermediate readiness failures were not reported passed. Removed Pages-unsupported account_id config field; explicit account selection remains verified inventory/CLI environment. Fixed asynchronous copy-instruction browser test race without suppressing checks.
+- Verified pinned Pages secrets `--env production|preview` using successful environment list commands; cloud required secrets absent in both environments. Generated no cloud credential because no secure owner-vault handoff exists.
+- Main deploy guard with release/target/schema approval flags: exit 2 due missing OPERATOR_SECRET/SESSION_SECRET. Preview guard: exit 2 due absent isolated preview DB. Cloudflare project deployment-list API at 06:41:34 UTC: **0 deployments**.
+
+**Current cloud state: dedicated production resources PROVISIONED, remote schema VERIFIED; BLOCKED — NOT DEPLOYED / NOT PRODUCTION-VALIDATED.** Only local authenticated workflow is operationally verified. Resource creation and a GitHub push do not imply cloud deployment. Final pushed SHA is checked against canonical remote after committing release evidence and reported in the session report.
+
+See [actual resource inventory](cloudflare-resource-inventory.json) and [provisioning / Secrets Owner operations](cloudflare-provisioning-and-secrets-owner.md) for exact commands, IDs, recovery, rollback, owner tasks and production smoke blockers. Owner must enter/save secret values directly through Cloudflare/owner vault, not chat, and separately resolve preview capacity or approve a release-stage exception. No unrelated application data, DNS/domain or Access-policy modifications occurred.
+
+## Historical initial-build audit
+
 Audit/release date: 2026-10-11 UTC. Starting commit: `a72af7e6a9d872d3c8ede586ccc0e0eeededb32e`, branch `main`.
 
 ## Verified baseline and source of truth

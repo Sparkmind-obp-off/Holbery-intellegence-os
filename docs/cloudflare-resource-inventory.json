@@ -1,0 +1,44 @@
+{
+  "accountId": "a167a50f1272635d3c1145aab3cd8f98",
+  "accountIdentity": "sparkmind.support@gmail.com",
+  "pages": {
+    "name": "holbery-intelligence-os",
+    "id": "764e8875-45c9-4621-92c9-af9fd98496e2",
+    "createdAt": "2026-10-11T06:21:42.140313Z",
+    "reservedSubdomain": "holbery-intelligence-os.pages.dev",
+    "productionBranch": "main",
+    "deployed": false,
+    "deploymentCount": 0
+  },
+  "production": {
+    "databaseName": "hio-production",
+    "databaseId": "ce92c645-7ce2-4edf-8ffa-ce0d16115bbe",
+    "createdAt": "2026-10-11T06:21:46.370Z",
+    "binding": "DB",
+    "migrations": [
+      "0001_core.sql",
+      "0002_sessions.sql",
+      "0003_secret_rotation_metadata.sql"
+    ],
+    "schemaVerifiedAt": "2026-10-11T06:29:13Z",
+    "foreignKeyCheck": "passed"
+  },
+  "preview": {
+    "databaseName": null,
+    "databaseId": null,
+    "binding": null,
+    "status": "BLOCKED_ACCOUNT_D1_QUOTA",
+    "requestedName": "hio-preview"
+  },
+  "verifiedAt": "2026-10-11T06:41:34.249Z",
+  "secrets": {
+    "production": {
+      "OPERATOR_SECRET": "missing",
+      "SESSION_SECRET": "missing"
+    },
+    "preview": {
+      "OPERATOR_SECRET": "missing",
+      "SESSION_SECRET": "missing"
+    }
+  }
+}

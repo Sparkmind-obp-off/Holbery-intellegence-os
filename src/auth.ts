@@ -7,8 +7,11 @@ export type Env = {
     OPERATOR_SECRET?: string;
     SESSION_SECRET?: string;
     OPERATOR_NAME?: string;
+    HIO_ENVIRONMENT?: string;
+    HIO_ACCOUNT_ID?: string;
+    HIO_PAGES_PROJECT?: string;
   };
-  Variables: { requestId: string; actor: string };
+  Variables: { requestId: string; actor: string; role: string };
 };
 export async function equal(a: string, b: string): Promise<boolean> {
   const ah = await digest(a),
@@ -22,6 +25,7 @@ export function configured(c: Context<Env>): boolean {
   return (
     !!c.env.OPERATOR_SECRET &&
     c.env.OPERATOR_SECRET.length >= 32 &&
+    c.env.OPERATOR_SECRET.length <= 256 &&
     !!c.env.SESSION_SECRET &&
     c.env.SESSION_SECRET.length >= 32
   );
@@ -72,6 +76,7 @@ export async function authenticated(c: Context<Env>): Promise<boolean> {
   )
     .bind(await digest(cookie), Date.now())
     .first();
+  if (session) c.set("role", "owner-operator");
   return !!session;
 }
 export async function establishSession(c: Context<Env>) {

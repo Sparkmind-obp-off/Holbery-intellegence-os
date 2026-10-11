@@ -18,10 +18,42 @@ if (branch === "main" && process.env.HIO_PRODUCTION_APPROVED !== "yes") {
   process.exit(2);
 }
 const config = JSON.parse(readFileSync("wrangler.jsonc", "utf8"));
-const db = config.d1_databases?.find((d) => d.binding === "DB");
+const target = branch === "main" ? "production" : "preview";
+const db = config.env?.[target]?.d1_databases?.find((d) => d.binding === "DB");
+if (!db) {
+  console.error(
+    "BLOCKED — NOT DEPLOYED: " +
+      target +
+      " has no isolated DB binding. Preview creation was blocked by account D1 quota; never fall back to production.",
+  );
+  process.exit(2);
+}
+const inventory = JSON.parse(
+  readFileSync("docs/cloudflare-resource-inventory.json", "utf8"),
+);
+if (
+  config.vars?.HIO_ACCOUNT_ID !== inventory.accountId ||
+  config.name !== inventory.pages.name ||
+  db.database_id !== inventory[target]?.databaseId
+) {
+  console.error(
+    "Resource identity does not match the verified new HIO inventory.",
+  );
+  process.exit(2);
+}
+if (
+  process.env.CLOUDFLARE_ACCOUNT_ID &&
+  process.env.CLOUDFLARE_ACCOUNT_ID !== inventory.accountId
+) {
+  console.error(
+    "Cloudflare account selection differs from verified HIO inventory.",
+  );
+  process.exit(2);
+}
+process.env.CLOUDFLARE_ACCOUNT_ID = inventory.accountId;
 const token = process.env.CLOUDFLARE_API_TOKEN;
 if (
-  !config.account_id ||
+  !inventory.accountId ||
   !config.name ||
   !db?.database_id ||
   db.database_id === "00000000-0000-0000-0000-000000000000" ||
@@ -59,19 +91,28 @@ async function cloud(path) {
   return data.result;
 }
 const project = await cloud(
-  `/accounts/${encodeURIComponent(config.account_id)}/pages/projects/${encodeURIComponent(config.name)}`,
+  `/accounts/${encodeURIComponent(inventory.accountId)}/pages/projects/${encodeURIComponent(config.name)}`,
 );
-const target = branch === "main" ? "production" : "preview";
 const settings = project.deployment_configs?.[target];
 if (
   project.production_branch !== "main" ||
-  settings?.d1_databases?.DB?.id !== db.database_id ||
-  !["OPERATOR_SECRET", "SESSION_SECRET"].every(
-    (name) => settings.env_vars?.[name]?.type === "secret_text",
-  )
+  settings?.d1_databases?.DB?.id !== db.database_id
 ) {
   console.error(
-    "Existing project branch, isolated D1 binding or platform-secret names do not match the approved environment.",
+    "Existing project branch or isolated D1 binding does not match the approved environment.",
+  );
+  process.exit(2);
+}
+const missingSecrets = ["OPERATOR_SECRET", "SESSION_SECRET"].filter(
+  (name) => settings.env_vars?.[name]?.type !== "secret_text",
+);
+if (missingSecrets.length) {
+  console.error(
+    "BLOCKED — NOT DEPLOYED: " +
+      target +
+      " requires owner-controlled secret setup: " +
+      missingSecrets.join(", ") +
+      ". No values generated/read back.",
   );
   process.exit(2);
 }

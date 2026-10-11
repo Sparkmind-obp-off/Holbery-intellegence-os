@@ -18,6 +18,7 @@ const labels = {
   experiments: "Experiments & learning",
   plugins: "Plugins & MCP",
   settings: "Operator settings",
+  secrets: "Secrets Owner",
   manual: "Manual & help",
 };
 let currentPage = "overview";
@@ -368,6 +369,44 @@ async function plugins() {
     )
   );
 }
+async function secrets() {
+  const d = await api("/v1/secrets");
+  return (
+    heading(
+      "Secrets Owner",
+      "Inventory privat dan prosedur owner. Tidak ada reveal/copy raw values.",
+      pill("OWNER ONLY", "warm"),
+    ) +
+    '<aside class="banner"><div><strong>Configured ≠ recoverable.</strong> Nilai lama mungkin tidak dapat dibaca kembali dari Cloudflare. Simpan pengganti di password manager milik owner. Halaman ini tidak mengubah secret Cloudflare.</div></aside>' +
+    panel(
+      "Allowlisted runtime secret inventory",
+      table(
+        [
+          "KEY / PURPOSE",
+          "ENVIRONMENT / STATUS",
+          "DEPENDENT FEATURE",
+          "ROTATION / ACTION",
+        ],
+        d.items.map((s) => [
+          `<code>${esc(s.name)}</code><small>${esc(s.purpose)} · Required</small>`,
+          `${esc(s.environment)} · ${pill(s.status, s.status === "configured" ? "green" : s.status === "missing" ? "red" : "warm")}<small>${esc(s.statusBasis)}</small><small>${esc(s.storageVerification)}</small>`,
+          `${esc(s.dependentFeature)}<small>${esc(s.ownerManagedLocation)}</small>`,
+          `${s.lastRotationAt ? timestamp(s.lastRotationAt) : "Not recorded"}<small>${esc(s.rotationBasis)}</small><button class="quiet" data-action="secret-instructions" data-id="${esc(s.name)}" data-env="${esc(s.environment)}">Copy non-secret instructions →</button>`,
+        ]),
+      ),
+    ) +
+    panel(
+      "Owner-controlled management",
+      `<div class="panel-body"><p>Runtime environment: <code>${esc(d.runtimeEnvironment)}</code>. Preview/production lain tetap unknown dari runtime ini.</p><a class="text-link" href="${esc(d.managementUrl)}" target="_blank" rel="noopener noreferrer">Open correct Cloudflare Pages settings →</a><ul>${d.limitations.map((v) => `<li class="muted">${esc(v)}</li>`).join("")}</ul><p class="muted">${esc(d.providerCredentials)}</p></div>`,
+    ) +
+    formPanel(
+      "Record completed rotation — metadata only",
+      "secret-rotation-form",
+      `<div><label for="field-secretName">Secret name</label><select id="field-secretName" name="name"><option>OPERATOR_SECRET</option><option>SESSION_SECRET</option></select></div><div><label for="field-secretEnvironment">Environment</label><select id="field-secretEnvironment" name="environment"><option value="local">Local</option><option value="preview">Preview</option><option value="production">Production</option></select></div><div>${input("rotatedAt", "Actual rotation date (UTC)", "datetime-local", new Date(Date.now() - 60000).toISOString().slice(0, 16))}</div><div><label for="rotation-confirmation"><input id="rotation-confirmation" type="checkbox" required> Saya telah melakukan rotation di lingkungan terpilih; ini hanya catatan metadata.</label></div>`,
+      "Save rotation metadata",
+    )
+  );
+}
 async function settings() {
   const [s, a] = await Promise.all([api("/v1/settings"), api("/v1/audit")]);
   return (
@@ -378,7 +417,7 @@ async function settings() {
     `<div class="grid-two">` +
     panel(
       "Operating envelope",
-      `<div class="panel-body"><p>Mode: ${pill(s.mode, "warm")}</p><p>Retention: ${s.retentionDays} hari · max ${s.limits.recordsPerRun} records/run</p><p>Network: disabled · spending: disabled</p><p>Role: owner-operator · session 8 hours</p><button class="secondary" data-action="purge">Purge expired fixture payloads</button></div>`,
+      `<div class="panel-body"><p>Mode: ${pill(s.mode, "warm")}</p><p>Retention: ${s.retentionDays} hari · max ${s.limits.recordsPerRun} records/run</p><p>Network: disabled · spending: disabled</p><p>Role: owner-operator · session 8 hours</p><button class="secondary" data-action="purge">Purge expired fixture payloads</button><p><a class="text-link" href="/secrets">Secrets Owner — inventory & recovery →</a></p></div>`,
     ) +
     panel(
       "Known limitations",
@@ -413,7 +452,7 @@ function manual() {
 <article><h2>03 / Plugins & integrations</h2><p>Hanya hio.fixture dan hio.mcp-fixture versi 0.1.0. Manifest strict, permissions terpisah dari grants, network allowlist kosong, max 4 record dan biaya Rp0. Tidak ada third-party installation atau arbitrary code.</p><p>Disable & revoke segera memblokir eksekusi berikutnya. History tidak dihapus. Setup provider API, queues, embeddings dan model AI belum tersedia. Source content diperlakukan sebagai data, bukan instruction.</p><p>MCP tool fixture evidence.list memakai JSON-RPC request local, output schema dan audit. Remote MCP transport/SDK interoperability, OAuth, discovery, custom server dan resource/prompts belum tersedia.</p></article>
 <article><h2>04 / Access & safety</h2><p>Single workspace dan role owner-operator. Session server HMAC, HttpOnly, SameSite Strict, 8 jam. Secret tidak disimpan di browser storage. Mutasi memerlukan same-origin header dan quota.</p><p>Tidak ada public launch, outreach, autonomous spending, scraping, atau data Bozq. Keputusan manusia hanya mengizinkan fixture zero-cost. Real-world action membutuhkan gate terpisah yang belum dibuat.</p><p>Team SSO dan RBAC per-user belum tersedia. Jangan berbagi credential atau memakai MVP ini untuk data sensitif. Tidak ada private chain-of-thought yang disimpan.</p></article>
 <article><h2>05 / Troubleshooting & retries</h2><ul><li>401: login ulang; 503: DB migration atau server secret belum siap.</li><li>403 plugin_disabled / permission_denied: install, review scope, enable. source_disabled: enable fixture source.</li><li>409 idempotency_conflict: input berbeda menggunakan key yang sama. Retry identik dengan key asli memberi run yang sama.</li><li>Failure scenario menyimpan failed run. Retry key sama tidak mengeksekusi ulang; gunakan key baru setelah jeda untuk percobaan manual.</li><li>429: tunggu Retry-After; rate limit 2 detik antar fixture runs, 60 mutations/menit, 10 login attempts/menit global.</li><li>Approval denied: support/counter belum ada, keputusan bukan latest approval atau review sudah kedaluwarsa.</li><li>Sertakan request ID pada laporan. Jangan kirim secret, cookie atau private data.</li></ul></article>
-<article><h2>06 / Data lifecycle & limitations</h2><p>D1 menyimpan source, plugin/grants, run, evidence/hash, provenance, memberships, opportunity, decision snapshot, experiment dan audit. Retention fixture 30 hari. Expired evidence tidak muncul di query/dossier/tool; purge operator mengosongkan payload sambil mempertahankan ID/hash/provenance untuk audit.</p><p>30-day TTL adalah content visibility/purge, bukan automatic full deletion of governance history. Tidak ada scheduling otomatis, export atau provider takedown workflow. Source-specific real-data lifecycle memerlukan review baru.</p><p>Decision dan outcome append-only. Rollback rilis mempertahankan schema additive; jangan drop populated DB. Deployment produksi belum tervalidasi; README/status audit adalah sumber release evidence.</p><p>Manual version 0.1.0 · review 2026-10-11. Tidak ada real source validation, payment verification atau commercial validation.</p></article></section>`
+<article><h2>06 / Data lifecycle & limitations</h2><p>D1 menyimpan source, plugin/grants, run, evidence/hash, provenance, memberships, opportunity, decision snapshot, experiment dan audit. Retention fixture 30 hari. Expired evidence tidak muncul di query/dossier/tool; purge operator mengosongkan payload sambil mempertahankan ID/hash/provenance untuk audit.</p><p>30-day TTL adalah content visibility/purge, bukan automatic full deletion of governance history. Tidak ada scheduling otomatis, export atau provider takedown workflow. Source-specific real-data lifecycle memerlukan review baru.</p><p>Decision dan outcome append-only. Rollback rilis mempertahankan schema additive; jangan drop populated DB. Deployment produksi belum tervalidasi; README/status audit adalah sumber release evidence.</p><p>Secrets Owner tersedia di /secrets, owner-only. Hanya status runtime allowlisted dan metadata rotation; environment lain unknown, tidak ada raw readback. Kelola nilai pada Cloudflare Pages settings di environment yang benar, simpan pengganti di vault sendiri, lalu redeploy. Rotate SESSION_SECRET untuk invalidasi semua sesi pada rilis berikutnya. Database preview saat ini tidak tersedia karena quota akun.</p><p>Manual version 0.1.0 · review 2026-10-11. Tidak ada real source validation, payment verification atau commercial validation.</p></article></section>`
   );
 }
 const pages = {
@@ -427,6 +466,7 @@ const pages = {
   experiments,
   plugins,
   settings,
+  secrets,
   manual,
 };
 async function render() {
@@ -480,6 +520,32 @@ document.addEventListener("click", async (e) => {
   }
   const button = e.target.closest("[data-action]");
   if (!button) return;
+  if (button.dataset.action === "secret-instructions") {
+    button.disabled = true;
+    try {
+      const d = await api("/v1/secrets");
+      const s = d.items.find(
+        (v) =>
+          v.name === button.dataset.id && v.environment === button.dataset.env,
+      );
+      if (!s) throw new Error("Unknown inventory entry");
+      const instructions = `${s.name} / ${s.environment}\n${s.ownerManagedLocation}\n${s.command || "Edit ignored local .dev.vars only; never reuse for cloud."}\n${s.commandScope}\n${s.recovery}\nUse Cloudflare secret storage, not plaintext variables. Select environment explicitly. Save replacement in your own vault; redeploy and verify login/logout/readiness. No old value can be recovered here.`;
+      try {
+        await navigator.clipboard.writeText(instructions);
+        notice(
+          "Instruksi non-secret disalin. Tidak ada nilai secret yang disalin.",
+        );
+      } catch {
+        detail("Non-secret setup / recovery instructions", instructions);
+        notice("Instruksi ditampilkan; clipboard tidak tersedia.");
+      }
+    } catch (error) {
+      notice(error.message, true);
+    } finally {
+      button.disabled = false;
+    }
+    return;
+  }
   await mutate(button, async () => {
     const a = button.dataset.action,
       id = button.dataset.id;
@@ -556,6 +622,14 @@ document.addEventListener("submit", async (e) => {
     const reviewAt = data.reviewAt
       ? new Date(data.reviewAt + "Z").toISOString()
       : undefined;
+    if (form.id === "secret-rotation-form") {
+      const result = await api("/v1/secrets/rotation", "POST", {
+        name: data.name,
+        environment: data.environment,
+        rotatedAt: new Date(data.rotatedAt + "Z").toISOString(),
+      });
+      detail("Rotation metadata — no secret changes", result);
+    }
     if (form.id === "run-form") {
       const result = await api("/v1/runs", "POST", {
         sourceId: "fixture",

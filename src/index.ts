@@ -31,6 +31,12 @@ import {
   id,
 } from "./contracts";
 import { shell } from "./view";
+import {
+  secretInventory,
+  rotationInput,
+  canManageSecrets,
+  type Rotation,
+} from "./secrets";
 
 const app = new Hono<Env>();
 const now = () => new Date().toISOString();
@@ -193,6 +199,9 @@ app.get("/api/health", async (c) => {
     try {
       await c.env.DB.prepare("SELECT id FROM sources LIMIT 1").first();
       await c.env.DB.prepare("SELECT token_hash FROM sessions LIMIT 1").first();
+      await c.env.DB.prepare(
+        "SELECT secret_name FROM secret_rotations LIMIT 1",
+      ).first();
       database = true;
     } catch {
       /* Migration missing. */
@@ -778,6 +787,45 @@ app.get("/api/v1/audit", async (c) =>
     ),
   }),
 );
+app.use("/api/v1/secrets*", async (c, next) => {
+  if (!canManageSecrets(c.get("role")))
+    return fail(
+      "owner_required",
+      403,
+      "Only the authenticated owner can manage secret metadata.",
+    );
+  await next();
+});
+app.get("/api/v1/secrets", async (c) => {
+  if (new URL(c.req.url).search)
+    return fail(
+      "invalid_input",
+      400,
+      "Secret inventory does not accept variable names or query parameters.",
+    );
+  const rotations = await c.env.DB.prepare(
+    "SELECT * FROM secret_rotations ORDER BY environment,secret_name",
+  ).all<Rotation>();
+  return c.json(secretInventory(c.env, rotations.results));
+});
+app.post("/api/v1/secrets/rotation", async (c) => {
+  const b = await input(c, rotationInput);
+  const timestamp = now();
+  await c.env.DB.batch([
+    c.env.DB.prepare(
+      "INSERT INTO secret_rotations VALUES (?,?,?,?,?) ON CONFLICT(secret_name,environment) DO UPDATE SET rotated_at=excluded.rotated_at,recorded_at=excluded.recorded_at,recorded_by=excluded.recorded_by",
+    ).bind(b.name, b.environment, b.rotatedAt, timestamp, c.get("actor")),
+    auditStatement(c, "secret.rotation_metadata", b.name, "owner_reported", {
+      environment: b.environment,
+      rotatedAt: b.rotatedAt,
+    }),
+  ]);
+  return c.json({
+    ok: true,
+    notice:
+      "Metadata recorded only. No Cloudflare secret was changed or verified by this action.",
+  });
+});
 app.get("/api/v1/settings", (c) =>
   c.json({
     mode: "fixture-only",
@@ -807,6 +855,12 @@ app.post("/api/v1/settings/purge-expired", async (c) => {
     auditStatement(c, "retention.purge_expired", "evidence"),
   ]);
   return c.json({ purged: result[0]?.meta.changes ?? 0 });
+});
+app.get("/secrets", async (c) => {
+  if (!(await authenticated(c))) return c.html(shell(), 401);
+  if (!canManageSecrets(c.get("role")))
+    return fail("owner_required", 403, "Owner access required.");
+  return c.html(shell());
 });
 app.use("/static/*", serveStatic({ root: "./public" }));
 for (const path of [
