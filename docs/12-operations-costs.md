@@ -55,3 +55,8 @@ Track:
 
 ## Kill switches
 Provide global pause, source-specific disable, model-provider disable, experiment pause, and spending limit enforcement. Fail closed when authorization or access policy is uncertain.
+
+
+## Canonical productization baseline — 2026-10-12
+
+HIO's intended direction is an AI Business Command Workspace: evidence → opportunity → approved execution → measurable outcomes. This is a target product direction, not proof that every capability is shipped or commercially ready. Keep fixture/demo evidence distinct from live data, and use [the canonical productization and production-parity contract](50-ai-workspace-productization-and-production-parity.md) for current capability labels, security boundaries, release verification, and SaaS launch gates. Current production login remains blocked until the Owner configures distinct `OPERATOR_SECRET` and `SESSION_SECRET` values securely and the deployed authenticated workflow is verified. Benchmark current Genspark AI Workspace and G2 product evidence before turning assumptions into requirements.

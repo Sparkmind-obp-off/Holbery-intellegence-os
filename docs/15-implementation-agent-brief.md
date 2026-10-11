@@ -46,3 +46,8 @@ Implement HOLBERY Intelligence OS in this repository, beginning with I0 and a th
 
 ## Definition of done for I0
 A written repo/environment audit, proposed target architecture based on observed facts, explicit list of blockers, and a narrow I1 implementation plan. No live collection is required for I0.
+
+
+## Product direction synchronization (2026-10-12)
+
+HIO's target is an evidence-to-execution business workspace, not a generic chatbot. This target does not imply shipped parity. Use docs/50 for capability states and release truth, docs/51 for the Genspark/G2 benchmark, docs/52 for target architecture, docs/53 for production/commercial gates, and docs/54 for market validation. Keep fixtures distinct from live data. Production login remains blocked pending secure Owner configuration of distinct OPERATOR_SECRET and SESSION_SECRET values and verified authenticated production tests.

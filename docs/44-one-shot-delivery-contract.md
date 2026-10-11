@@ -16,3 +16,13 @@ Audit first, then implement the highest-value end-to-end vertical slice, test an
 
 ## Safety
 Never fabricate credentials or success, expose secrets, force-push over unrelated work, or make destructive production changes without approval. A successful build alone is not a deployment.
+
+
+## Canonical product and release requirements
+
+Follow [the AI workspace productization and production parity contract](50-ai-workspace-productization-and-production-parity.md). Report implemented, tested, pushed, deployed, production-verified, and commercially validated as separate states. Do not treat phases, documentation, a build, or a static deployment as proof that a sellable SaaS is ready.
+
+
+## Product direction synchronization (2026-10-12)
+
+HIO's target is an evidence-to-execution business workspace, not a generic chatbot. This target does not imply shipped parity. Use docs/50 for capability states and release truth, docs/51 for Genspark/G2 benchmark, docs/52 for target architecture, docs/53 for production/commercial gates, and docs/54 for market validation. Keep fixtures distinct from live data. Production login remains blocked pending secure Owner configuration of distinct OPERATOR_SECRET and SESSION_SECRET values and verified authenticated production tests.

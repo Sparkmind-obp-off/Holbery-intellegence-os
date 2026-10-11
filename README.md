@@ -134,3 +134,27 @@ Plugins: [platform](docs/34-plugin-platform-architecture.md), [manifest](docs/35
 ## Boundaries
 
 No Commerce/Bozq data/resource reuse, unauthorized scraping, private-session circumvention, spam, autonomous spending, public product launch, DNS/domain/Access changes or paid SaaS/upgrade. Software-page publication is owner-requested infrastructure availability, not a commercial launch. Human owner retains consequential authority.
+
+
+## Productization direction (2026-10-12)
+
+HIO is being productized as a sellable AI Business Command Workspace. This is a target direction, not a claim that all workspace modules or integrations are live. The current production login remains blocked until the Owner configures OPERATOR_SECRET and SESSION_SECRET securely and login is verified. See [the canonical productization and production parity contract](docs/50-ai-workspace-productization-and-production-parity.md).
+
+
+## Product discovery and production-readiness references (2026-10-12)
+
+Use docs/51 for the dated Genspark/G2 benchmark, docs/52 for the Evidence-to-Execution Business OS target architecture, docs/53 for mandatory production and commercial launch gates, and docs/54 for the market validation playbook. These define target direction and acceptance criteria; they do not claim that unimplemented modules are live. Production readiness requires actual authenticated runtime and D1 verification.
+
+
+## Business lineage, value model and commercial gates (2026-10-12)
+
+The expanded decision framework is documented in:
+- [55 — Business lineage & portfolio governance](docs/55-business-lineage-and-portfolio-governance.md): source-to-outcome lineage, portfolio lifecycle and isolation.
+- [56 — Value model, pricing & investment gates](docs/56-value-model-pricing-and-investment-gates.md): value hypotheses, business models, unit economics and investment criteria.
+- [57 — Market research & validation standard](docs/57-market-research-and-validation-standard.md): evidence classes, source provenance, experiments and validation thresholds.
+- [58 — Go-to-market & commercial launch playbook](docs/58-go-to-market-and-commercial-launch-playbook.md): customer wedge, paid pilot, funnel, pricing controls and launch phases.
+- [59 — Production & commercial acceptance matrix](docs/59-production-and-commercial-acceptance-matrix.md): release gates and evidence required to pass them.
+- [60 — Risk, privacy, security & AI governance](docs/60-risk-privacy-security-and-ai-governance.md): threat model, approval levels, secret lifecycle and incident handling.
+- [61 — Research source register & decision log](docs/61-research-source-register-and-decision-log.md): source register, synthesized findings, decisions and open questions.
+
+These documents define a target operating standard, not proof that all runtime controls are implemented. HIO remains non-commercial until production authentication, security, data integrity, support, payment (if enabled), and real-customer value gates have been evidenced. All customer, price, product-market-fit and ROI claims remain hypotheses until validated.
