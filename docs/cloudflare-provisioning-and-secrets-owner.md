@@ -2,7 +2,15 @@
 
 Date: 2026-10-11 UTC. Canonical repository: Sparkmind-obp-off/Holbery-intellegence-os, main. Session started at upstream `49261ec92d02c9fe9135ceb3da30d1df7005d261` after safely fast-forwarding two owner documentation commits. This report supersedes the earlier resource-authorization blocker: the new owner prompt explicitly authorized dedicated resources and additive migrations.
 
-**Current state: IMPLEMENTED + TESTED locally + dedicated production resources PROVISIONED + remote schema VERIFIED. BLOCKED — NOT DEPLOYED / NOT PRODUCTION-VALIDATED.** GitHub release commit/push is recorded after verification in the audit/session report.
+## Updated owner decision — 0.2 / 2026-10-11
+
+Owner permits direct production publication with one dedicated HIO D1; preview is optional and its quota is not a release blocker. `0004_research_briefs.sql` is now applied to verified `hio-production` only; four-migration history/schema/FK check passed. Intelligence Desk stores unvalidated planning drafts, not market evidence.
+
+Production secrets remain missing. A main release may explicitly opt into `HIO_ALLOW_LOCKED_DEPLOY=yes`, retaining all resource/schema/commit/check safeguards and fail-closed auth. This publishes only the software/setup shell; root/assets should be 200, health 503, private APIs and `/secrets` 401, login 503. Cloud smoke/deployment ID will be recorded in the latest audit after the deploy command. Owner must still set/save credentials securely and redeploy for authenticated operational validation.
+
+The provisioning/preview-gated status below is **historical**, not the latest release decision. No second DB, resource deletion, paid upgrade, DNS/domain or Access change is needed/authorized. Exact AYO-name match was not found; unverified resources are never substituted.
+
+**Historical state at 06:41 UTC: IMPLEMENTED + TESTED locally + dedicated production resources PROVISIONED + remote schema VERIFIED. BLOCKED — NOT DEPLOYED / NOT PRODUCTION-VALIDATED.**
 
 ## Actual new resource inventory
 

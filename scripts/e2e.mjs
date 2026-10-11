@@ -64,6 +64,40 @@ try {
     path: "test-results/overview-desktop.png",
     fullPage: true,
   });
+  await page.locator('nav a[href="/intelligence"]').click();
+  await expect(page.locator("#intelligence-form")).toBeVisible();
+  await page
+    .locator("#field-question")
+    .fill("Which Indonesian B2B teams need research provenance?");
+  await page.locator("#field-segment").fill("Small B2B teams");
+  await page.locator("#field-geography").fill("Indonesia");
+  await page
+    .locator("#field-problem")
+    .fill('Repeated research <script>alert("untrusted")</script>');
+  await page
+    .locator("#field-payerHypothesis")
+    .fill("Team lead with unverified budget");
+  await page.locator("#field-connector").selectOption("custom-api");
+  await page.locator('#intelligence-form button[type="submit"]').click();
+  await expect(page.locator("#dialog-content")).toContainText(
+    "unvalidated-research-plan",
+  );
+  await expect(page.locator("#dialog-content")).toContainText("research-only");
+  await page.locator("#close-dialog").click();
+  await page.reload();
+  await expect(page.locator("#page-content")).toContainText(
+    "Which Indonesian B2B teams",
+  );
+  await page.locator('[data-action="intelligence-detail"]').first().click();
+  await expect(page.locator("#dialog-content")).toContainText(
+    "counterEvidence",
+  );
+  await expect(page.locator("#dialog-content")).toContainText("custom-api");
+  await page.locator("#close-dialog").click();
+  await page.screenshot({
+    path: "test-results/intelligence-desk-desktop.png",
+    fullPage: true,
+  });
   await page.locator('nav a[href="/runs"]').click();
   await expect(page.locator("#run-form")).toBeVisible();
   await page.locator("#field-key").fill("browser-" + crypto.randomUUID());
@@ -117,7 +151,7 @@ try {
   await outcome
     .locator("textarea")
     .nth(1)
-    .fill("Next gate: approve isolated private preview resources.");
+    .fill("Next gate: authorize real sources and human-bounded market test.");
   await outcome.locator('button[type="submit"]').click();
   await expect(page.locator(".evidence-card").first()).toContainText(
     "completed",
@@ -190,6 +224,7 @@ try {
   });
   for (const path of [
     "/",
+    "/intelligence",
     "/sources",
     "/runs",
     "/evidence",
@@ -219,7 +254,7 @@ try {
   }
   await page.goto(base + "/manual");
   await expect(page.locator("#page-content")).toContainText(
-    "Manual version 0.1.0",
+    "Manual version 0.2.0",
   );
   await page.keyboard.press("Tab");
   assert.ok(
@@ -281,7 +316,7 @@ try {
   );
   await call("/v1/sources/fixture", "patch", { enabled: false });
   console.log(
-    "PASS: actual local Wrangler/D1 API + browser source→evidence→decision→experiment→learning; 12 desktop routes WCAG smoke; Secrets Owner inventory/metadata/redaction; mobile/keyboard/logout; disabled-plugin checks.",
+    "PASS: actual local Wrangler/D1 API + browser source→evidence→decision→experiment→learning; 13 desktop routes WCAG smoke; persisted Intelligence Desk plan/reload and escaped source text; Secrets Owner inventory/metadata/redaction; mobile/keyboard/logout; disabled-plugin checks.",
   );
 } finally {
   await browser.close();

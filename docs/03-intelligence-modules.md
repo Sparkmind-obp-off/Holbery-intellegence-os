@@ -2,6 +2,10 @@
 
 Each module is a capability boundary, not a requirement for a separate service.
 
+## Implementation clarification — 0.2, 2026-10-11
+
+See [Discovery–Demand–Opportunity operating model](47-discovery-demand-opportunity-operating-model.md) for the researched, staged implementation. `/intelligence` now persists brief/query/unknowns/counter-evidence/decision-gate plans. These are deterministic D0 hypotheses, not live collection, AI inference or market ranking. The fixture pipeline remains synthetic. All capability bullets below describe target responsibilities, not a claim that those modules are fully operational.
+
 ## A. Discovery Intelligence
 **Question:** Where should we look next, and what sources are worth the cost?
 - Source discovery and registry maintenance.

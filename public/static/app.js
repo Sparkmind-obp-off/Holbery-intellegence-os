@@ -9,6 +9,7 @@ const esc = (s) =>
   );
 const labels = {
   overview: "Overview",
+  intelligence: "Intelligence Desk",
   sources: "Source registry",
   runs: "Collection runs",
   evidence: "Evidence store",
@@ -95,6 +96,43 @@ function detail(title, data) {
 }
 function evidenceCard(e) {
   return `<article class="evidence-card"><div class="card-title"><span class="fact-label">SYNTHETIC SOURCE OBSERVATION</span>${pill(e.relationship, e.relationship === "counter" ? "warm" : "green")}</div><p>${esc(e.observation)}</p><small>${esc(e.provider)} · ${esc(e.method)} · ${timestamp(e.captured_at)}</small><div class="form-actions"><button class="quiet" data-action="evidence-detail" data-id="${esc(e.id)}">Lihat provenance →</button><code>${esc(e.reference)}</code></div></article>`;
+}
+async function intelligence() {
+  const d = await api("/v1/intelligence");
+  return (
+    heading(
+      "Intelligence Desk",
+      "Discovery → Demand → Opportunity → Decision. Rencana tersimpan; belum ada evidence pasar atau AI inference.",
+      pill("PLANNING ONLY", "warm"),
+    ) +
+    panel(
+      "Operating model",
+      '<div class="panel-body"><p>Mulai dari pertanyaan pasar yang falsifiable. Pisahkan sinyal berulang dari repost, pain dari niat bayar, dan hipotesis payer dari pembelian terverifikasi.</p><p>Output planner tidak masuk ke evidence store atau score fixture. Recommendation tetap research-only. Market entry/outreach membutuhkan bukti nyata dan persetujuan terpisah.</p></div>',
+    ) +
+    formPanel(
+      "Create research brief",
+      "intelligence-form",
+      `<div>${textarea("question", "Pertanyaan riset (maks. 500)")}</div><div>${input("segment", "Segmen buyer (maks. 120)")}</div><div>${input("geography", "Geografi / market (maks. 120)")}</div><div>${textarea("problem", "Hipotesis problem (maks. 500)")}</div><div>${textarea("payerHypothesis", "Hipotesis payer (maks. 300)")}</div><div><label for="field-connector">Candidate connector — belum terhubung</label><select id="field-connector" name="connector"><option value="manual">Manual authorized observation</option><option value="apify">Apify MCP — review required</option><option value="custom-api">Custom API / OpenAPI — review required</option></select></div>`,
+      "Simpan brief & draft plan",
+    ) +
+    panel(
+      "Research briefs — latest 50",
+      d.items.length
+        ? table(
+            ["QUESTION", "SEGMENT / MARKET", "CONNECTOR", "CREATED / PLAN"],
+            d.items.map((b) => [
+              esc(b.question),
+              `${esc(b.segment)}<small>${esc(b.geography)}</small>`,
+              `${esc(b.connector)}<small>Not connected · D0 hypothesis</small>`,
+              `${timestamp(b.created_at)}<button class="quiet" data-action="intelligence-detail" data-id="${esc(b.id)}">Baca query, unknowns & gates →</button>`,
+            ]),
+          )
+        : empty(
+            "Belum ada research brief",
+            "Buat pertanyaan spesifik; jangan masukkan kredensial atau data pribadi.",
+          ),
+    )
+  );
 }
 async function overview() {
   const [sources, runs, summary, plugins] = await Promise.all(
@@ -443,20 +481,21 @@ function manual() {
     heading(
       "Manual & help",
       "Petunjuk untuk perilaku yang tersedia pada rilis fixture MVP, bukan spesifikasi fitur masa depan.",
-      pill("v0.1.0 · 11 OCT 2026"),
+      pill("v0.2.0 · 11 OCT 2026"),
     ) +
     banner() +
     `<section class="manual-grid">
-<article><h2>01 / Quick start</h2><ol><li>Masuk dengan secret operator dari environment. Tidak ada signup.</li><li>Plugins: install Synthetic source connector. Installed disabled dan grants kosong.</li><li>Approve scope fixture.read & enable secara eksplisit.</li><li>Source registry: enable sumber sintetis.</li><li>Collection runs: pilih Normal, limit 4, key baru. Hasil 3 unique evidence dan 1 repost.</li><li>Evidence: baca source observation dan provenance. Dossier memuat support, counter dan uncertainty.</li><li>Review dossier, catat rationale, notes, dan future review date. Approve hanya fixture Rp0.</li><li>Experiment: gunakan latest unexpired approval; tetapkan hypothesis, success dan stop criteria.</li><li>Record outcome/learning sintetis. Outcome immutable, bukan transaction/payment verified.</li></ol></article>
+<article><h2>00 / Intelligence Desk</h2><p>Buat brief pertanyaan, segmen, geografi, problem dan payer hypothesis di /intelligence. Server menyimpan brief dan draft deterministik: query Discovery, pertanyaan Demand, counter-evidence, unknowns Opportunity serta gate Decision. Buka detail untuk melihat plan yang tersimpan.</p><p>Ini bukan AI inference, live search, demand score atau rekomendasi market entry. D0 hypothesis, evidence count 0, spending 0, research-only. Tidak ada grant atau connector yang aktif dari pilihan form. Retry POST yang terputus dapat membuat brief baru; periksa daftar sebelum mengulang.</p><p>Apify MCP: remote Streamable HTTP direncanakan, tool discovery/docs saja sebagai calon tahap pertama. Menjalankan Actor membutuhkan review izin sumber, autentikasi dan biaya. Custom API/OpenAPI harus direview per operation/schema/origin; file tidak boleh dieksekusi. Remote transport dan ingestion belum diimplementasikan.</p></article><article><h2>01 / Quick start</h2><ol><li>Masuk dengan secret operator dari environment. Tidak ada signup.</li><li>Plugins: install Synthetic source connector. Installed disabled dan grants kosong.</li><li>Approve scope fixture.read & enable secara eksplisit.</li><li>Source registry: enable sumber sintetis.</li><li>Collection runs: pilih Normal, limit 4, key baru. Hasil 3 unique evidence dan 1 repost.</li><li>Evidence: baca source observation dan provenance. Dossier memuat support, counter dan uncertainty.</li><li>Review dossier, catat rationale, notes, dan future review date. Approve hanya fixture Rp0.</li><li>Experiment: gunakan latest unexpired approval; tetapkan hypothesis, success dan stop criteria.</li><li>Record outcome/learning sintetis. Outcome immutable, bukan transaction/payment verified.</li></ol></article>
 <article><h2>02 / Glossary & evidence ladder</h2><p>Observation: teks fixture asli. Interpretation: rumus deterministik. Hypothesis: dugaan belum terverifikasi. Counter-evidence: indikasi solusi tidak dibutuhkan. Provenance: source → run → evidence, termasuk repost.</p><p>D0 hypothesis; D1 observed; D2 repeated; D3 commercial intent; D4 market behavior; D5 verified transaction; D6 repeatability. Fixture tidak boleh dipromosikan sebagai evidence dunia nyata pada ladder ini.</p><p>Score = unique support / (support + counter) × 100. Coverage terbatas fixture, payer/pricing/economics/distribution unknown. Tidak ada model yang memprediksi revenue.</p></article>
 <article><h2>03 / Plugins & integrations</h2><p>Hanya hio.fixture dan hio.mcp-fixture versi 0.1.0. Manifest strict, permissions terpisah dari grants, network allowlist kosong, max 4 record dan biaya Rp0. Tidak ada third-party installation atau arbitrary code.</p><p>Disable & revoke segera memblokir eksekusi berikutnya. History tidak dihapus. Setup provider API, queues, embeddings dan model AI belum tersedia. Source content diperlakukan sebagai data, bukan instruction.</p><p>MCP tool fixture evidence.list memakai JSON-RPC request local, output schema dan audit. Remote MCP transport/SDK interoperability, OAuth, discovery, custom server dan resource/prompts belum tersedia.</p></article>
 <article><h2>04 / Access & safety</h2><p>Single workspace dan role owner-operator. Session server HMAC, HttpOnly, SameSite Strict, 8 jam. Secret tidak disimpan di browser storage. Mutasi memerlukan same-origin header dan quota.</p><p>Tidak ada public launch, outreach, autonomous spending, scraping, atau data Bozq. Keputusan manusia hanya mengizinkan fixture zero-cost. Real-world action membutuhkan gate terpisah yang belum dibuat.</p><p>Team SSO dan RBAC per-user belum tersedia. Jangan berbagi credential atau memakai MVP ini untuk data sensitif. Tidak ada private chain-of-thought yang disimpan.</p></article>
 <article><h2>05 / Troubleshooting & retries</h2><ul><li>401: login ulang; 503: DB migration atau server secret belum siap.</li><li>403 plugin_disabled / permission_denied: install, review scope, enable. source_disabled: enable fixture source.</li><li>409 idempotency_conflict: input berbeda menggunakan key yang sama. Retry identik dengan key asli memberi run yang sama.</li><li>Failure scenario menyimpan failed run. Retry key sama tidak mengeksekusi ulang; gunakan key baru setelah jeda untuk percobaan manual.</li><li>429: tunggu Retry-After; rate limit 2 detik antar fixture runs, 60 mutations/menit, 10 login attempts/menit global.</li><li>Approval denied: support/counter belum ada, keputusan bukan latest approval atau review sudah kedaluwarsa.</li><li>Sertakan request ID pada laporan. Jangan kirim secret, cookie atau private data.</li></ul></article>
-<article><h2>06 / Data lifecycle & limitations</h2><p>D1 menyimpan source, plugin/grants, run, evidence/hash, provenance, memberships, opportunity, decision snapshot, experiment dan audit. Retention fixture 30 hari. Expired evidence tidak muncul di query/dossier/tool; purge operator mengosongkan payload sambil mempertahankan ID/hash/provenance untuk audit.</p><p>30-day TTL adalah content visibility/purge, bukan automatic full deletion of governance history. Tidak ada scheduling otomatis, export atau provider takedown workflow. Source-specific real-data lifecycle memerlukan review baru.</p><p>Decision dan outcome append-only. Rollback rilis mempertahankan schema additive; jangan drop populated DB. Deployment produksi belum tervalidasi; README/status audit adalah sumber release evidence.</p><p>Secrets Owner tersedia di /secrets, owner-only. Hanya status runtime allowlisted dan metadata rotation; environment lain unknown, tidak ada raw readback. Kelola nilai pada Cloudflare Pages settings di environment yang benar, simpan pengganti di vault sendiri, lalu redeploy. Rotate SESSION_SECRET untuk invalidasi semua sesi pada rilis berikutnya. Database preview saat ini tidak tersedia karena quota akun.</p><p>Manual version 0.1.0 · review 2026-10-11. Tidak ada real source validation, payment verification atau commercial validation.</p></article></section>`
+<article><h2>06 / Data lifecycle & limitations</h2><p>D1 menyimpan source, plugin/grants, run, evidence/hash, provenance, memberships, opportunity, decision snapshot, experiment dan audit. Retention fixture 30 hari. Expired evidence tidak muncul di query/dossier/tool; purge operator mengosongkan payload sambil mempertahankan ID/hash/provenance untuk audit.</p><p>30-day TTL adalah content visibility/purge, bukan automatic full deletion of governance history. Tidak ada scheduling otomatis, export atau provider takedown workflow. Source-specific real-data lifecycle memerlukan review baru.</p><p>Decision dan outcome append-only. Rollback rilis mempertahankan schema additive; jangan drop populated DB. Deployment produksi belum tervalidasi; README/status audit adalah sumber release evidence.</p><p>Secrets Owner tersedia di /secrets, owner-only. Hanya status runtime allowlisted dan metadata rotation; environment lain unknown, tidak ada raw readback. Kelola nilai pada Cloudflare Pages settings di environment yang benar, simpan pengganti di vault sendiri, lalu redeploy. Rotate SESSION_SECRET untuk invalidasi semua sesi pada rilis berikutnya. Rilis direct production memakai satu D1 HIO sesuai izin owner; preview tidak wajib. Tanpa kredensial produksi, halaman software diterbitkan locked/setup-required dan API privat tetap ditolak.</p><p>Manual version 0.2.0 · review 2026-10-11. Tidak ada real source validation, payment verification atau commercial validation.</p></article></section>`
   );
 }
 const pages = {
   overview,
+  intelligence,
   sources,
   runs,
   evidence,
@@ -575,6 +614,8 @@ document.addEventListener("click", async (e) => {
         grants: enabled ? m.permissions : [],
       });
     }
+    if (a === "intelligence-detail")
+      detail("Unvalidated research plan", await api("/v1/intelligence/" + id));
     if (a === "evidence-detail")
       detail("Evidence & provenance", await api("/v1/evidence/" + id));
     if (a === "decision-detail") {
@@ -622,6 +663,17 @@ document.addEventListener("submit", async (e) => {
     const reviewAt = data.reviewAt
       ? new Date(data.reviewAt + "Z").toISOString()
       : undefined;
+    if (form.id === "intelligence-form") {
+      const result = await api("/v1/intelligence", "POST", {
+        question: data.question,
+        segment: data.segment,
+        geography: data.geography,
+        problem: data.problem,
+        payerHypothesis: data.payerHypothesis,
+        connector: data.connector,
+      });
+      detail("Research draft — not market evidence", result);
+    }
     if (form.id === "secret-rotation-form") {
       const result = await api("/v1/secrets/rotation", "POST", {
         name: data.name,

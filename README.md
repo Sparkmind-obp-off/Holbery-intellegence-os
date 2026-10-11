@@ -1,45 +1,64 @@
 # HOLBERY Intelligence OS
 
-**Version:** 0.1.0 — fixture-only internal MVP, now including Secrets Owner.
+**Version 0.2.0 — Discovery → Demand → Opportunity → Decision.** Internal fixture workflow plus persisted research planning; not live market validation or autonomous AI.
 
-**Repository:** https://github.com/Sparkmind-obp-off/Holbery-intellegence-os
+**Canonical repository:** https://github.com/Sparkmind-obp-off/Holbery-intellegence-os
 
-**Release status (2026-10-11):** dedicated Pages + production D1 newly provisioned; remote schema verified; app and owner UI tested locally. **BLOCKED — NOT DEPLOYED / NOT PRODUCTION-VALIDATED.** Cloud secrets are missing and preview D1 creation reached account quota. Resource creation, migration and GitHub push are not deployment.
+**Release status (2026-10-11):** locally tested; single-D1 direct production release authorized by owner. Cloud publication pending the guarded deploy command. Production credentials remain absent; the approved publication mode is **setup-required/locked**, not an operational authenticated intelligence service. Actual deployment evidence will be recorded after verification.
 
-> **Evidence before exposure.** Synthetic fixtures and code completion are not commercial validation.
+> Evidence before exposure. A plan, fixture score, AI suggestion or page deployment is not proof of demand.
 
 ## Working product
 
-Persisted `Source → bounded collection → normalize/deduplicate → evidence/provenance → fixed cluster → dossier → human decision → zero-cost fixture experiment → outcome/learning`.
+- `/intelligence`: persist market question, segment/geography, problem and payer hypothesis; generate a deterministic versioned plan with Discovery queries, Demand questions/counter-evidence, Opportunity unknowns and Decision gates. Candidate manual/Apify/custom API blueprints are disabled, no grants, review-required. No model/tool calls. Plans remain D0 hypotheses, evidenceCount 0, score null, research-only, execution disabled and budget 0.
+- Source → bounded fixture collection → normalize/deduplicate → evidence/provenance → fixed cluster → dossier → human decision → zero-cost fixture experiment → immutable outcome/learning.
+- Four synthetic input records, three unique observations and one repost; failure/rate-limit modes, idempotency replay/conflict, atomic source/plugin admission and kill switches.
+- Supporting/counter-evidence, commercial unknowns and deterministic **fixture-only** support ratio; not market ranking or revenue prediction.
+- Strict TypeScript/Zod/Hono, D1 transactional writes, migrations and audit. Responsive self-hosted JS/CSS UI, loading/error/empty states and `/manual`.
+- Exact built-in plugins install disabled/no grants; separate explicit grants/revocation. Local read-only MCP-style JSON-RPC `evidence.list` with schema, limits and audit. **No remote MCP interoperability or arbitrary plugin code.**
+- Fail-closed signed/revocable HttpOnly/SameSite owner session, origin/header CSRF checks, body/rate limits, CSP and safe errors.
+- Owner-only `/secrets`: allowlisted runtime readiness, other environments unknown, non-secret copy/recovery instructions and persistent owner-reported rotation metadata. No secret value/fragment/hash reveal, Cloudflare write token, or secret storage in browser.
 
-- Responsive self-hosted UI, loading/empty/error/success states and `/manual`.
-- Strict TypeScript/Zod, Hono, D1 transactional writes and migrations.
-- Four-item synthetic connector with three unique observations, one repost, failure/rate-limit fixtures and idempotency conflict/replay checks.
-- Source permission basis, kill switches, fingerprints, provider/method, timestamps, quality and duplicate provenance.
-- Supporting/counter-evidence dossier, visible commercial unknowns and explainable deterministic **fixture score**, not proof of demand.
-- Append-only human decisions with owner/rationale/reviewer notes/snapshot/review date; latest unexpired approval gates Rp0 experiments; immutable outcome/learning.
-- Exact reviewed plugin manifests, install disabled/no grants, explicit grants, disable/revoke and audit.
-- Local read-only MCP-style JSON-RPC fixture tool allowlist/validation/audit. **No remote MCP interoperability/server or AI model calls.**
-- Fail-closed owner/operator authentication, signed/revocable HttpOnly/SameSite sessions, origin/header CSRF checks, body/rate limits, CSP and safe audit.
-- **Secrets Owner `/secrets`:** owner-only inventory of actual required names, server-side configured/missing runtime checks, other environments unknown, management link, non-secret copy instructions, and persistent owner-reported rotation metadata. No secret values/fragments/hashes, Cloudflare write token, reveal endpoint or browser secret storage.
+[Researched operating model and gap analysis](docs/47-discovery-demand-opportunity-operating-model.md) · [Audit/release evidence](docs/implementation-status-and-audit.md) · [Resource inventory](docs/cloudflare-resource-inventory.json).
 
-## Cloud resources — actual new IDs
+## Resources and URLs
 
-| Environment/resource | Actual target | State |
+| Resource | Dedicated target | State |
 | --- | --- | --- |
-| Account | `a167a50f1272635d3c1145aab3cd8f98` / sparkmind.support@gmail.com | BYOK verified |
-| New Pages | `holbery-intelligence-os`, ID `764e8875-45c9-4621-92c9-af9fd98496e2` | Created this session; **0 deployments** |
-| Production `DB` | `hio-production`, ID `ce92c645-7ce2-4edf-8ffa-ce0d16115bbe` | New dedicated D1; three migrations verified |
-| Preview `DB` | None; attempted new `hio-preview` | **Blocked by account D1 quota**, never shares production |
-| Local `DB` | `hio-local`, all-zero ID in local-only config | Local simulation only |
+| Account | `a167a50f1272635d3c1145aab3cd8f98` | BYOK verified |
+| Pages | `holbery-intelligence-os`, ID `764e8875-45c9-4621-92c9-af9fd98496e2` | Provisioned; publication pending |
+| Production DB | `hio-production`, ID `ce92c645-7ce2-4edf-8ffa-ce0d16115bbe`, binding `DB` | Dedicated HIO D1 only |
+| Preview | No DB | Optional; never falls back to production |
+| Local DB | `hio-local`, all-zero ID | Isolated local simulation |
 
-Cloudflare reserved `holbery-intelligence-os.pages.dev`; it is **not a live deployment URL**. Production credentials OPERATOR_SECRET/SESSION_SECRET are missing; preview credentials also missing. No production credentials were generated without safe owner-vault handoff. No unrelated resource, DNS/custom domain or Access policy was modified; no paid upgrade or DB deletion.
+Publication target: https://holbery-intelligence-os.pages.dev — live status must be established by actual deployment/smoke results, not resource creation. D1 metadata contains no exact “AYO production” match, so no unverified database was substituted. No Commerce/Bozq data/resource was changed, no second DB, paid upgrade, DNS/custom-domain or Access-policy change.
 
-[Verified resource inventory](docs/cloudflare-resource-inventory.json) · [Provisioning / secret ownership / recovery runbook](docs/cloudflare-provisioning-and-secrets-owner.md) · [Audit and release evidence](docs/implementation-status-and-audit.md).
+## User guide
 
-## Local quick start
+After secure owner setup and redeploy: login → Intelligence Desk → create a specific brief → inspect saved queries, counter-evidence, commercial unknowns and review gates. Do not enter credentials or personal/sensitive records. Connector selection is planning, not activation. Inspect the list before retrying an interrupted POST; brief creation is not idempotent.
 
-Linux/macOS and Node >=22.16; Windows native Cloudflare build compatibility is not claimed.
+For synthetic workflow: install hio.fixture → explicitly grant fixture.read/enable → enable fixture source → run → inspect evidence/provenance and dossier → record human rationale/review date → approve fixture Rp0 → experiment → outcome. hio.mcp-fixture/evidence.read is approved separately. E2E ends with source/plugins disabled. No real market-entry or outreach permission is granted by fixture approval.
+
+## Owner setup — never send secrets in chat
+
+Owner Cloudflare page:
+https://dash.cloudflare.com/a167a50f1272635d3c1145aab3cd8f98/pages/view/holbery-intelligence-os/settings
+
+Generate/save **independent** production OPERATOR_SECRET (32–256 characters) and SESSION_SECRET (>=32 random characters) in your own password manager. Enter directly as encrypted Secrets in Production Variables and Secrets, then redeploy. OPERATOR_NAME is an optional non-secret label. No production credential was generated because secure owner-vault handoff is unavailable.
+
+Alternative in an owner-controlled secure interactive terminal:
+
+```sh
+npx wrangler pages secret put OPERATOR_SECRET --project-name holbery-intelligence-os --env production
+npx wrangler pages secret put SESSION_SECRET --project-name holbery-intelligence-os --env production
+npx wrangler pages secret list --project-name holbery-intelligence-os --env production
+```
+
+Values go into prompts, not arguments/history. Pinned Wrangler supports secret `--env production|preview`; Pages deploy selects environment by branch. Old raw values may be unrecoverable: replace, not reveal. Rotate both credentials if compromised; SESSION_SECRET rotation rejects existing signed sessions on the new deployment. Inventory rotation metadata never changes Cloudflare values. [Full provisioning/recovery runbook](docs/cloudflare-provisioning-and-secrets-owner.md).
+
+## Local development
+
+Node >=22.16, Linux sandbox/CI. No Windows Cloudflare build guarantee.
 
 ```sh
 npm ci --ignore-scripts
@@ -48,80 +67,71 @@ npm run db:migrate:local
 npm run check
 pm2 start ecosystem.config.cjs
 curl http://localhost:3000/api/health
+npm run test:e2e
 ```
 
-Root `wrangler.jsonc` is cloud configuration. `local/wrangler.jsonc` is local-only. Local launcher copies the build to ignored `local/dist`, starts in actual local cwd and explicitly overrides local D1 UUID/environment, so pinned Pages config rediscovery cannot silently simulate a different DB. Local migration script uses local config and local persistence. No local runtime remote-D1 access.
+Root config is cloud-only. Local launcher starts actual local cwd and explicitly overrides D1 UUID/environment so nested Pages config rediscovery cannot choose a different simulation. Ignored local-only `.dev.vars` files are 0600 and never production sources. Build before starting; clean port 3000 on restart. E2E deliberately hardcodes localhost to avoid production mutations.
 
-`init-local` generates only local secrets in ignored `.dev.vars` (0600, values not printed). Set a credential known to your local operator securely there; never reuse for cloud or commit/share the file. OPERATOR_SECRET must be 32–256 characters; SESSION_SECRET >=32. OPERATOR_NAME is a non-secret label. Local secrets also copied to ignored local/.dev.vars for the isolated launcher.
+## Functional entry URIs
 
-Sign in → install hio.fixture → explicitly grant fixture.read/enable → enable synthetic source → run fixture → inspect evidence/dossier → record decision → fixture experiment → outcome. hio.mcp-fixture/evidence.read is separately approved. E2E finishes with plugins/source disabled.
+UI: `/`, `/intelligence`, `/sources`, `/runs`, `/evidence?q=...`, `/clusters`, `/opportunities`, `/decisions`, `/experiments`, `/plugins`, `/settings`, `/secrets`, `/manual`.
 
-## Secrets Owner — practical owner control
+- Public GET `/api/health`: reports database/authentication, releaseState and false liveCollection/aiInference; 200 only if schema/auth configured, otherwise intentional 503.
+- POST `/api/session` `{secret}`; authenticated DELETE `/api/session`. Mutations require matching Origin and `X-HIO-Request: operator`.
+- Private `/api/v1/intelligence`: GET latest 50 brief summaries, POST strict `{question,segment,geography,problem,payerHypothesis,connector}` with connector manual/apify/custom-api; GET `/:id` immutable saved plan.
+- Other private `/api/v1` endpoints: me, summary, sources (GET/PATCH :id), plugins (GET/POST/PATCH :id), runs (GET/POST), evidence (GET q/offset, 25/page; GET :id), clusters, opportunities (GET/:id), decisions (GET/POST), experiments (GET/POST; POST :id/outcome), mcp/call (POST), audit (GET latest 50), settings (GET; POST settings/purge-expired), secrets (GET, no query probing), secrets/rotation (POST allowlisted name/environment/past date metadata).
+- Contracts in src/contracts.ts, src/intelligence.ts and src/secrets.ts. Errors `{error:{code,message,requestId}}`; no raw platform errors.
 
-Runtime page `/secrets`, linked from navigation/settings, requires the same valid owner session. Anonymous page returns 401 login shell; API inventory returns 401. Current MVP has one owner role; future non-owner role gate is explicit but multi-user identities do not ship.
+## Data and lifecycle
 
-The inventory checks only OPERATOR_SECRET and SESSION_SECRET. Current runtime environment shows configured/missing readiness. Other environments and platform secret_text attestation remain **unknown—verify in Cloudflare**. Recording rotation date never changes credential values or claims provider verification. Configured does not mean the old raw value is recoverable.
+D1 only: sources, plugins/grants, runs, evidence/hash, provenance, clusters/memberships, opportunities, decisions/snapshots, experiments/outcomes, audit, quotas, hashed sessions, rotation metadata and research_briefs. No application runtime filesystem/in-memory persistence.
 
-Owner setup page:
-https://dash.cloudflare.com/a167a50f1272635d3c1145aab3cd8f98/pages/view/holbery-intelligence-os/settings
+Migrations 0001–0003 already verified remotely. 0004 adds only research_briefs and its index, no destructive SQL or production data seed. Application/test migrations are ordered; Wrangler history makes repeat application safe. Actual remote migration evidence is recorded in the audit. Remote integrity_check is unsupported by observed D1 interface and not claimed; local SQLite integrity/backup restore tests pass. Production recovery/RPO/RTO remains unverified.
 
-Generate/save independent production credentials in your own password manager; enter them directly as encrypted **Secrets** in **Production** Variables and Secrets. Later use different values in **Preview**. **Do not send values through chat, tool logs or screenshots.** The agent cannot securely show a production secret once into an owner vault, so none was generated/installed.
+Fixture payload expires after 30 days, is hidden from reads and can be explicitly minimized; IDs/hash/provenance/governance remain. Research briefs persist; deletion/retention UI not implemented, so no sensitive data. Decisions/outcomes append-only. Retain additive schema during rollback, prefer forward-fix; no destructive restore/drop without explicit approval and verified recovery.
 
-Alternative from an owner-controlled secure interactive terminal:
+## Tests and release controls
 
 ```sh
-npx wrangler pages secret put OPERATOR_SECRET --project-name holbery-intelligence-os --env production
-npx wrangler pages secret put SESSION_SECRET --project-name holbery-intelligence-os --env production
-npx wrangler pages secret list --project-name holbery-intelligence-os --env production
+npm run check          # strict types, lint, formatting, 41 tests, build
+npm audit             # 0 reported vulnerabilities at review
+npm run security:check
+npm run test:e2e       # actual local Wrangler/D1 + Chromium
 ```
 
-Value goes into secure prompt, never command arguments. Pinned Wrangler supports secret `--env production|preview` (environment list verified). After setting/replacing, deploy/redeploy selected environment and verify readiness/login/logout. If compromise is suspected, rotate both login and signing credentials; SESSION_SECRET replacement rejects old sessions on the new deployment. Revoke deployment tokens at Cloudflare and update the Deploy panel, never the app. Old secrets may be unreadable; recover through replacement, not a reveal feature. Full runbook above covers scopes, preview, metadata and rollback.
+Local E2E covers fixture workflow, persisted Intelligence Desk creation/detail/reload/escaped hostile text, Secrets Owner metadata/copy/reload/redaction, 13-route axe WCAG smoke, mobile/keyboard/logout and kill switches. Heuristic credential scanner also checks supplied builds/PM2 logs; not a complete security certification.
 
-## Routes and contracts
+Guarded `npm run deploy` verifies exact HIO account/project/D1 identity, main branch, remote migration approval, platform secret metadata, clean git tree and checks. It never provisions/migrates automatically. Normal releases require secrets. **Only explicit `HIO_ALLOW_LOCKED_DEPLOY=yes` for approved main production allows missing secrets**, without changing fail-closed auth. Preview still needs its own DB/secrets and cannot share production.
 
-UI: `/`, `/sources`, `/runs`, `/evidence?q=...`, `/clusters`, `/opportunities`, `/decisions`, `/experiments`, `/plugins`, `/settings`, `/secrets`, `/manual`.
-
-- Public `GET /api/health`: 200 only when migrations and auth config ready; otherwise 503.
-- Sessions: POST `/api/session` `{secret}`, DELETE `/api/session`; mutating requests require matching Origin and X-HIO-Request: operator, plus signed session except login.
-- Private `/api/v1`: me, summary, sources (GET/PATCH :id), plugins (GET/POST/PATCH :id), runs (GET/POST), evidence (GET q/offset, page size 25; GET :id), clusters, opportunities (GET/:id), decisions (GET/POST), experiments (GET/POST; POST :id/outcome), mcp/call (POST), audit (GET latest 50), settings (GET; POST settings/purge-expired), secrets (GET, no variable-name/query input), secrets/rotation (POST strict name/environment/past date metadata).
-- Schemas in src/contracts.ts and src/secrets.ts. Errors `{error:{code,message,requestId}}`; no raw platform errors. History lists bounded to 50; overview aggregates server-side.
-
-## Data and migration safety
-
-Only D1 persists app state: sources, plugins/grants, runs, evidence, provenance, clusters/memberships, opportunities, decisions, experiments, audit, quotas and hashed sessions. `secret_rotations` stores name/environment/date/actor only, no secret values.
-
-Migrations `0001_core.sql`, `0002_sessions.sql`, `0003_secret_rotation_metadata.sql` applied to local simulation and **new** production D1. Remote migration history/schema/indexes/FK check verified; repeat invocation no changes. Initial CREATE SQL is not independently rerunnable; migration history ensures repeat safety. No destructive SQL. Remote integrity_check is not supported by the observed D1 query interface and is not claimed passed. Local SQLite integrity/backup restore tests pass; production restore/RPO/RTO unverified.
-
-Fixture content expires after 30 days, is hidden from reads and can be minimized by explicit owner purge. IDs/hash/provenance/governance remain; no real-provider deletion workflow. Expired sessions removed on login. Decisions/outcomes immutable. Roll back to a compatible app while retaining additive schema; prefer forward-fix. No dropping populated tables or destructive restoration without owner approval and verified backup.
-
-## Checks
+Approved direct-release command (after remote schema verification and clean committed code):
 
 ```sh
-npm run check          # typecheck, lint, format, 36 tests, production build
-npm audit             # 0 reported vulnerabilities at release review
-npm run security:check # source + build credential heuristic scan
-npx playwright install --with-deps chromium
-npm run test:e2e       # localhost only; requires running Wrangler and .dev.vars
+HIO_RELEASE_APPROVED=yes HIO_PRODUCTION_APPROVED=yes HIO_TARGET_BRANCH=main \
+HIO_REMOTE_MIGRATIONS_VERIFIED=yes HIO_ALLOW_LOCKED_DEPLOY=yes npm run deploy
 ```
 
-E2E: actual local Wrangler/D1 + Chromium full workflow, Secrets Owner inventory/rotation/reload/redaction, copy instructions, 12-route axe WCAG smoke, mobile/keyboard/logout and kill switches. Additional scan checks supplied PM2 logs/local build; synthetic leak fixture confirms scanner detects and redacts. Screenshots ignored. Full accessibility certification, live provider/AI/MCP transport, production auth/workflow and cloud backup restore are not claimed. Tooling deprecation/SQLite experimental warnings documented.
+Locked publication: root/assets 200; health 503 with database true/authentication false; private APIs and `/secrets` 401; login 503. Authenticated production workflow is not claimed until owner securely sets secrets, redeploys and actual login/workflow/logout tests pass.
 
-## Deployment continuation
+## Remaining work and recommended order
 
-Guarded npm deploy checks actual environment DB against verified inventory, new project/account identity, platform-secret names, release approvals, schema verification and clean git tree. Never provisions resources or migrates remotely itself. Pages deploy uses branch selection, not --env. Main guard currently blocks missing required secrets; preview guard blocks missing isolated DB. No upload/deployment occurred.
+1. Owner secret setup/redeploy and authenticated cloud smoke.
+2. One authorized read-only connector with real provenance/dedupe/retention tests; candidate tools are not evidence.
+3. Evaluated evidence-linked AI extraction with owner-approved provider/budget; no unsupported claims or tool grants.
+4. Reviewed remote MCP transport/OAuth and custom API contract importer, exact egress/schema/tool allowlists.
+5. Real-market test/market-entry gates, team identity/RBAC and production backup/restore.
 
-**Required next owner actions:** set/save production secrets securely; resolve preview D1 quota via an explicitly authorized capacity decision (no deletion or paid upgrade performed here). Then provision a brand-new preview DB, configure/migrate and validate cloud preview, followed by authorized main deployment and authenticated production smoke. Any preview-stage exception must be explicitly approved, not silently assumed.
+No real connectors, model inference, semantic clustering, custom MCP interoperability, automatic jobs, outreach, autonomous spending, payments or commercial validation currently ship.
 
-## Architecture and preserved specifications
+## Preserved specifications and references
 
-All original specification files, including upstream owner prompt 46, remain unchanged. [ADR 0001](docs/adr-0001-fixture-first-edge-monolith.md) explains fixture-first edge design; later provisioning runbook records actual production resource approval and current blockers.
+The original spec corpus remains available. Only module/MCP documents 03/36 gained explicit current-implementation clarifications; their target design content remains intact. [ADR 0001](docs/adr-0001-fixture-first-edge-monolith.md) preserves fixture-first decisions; later owner permission supersedes mandatory-preview release gating.
 
-Start: [charter](docs/00-project-charter.md), [principles](docs/01-strategy-principles.md), [architecture](docs/02-system-architecture.md), [evidence](docs/04-evidence-model.md), [data model](docs/05-logical-data-model.md), [source governance](docs/06-source-governance.md), [scoring](docs/07-opportunity-scoring.md), [test gate](docs/08-market-test-gate.md), [technology](docs/10-technology-decisions.md), [security](docs/11-security-privacy.md), [testing](docs/13-testing-acceptance.md).
+Start: [charter](docs/00-project-charter.md), [principles](docs/01-strategy-principles.md), [architecture](docs/02-system-architecture.md), [modules](docs/03-intelligence-modules.md), [evidence](docs/04-evidence-model.md), [source governance](docs/06-source-governance.md), [scoring](docs/07-opportunity-scoring.md), [market gate](docs/08-market-test-gate.md), [security](docs/11-security-privacy.md), [testing](docs/13-testing-acceptance.md).
 
-Product/full-stack: [North Star](docs/16-product-north-star.md), [scope](docs/17-product-scope-and-personas.md), [UX](docs/18-ux-information-architecture.md), [frontend](docs/19-frontend-architecture.md), [API](docs/20-backend-api-architecture.md), [lifecycle](docs/21-database-and-data-lifecycle.md), [connectors](docs/22-integrations-and-connector-contract.md), [prompt security](docs/23-ai-evaluation-and-prompt-security.md), [privacy](docs/24-privacy-and-compliance-matrix.md), [design](docs/25-design-system-and-content-language.md), [learning](docs/27-experiment-and-learning-architecture.md), [release](docs/28-environments-deployment-and-release.md), [requirements](docs/30-product-requirements-and-acceptance.md), [runbook](docs/32-operator-runbook.md), [readiness](docs/33-product-readiness-checklist.md).
+Product: [scope](docs/17-product-scope-and-personas.md), [UX](docs/18-ux-information-architecture.md), [API](docs/20-backend-api-architecture.md), [lifecycle](docs/21-database-and-data-lifecycle.md), [connectors](docs/22-integrations-and-connector-contract.md), [AI/security](docs/23-ai-evaluation-and-prompt-security.md), [privacy](docs/24-privacy-and-compliance-matrix.md), [learning](docs/27-experiment-and-learning-architecture.md), [release](docs/28-environments-deployment-and-release.md), [runbook](docs/32-operator-runbook.md), [readiness](docs/33-product-readiness-checklist.md).
 
-Plugin/MCP: [platform](docs/34-plugin-platform-architecture.md), [manifest](docs/35-plugin-manifest-and-capability-contract.md), [MCP](docs/36-mcp-integration-architecture.md), [SDK](docs/37-plugin-sdk-and-developer-experience.md), [trust](docs/38-plugin-security-lifecycle.md), [roadmap](docs/39-plugin-roadmap-and-reference-architecture.md). Delivery: [plan](docs/40-end-to-end-implementation-plan.md), [Manual](docs/41-in-app-manual-and-help-center.md), [master prompt](docs/42-holbery-intelligence-os-master-system-prompt.md), [phase gates](docs/43-one-shot-execution-plan-and-phase-gates.md), [contract](docs/44-one-shot-delivery-contract.md), [provisioning/owner prompt](docs/46-cloudflare-pages-d1-secrets-owner-access-master-prompt.md). Other original strategy/operations/decision-log docs remain in docs/.
+Plugins: [platform](docs/34-plugin-platform-architecture.md), [manifest](docs/35-plugin-manifest-and-capability-contract.md), [MCP](docs/36-mcp-integration-architecture.md), [SDK](docs/37-plugin-sdk-and-developer-experience.md), [trust](docs/38-plugin-security-lifecycle.md), [roadmap](docs/39-plugin-roadmap-and-reference-architecture.md). Delivery: [plan](docs/40-end-to-end-implementation-plan.md), [Manual](docs/41-in-app-manual-and-help-center.md), [master prompt](docs/42-holbery-intelligence-os-master-system-prompt.md), [phase gates](docs/43-one-shot-execution-plan-and-phase-gates.md), [contract](docs/44-one-shot-delivery-contract.md), [owner prompt](docs/46-cloudflare-pages-d1-secrets-owner-access-master-prompt.md), [0.2 operating model](docs/47-discovery-demand-opportunity-operating-model.md). Other original specifications remain in docs/.
 
 ## Boundaries
 
-Separate from HOLBERY parent-brand and Bozq. No Bozq data moved/exposed; no unauthorized scraping, private-session circumvention, outreach/spam, fabricated real evidence, spending or public product launch. No real connectors/AI/remote MCP, automatic jobs, arbitrary plugin code, team SSO/RBAC, real payments or commercial validation. Owner retains consequential authority.
+No Commerce/Bozq data/resource reuse, unauthorized scraping, private-session circumvention, spam, autonomous spending, public product launch, DNS/domain/Access changes or paid SaaS/upgrade. Software-page publication is owner-requested infrastructure availability, not a commercial launch. Human owner retains consequential authority.

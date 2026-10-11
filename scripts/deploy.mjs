@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
+import { releaseMode } from "./release-policy.mjs";
 // Never creates resources, migrates a remote DB, alters DNS or prints credentials.
 const branch = process.env.HIO_TARGET_BRANCH;
 if (
@@ -13,7 +14,7 @@ if (
 }
 if (branch === "main" && process.env.HIO_PRODUCTION_APPROVED !== "yes") {
   console.error(
-    "Production deployment requires separate HIO_PRODUCTION_APPROVED=yes after isolated preview verification.",
+    "Production deployment requires explicit HIO_PRODUCTION_APPROVED=yes. Owner-approved single-D1 direct release does not require cloud preview.",
   );
   process.exit(2);
 }
@@ -106,7 +107,12 @@ if (
 const missingSecrets = ["OPERATOR_SECRET", "SESSION_SECRET"].filter(
   (name) => settings.env_vars?.[name]?.type !== "secret_text",
 );
-if (missingSecrets.length) {
+const mode = releaseMode(
+  target,
+  missingSecrets,
+  process.env.HIO_ALLOW_LOCKED_DEPLOY,
+);
+if (mode === "blocked") {
   console.error(
     "BLOCKED — NOT DEPLOYED: " +
       target +
@@ -115,6 +121,11 @@ if (missingSecrets.length) {
       ". No values generated/read back.",
   );
   process.exit(2);
+}
+if (mode === "setup-required-locked") {
+  console.warn(
+    "APPROVED SETUP-ONLY RELEASE: missing owner secrets. Authentication remains fail-closed; private APIs must deny access. No secrets generated. Readiness expected 503.",
+  );
 }
 if (
   branch === "hio-preview" &&

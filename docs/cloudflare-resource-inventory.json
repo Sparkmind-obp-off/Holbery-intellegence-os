@@ -18,19 +18,20 @@
     "migrations": [
       "0001_core.sql",
       "0002_sessions.sql",
-      "0003_secret_rotation_metadata.sql"
+      "0003_secret_rotation_metadata.sql",
+      "0004_research_briefs.sql"
     ],
-    "schemaVerifiedAt": "2026-10-11T06:29:13Z",
+    "schemaVerifiedAt": "2026-10-11T07:12:07.976Z",
     "foreignKeyCheck": "passed"
   },
   "preview": {
     "databaseName": null,
     "databaseId": null,
     "binding": null,
-    "status": "BLOCKED_ACCOUNT_D1_QUOTA",
+    "status": "OPTIONAL_NOT_PROVISIONED_OWNER_APPROVED_DIRECT_PRODUCTION",
     "requestedName": "hio-preview"
   },
-  "verifiedAt": "2026-10-11T06:41:34.249Z",
+  "verifiedAt": "2026-10-11T07:12:07.976Z",
   "secrets": {
     "production": {
       "OPERATOR_SECRET": "missing",

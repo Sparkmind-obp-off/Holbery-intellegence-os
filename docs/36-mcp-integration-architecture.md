@@ -1,5 +1,9 @@
 # MCP Integration Architecture
 
+## Implementation clarification — 0.2, 2026-10-11
+
+[The researched operating model](47-discovery-demand-opportunity-operating-model.md) defines the Apify remote Streamable HTTP candidate and custom API/OpenAPI review path. Intelligence Desk stores disabled/no-grants blueprints only. Existing MCP-style dispatch is a local fixture tool; actual remote protocol interoperability and API file importing are not implemented. Cloudflare cannot run stdio/npx MCP processes. Avoid default tool bundles, token passthrough, arbitrary endpoint fetching, automatic Actor payments or treating tool discovery as market evidence.
+
 ## Role of MCP
 Model Context Protocol can provide a standard interface to tools and resources exposed by an MCP server. In HOLBERY, MCP is one integration mechanism—not the entire plugin architecture and not a reason to bypass the core policy layer.
 

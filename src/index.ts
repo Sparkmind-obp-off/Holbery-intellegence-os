@@ -31,6 +31,7 @@ import {
   id,
 } from "./contracts";
 import { shell } from "./view";
+import { briefInput, researchPlan } from "./intelligence";
 import {
   secretInventory,
   rotationInput,
@@ -202,6 +203,7 @@ app.get("/api/health", async (c) => {
       await c.env.DB.prepare(
         "SELECT secret_name FROM secret_rotations LIMIT 1",
       ).first();
+      await c.env.DB.prepare("SELECT id FROM research_briefs LIMIT 1").first();
       database = true;
     } catch {
       /* Migration missing. */
@@ -210,10 +212,15 @@ app.get("/api/health", async (c) => {
   return c.json(
     {
       service: "HIO",
-      version: "0.1.0",
+      version: "0.2.0",
       database,
       authentication: configured(c),
-      mode: "fixture-only",
+      mode: "fixture-and-research-planning",
+      releaseState: configured(c)
+        ? "operator-configured"
+        : "setup-required-locked",
+      liveCollection: false,
+      aiInference: false,
     },
     database && configured(c) ? 200 : 503,
   );
@@ -292,6 +299,47 @@ app.get("/api/v1/summary", async (c) =>
     ),
   ),
 );
+app.get("/api/v1/intelligence", async (c) =>
+  c.json({
+    mode: "planning-only",
+    items: await list(
+      c,
+      "SELECT id,question,segment,geography,connector,created_at FROM research_briefs ORDER BY created_at DESC LIMIT 50",
+    ),
+  }),
+);
+app.get("/api/v1/intelligence/:id", async (c) => {
+  const brief = await get<{ plan_json: string }>(
+    c,
+    "SELECT * FROM research_briefs WHERE id=?",
+    id.parse(c.req.param("id")),
+  );
+  const { plan_json, ...record } = brief;
+  return c.json({ ...record, plan: JSON.parse(plan_json) });
+});
+app.post("/api/v1/intelligence", async (c) => {
+  const b = await input(c, briefInput);
+  const briefId = crypto.randomUUID();
+  const plan = researchPlan(b);
+  await c.env.DB.batch([
+    c.env.DB.prepare(
+      "INSERT INTO research_briefs VALUES (?,?,?,?,?,?,?,?,?,?)",
+    ).bind(
+      briefId,
+      b.question,
+      b.segment,
+      b.geography,
+      b.problem,
+      b.payerHypothesis,
+      b.connector,
+      JSON.stringify(plan),
+      now(),
+      c.get("actor"),
+    ),
+    auditStatement(c, "intelligence.plan_created", briefId),
+  ]);
+  return c.json({ id: briefId, plan }, 201);
+});
 app.get("/api/v1/sources", async (c) =>
   c.json({
     items: await list(
@@ -860,11 +908,12 @@ app.get("/secrets", async (c) => {
   if (!(await authenticated(c))) return c.html(shell(), 401);
   if (!canManageSecrets(c.get("role")))
     return fail("owner_required", 403, "Owner access required.");
-  return c.html(shell());
+  return c.html(shell(!configured(c)));
 });
 app.use("/static/*", serveStatic({ root: "./public" }));
 for (const path of [
   "/",
+  "/intelligence",
   "/sources",
   "/runs",
   "/evidence",
@@ -876,7 +925,7 @@ for (const path of [
   "/settings",
   "/manual",
 ])
-  app.get(path, (c) => c.html(shell()));
+  app.get(path, (c) => c.html(shell(!configured(c))));
 app.notFound((c) =>
   c.json(
     {

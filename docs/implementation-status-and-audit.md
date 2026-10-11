@@ -1,6 +1,18 @@
 # Implementation status and verified audit
 
-## Latest continuation — 2026-10-11 06:41 UTC
+## 0.2 continuation — 2026-10-11, pre-deploy evidence
+
+Owner explicitly approved one production D1/direct Pages publication without mandatory cloud preview. Canonical main began at `732a6358b4e781c699ecbc75f71a386e0e9e6e17`, clean and matching upstream. BYOK/GitHub verified. D1 metadata has `hio-production`, no exact AYO production name; existing HIO target retained. Required production secrets still absent. No production values generated or unrelated resources changed.
+
+Researched official Apify MCP, MCP security and Google Trends data limitations; architecture citations and gap/implementation boundaries in [operating model 47](47-discovery-demand-opportunity-operating-model.md). Implemented persisted Intelligence Desk (strict brief → deterministic unvalidated plan, D0/evidenceCount 0/score null/research-only), disabled connector blueprints, counter-evidence/unknowns/decision gates, bounded list/detail APIs, atomic audit and escaped UI. No live search, AI inference, remote MCP transport or market action. Existing fixture approvals are not reused for real-world action.
+
+Added public software/setup presentation and explicit production-only `HIO_ALLOW_LOCKED_DEPLOY=yes` release policy. Normal releases and preview stay fail-closed; authentication is unchanged. Missing secrets render disabled login/setup-required; existing signed session cannot bypass missing configuration. Actual cloud deployment still pending at this pre-deploy checkpoint.
+
+Checks: `npm run check` PASS, 41 tests, strict types/lint/format, 57-module worker 119.09 kB. Actual local Wrangler/D1 E2E PASS: persisted planner/form/detail/reload with hostile text safely escaped, full fixture workflow, Secrets Owner, 13-route axe smoke, mobile/keyboard/logout/kill switches. `npm audit`: 0 reported findings; source/build scan PASS. New test covers locked runtime (root 200, private/secrets 401, health/login 503), hostile/oversized input, no grants/evidence promotion and production-only exact release opt-in. Initial tests passed; no assertions suppressed.
+
+Only additive `0004_research_briefs.sql` applied to exact HIO production DB `ce92c645-7ce2-4edf-8ffa-ce0d16115bbe`; remote history shows all four migrations, table fields checked, foreign_key_check empty and new brief count 0. No destructive SQL/provider data or credentials seeded. No new DB, paid upgrade, DNS/domain or Access-policy change. Authenticated production workflow remains unverified until secure owner setup/redeploy.
+
+## Historical provisioning continuation — 2026-10-11 06:41 UTC
 
 New owner authorization explicitly required brand-new Pages/D1 resources and Secrets Owner. Repository safely fast-forwarded to `49261ec92d02c9fe9135ceb3da30d1df7005d261`, preserving both upstream prompt commits. Earlier sections below are the historical initial-build audit, not the current provisioning state.
 
