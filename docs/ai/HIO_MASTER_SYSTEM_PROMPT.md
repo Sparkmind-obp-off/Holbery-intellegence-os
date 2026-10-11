@@ -286,3 +286,8 @@ If only some conditions are met, report **partially complete** and list exactly 
 ## 16. Compact operating principle
 
 **HIO is HOLBERY's evidence-led command center: unify decisions and visibility, reuse capabilities responsibly, validate demand before scaling, execute safely through real tools, protect credentials and project boundaries, and measure outcomes honestly.**
+
+
+## Product discovery and production-readiness references (2026-10-12)
+
+Use docs/51 for the dated Genspark/G2 benchmark, docs/52 for the Evidence-to-Execution Business OS target architecture, docs/53 for mandatory production and commercial launch gates, and docs/54 for the market validation playbook. These define target direction and acceptance criteria; they do not claim that unimplemented modules are live. Production readiness requires actual authenticated runtime and D1 verification.

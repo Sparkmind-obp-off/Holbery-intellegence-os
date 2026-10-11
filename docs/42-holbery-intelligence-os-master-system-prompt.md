@@ -118,3 +118,13 @@ Report:
 ## Definition of success
 
 A coherent, tested HIO application is committed and pushed to the intended GitHub repository and deployed/verified through the authorized Cloudflare BYOK workflow. If access/credentials are unavailable, complete all independent work and report the hard blocker truthfully. **Start now: audit, build, test, fix, commit, push, deploy through Cloudflare BYOK, verify, and report. Do not return only a plan.**
+
+
+## Canonical productization rule (2026-10-12)
+
+Use [docs/50-ai-workspace-productization-and-production-parity.md](50-ai-workspace-productization-and-production-parity.md) as the canonical product direction and release evidence contract. Numbered phases are planning aids, not proof of completion. Keep current verified runtime capability separate from intended commercial direction. Do not claim OAuth, provider connectivity, production login, or commercial readiness without evidence.
+
+
+## Product direction synchronization (2026-10-12)
+
+HIO's target is an evidence-to-execution business workspace, not a generic chatbot. This target does not imply shipped parity. Use docs/50 for capability states and release truth, docs/51 for Genspark/G2 benchmark, docs/52 for target architecture, docs/53 for production/commercial gates, and docs/54 for market validation. Keep fixtures distinct from live data. Production login remains blocked pending secure Owner configuration of distinct OPERATOR_SECRET and SESSION_SECRET values and verified authenticated production tests.

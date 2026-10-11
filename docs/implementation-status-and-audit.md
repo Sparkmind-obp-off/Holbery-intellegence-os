@@ -112,3 +112,8 @@ Implementation: complete for declared fixture MVP. Tests/build/security/local ru
 Cloudflare deployment: **BLOCKED — NOT DEPLOYED**. No project/environment/deployment URL or ID exists for HIO in this release. BYOK authorization was verified, but target resource/binding/secret authorization is missing. No deploy/resource/migration action was attempted beyond the guard refusal. Production operational validation: **NOT PERFORMED**. Sandbox-local fixture operational validation: **VERIFIED**. These statuses are distinct; a build or push is not deployment.
 
 Single highest-value next step: explicitly authorize isolated HIO preview Pages/D1 resources and secret setup, deploy this tested slice privately, then validate the same workflow against actual cloud D1 before enabling any real connector.
+
+
+## Product direction synchronization (2026-10-12)
+
+HIO's target is an evidence-to-execution business workspace. This does not authorize changing protected projects or claiming runtime parity without evidence. Use docs/50 for the canonical product/release contract, docs/51 for Genspark/G2 research, docs/52 for target architecture, docs/53 for production/commercial gates, and docs/54 for validation. Keep Owner secrets private; report readiness by name/status only. The current login blocker remains until distinct production secrets are configured and authenticated runtime behavior is verified.

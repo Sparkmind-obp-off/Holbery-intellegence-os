@@ -83,3 +83,8 @@ Only after parity, security, backup/rollback, data-ownership, and acceptance gat
 ## 7. Immediate next action
 
 Start Phase A only: produce a read-only HIO-versus-ORDVELA capability and resource inventory, citing exact files, routes, migrations, tests, and deployment evidence. Use that map to select the smallest high-value implementation slice. Do not begin a broad rewrite or production migration before the gap map is reviewed.
+
+
+## Product direction synchronization (2026-10-12)
+
+HIO's target is an evidence-to-execution business workspace. This does not authorize changing protected projects or claiming runtime parity without evidence. Use docs/50 for the canonical product/release contract, docs/51 for Genspark/G2 research, docs/52 for target architecture, docs/53 for production/commercial gates, and docs/54 for validation. Keep Owner secrets private; report readiness by name/status only. The current login blocker remains until distinct production secrets are configured and authenticated runtime behavior is verified.

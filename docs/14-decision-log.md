@@ -54,3 +54,8 @@ This log records current design decisions. Amendments should include date, ratio
 - What data retention periods apply to each source/provider?
 - Which evaluation dataset and quality thresholds should be used for extraction/clustering?
 - Which experiment/commerce events can be reused without duplicating payment truth?
+
+
+## Product direction synchronization (2026-10-12)
+
+HIO's target is an evidence-to-execution business workspace, not a generic chatbot. This target does not imply shipped parity. Use docs/50 for capability states and release truth, docs/51 for the Genspark/G2 benchmark, docs/52 for target architecture, docs/53 for production/commercial gates, and docs/54 for market validation. Keep fixtures distinct from live data. Production login remains blocked pending secure Owner configuration of distinct OPERATOR_SECRET and SESSION_SECRET values and verified authenticated production tests.

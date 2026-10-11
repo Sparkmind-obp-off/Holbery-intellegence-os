@@ -30,3 +30,7 @@ Name the metric, event, constraint or date that should reopen the decision.
 Internal-first; modular monolith until evidence justifies splitting; official/approved sources first; preserve provenance; human approval for consequential actions and spend; audit existing infrastructure before adding more; public repo contains no secrets or private data; user retains final approval for material production, commercial, legal and financial decisions.
 
 A technical preference is not a verified implementation. Record target architecture separately from current state.
+
+## Product direction synchronization (2026-10-12)
+
+HIO's target is an evidence-to-execution business workspace, not a generic chatbot. This target does not imply shipped parity. Use docs/50 for capability states and release truth, docs/51 for Genspark/G2 benchmark, docs/52 for target architecture, docs/53 for production/commercial gates, and docs/54 for market validation. Keep fixtures distinct from live data. Production login remains blocked pending secure Owner configuration of distinct OPERATOR_SECRET and SESSION_SECRET values and verified authenticated production tests.
