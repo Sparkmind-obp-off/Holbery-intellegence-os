@@ -39,11 +39,13 @@ After secure owner setup and redeploy: login → Intelligence Desk → create a 
 
 For synthetic workflow: install hio.fixture → explicitly grant fixture.read/enable → enable fixture source → run → inspect evidence/provenance and dossier → record human rationale/review date → approve fixture Rp0 → experiment → outcome. hio.mcp-fixture/evidence.read is approved separately. E2E ends with source/plugins disabled. No real market-entry or outreach permission is granted by fixture approval.
 
-## Owner setup — autonomous production release
+## Owner setup — secure production release
 
-**Current required workflow:** use [Master Prompt 48 — Autonomous Secrets & Production Release](docs/48-autonomous-production-secrets-and-release-master-prompt.md). The authorized coding agent must generate independent `OPERATOR_SECRET` and `SESSION_SECRET` values, configure them as encrypted Production Secrets through the existing Cloudflare BYOK connection, redeploy, validate the authenticated workflow, and return both actual values to the owner in the final private response. Do not make the owner type secrets into the dashboard or terminal when the agent already has the necessary access.
+**Current required workflow:** follow the Owner's Master System Prompt v1.1.0 secret policy. Earlier documentation requesting secret delivery in chat is superseded. Never return raw credentials in a chat response, file attachment, repository, UI, API, application log or build artifact.
 
-The raw values must not enter this public repo, client code, APIs, application logs or build artifacts. Since Cloudflare does not allow secret readback after saving, the agent must retain the values it generated and return those same values at handoff; do not claim access to an old value.
+The Owner creates two independent random credentials in a password manager and configures `OPERATOR_SECRET` (32–256 characters, owner login) and `SESSION_SECRET` (at least 32 characters, session signing) as encrypted secrets through Cloudflare Pages → holbery-intelligence-os → Settings → Variables and Secrets → Production. Keep the login credential in the password manager. Do not paste either value into ordinary chat. Redeploy after configuration, then verify actual login, authenticated access and logout without logging credentials or session cookies. Existing secret values cannot be read back through HIO.
+
+**Readiness audit — 2026-10-11 14:12 UTC:** BYOK authentication verified; production secret metadata lists neither required secret. Both are **Missing**, so authenticated release remains **Blocked**. Live `/` returns 200, `/api/health` returns 503 with database ready/authentication false, and `/api/v1/summary` and `/secrets` return 401. Four migrations are recorded in remote D1; read-only verification wrote no rows. Strict types, lint, formatting, 41 unit tests, build and heuristic credential scan passed. No new deployment, production mutation, provider request or notification delivery was performed in this audit. Provider credentials exposed in chat must be revoked/rotated and will not be used. Real connectors, OAuth and external notifications remain unimplemented/unverified; notifications are **NOT CONFIGURED**.
 
 Resource management page, for reference only:
 https://dash.cloudflare.com/a167a50f1272635d3c1145aab3cd8f98/pages/view/holbery-intelligence-os/settings
