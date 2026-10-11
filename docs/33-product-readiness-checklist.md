@@ -41,3 +41,7 @@
 - [ ] Explicit founder launch approval recorded.
 
 Never mark an item complete because a document exists, code compiles, preview opens, a test is mocked, a payment is simulated or a model claims success. Attach evidence appropriate to each item.
+
+## Release truth rule (2026-10-12)
+
+Do not mark readiness from documentation, build success, a mock, or a static deployment alone. Verify the complete UI → backend → authorization → D1/provider → persisted result path in the target environment. Owner login is currently blocked until OPERATOR_SECRET and SESSION_SECRET are configured as distinct production secrets and login is tested. See [canonical productization contract](50-ai-workspace-productization-and-production-parity.md).

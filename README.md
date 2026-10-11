@@ -129,3 +129,8 @@ Plugins: [platform](docs/34-plugin-platform-architecture.md), [manifest](docs/35
 ## Boundaries
 
 No Commerce/Bozq data/resource reuse, unauthorized scraping, private-session circumvention, spam, autonomous spending, public product launch, DNS/domain/Access changes or paid SaaS/upgrade. Software-page publication is owner-requested infrastructure availability, not a commercial launch. Human owner retains consequential authority.
+
+
+## Productization direction (2026-10-12)
+
+HIO is being productized as a sellable AI Business Command Workspace. This is a target direction, not a claim that all workspace modules or integrations are live. The current production login remains blocked until the Owner configures OPERATOR_SECRET and SESSION_SECRET securely and login is verified. See [the canonical productization and production parity contract](docs/50-ai-workspace-productization-and-production-parity.md).

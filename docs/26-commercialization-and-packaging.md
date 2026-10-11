@@ -30,3 +30,7 @@ F. Launch authorization: founder approves offer, market, price, claims, distribu
 Track qualified interest, pilot commitments, invoices, confirmed payments, refunds, usage, retention and realized value separately. Never report projected value as revenue.
 
 Avoid subscriptions, self-serve billing, enterprise administration and many vertical-specific features until a repeatable paying use case is demonstrated.
+
+## Current product direction (2026-10-12)
+
+The intended product is a sellable AI Business Command Workspace connecting demand evidence, opportunity decisions, approved execution, integrations, monetization, and outcomes. This is not proof of commercial readiness. Benchmark products through dated G2 review/category pages and primary vendor docs (including ClickUp, Notion, and Salesforce Agentforce); record both praise and complaints, and convert only evidence-backed gaps into requirements. See [the canonical productization and production parity contract](50-ai-workspace-productization-and-production-parity.md).

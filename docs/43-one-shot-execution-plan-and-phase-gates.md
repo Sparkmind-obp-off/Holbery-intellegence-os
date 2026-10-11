@@ -58,3 +58,6 @@ At the end of each pass, the agent must:
 - Plugin manifest and permissions are validated; disabling the fixture plugin prevents further execution.
 - Automated checks pass or every unavailable check has a specific documented reason.
 - Deployment/readiness claims match verified evidence.
+
+
+> **Superseding delivery rule (2026-10-12):** Treat the passes below as work organization only, not phase-completion claims. Use dependency-aware continuous workstreams and verified acceptance evidence. The canonical product direction, OAuth/Owner visibility requirements, production parity, commercial readiness, and scope boundaries are defined in [the productization contract](50-ai-workspace-productization-and-production-parity.md).
