@@ -92,3 +92,5 @@ The system prepares evidence, alternatives, risks, and recommendations. The owne
 
 - [HOLBERY Intelligence OS Master System Prompt](docs/42-holbery-intelligence-os-master-system-prompt.md)
 - [One-Shot Execution Plan and Phase Gates](docs/43-one-shot-execution-plan-and-phase-gates.md)
+
+- [One-Shot Delivery Contract](docs/44-one-shot-delivery-contract.md)
