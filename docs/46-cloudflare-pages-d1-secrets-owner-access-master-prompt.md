@@ -14,7 +14,7 @@ You are the release engineer responsible for finishing the Cloudflare BYOK provi
 
 ### 1. Mission and release outcome
 
-Provision a **new, dedicated Cloudflare Pages project** and a **new, dedicated Cloudflare D1 database** for HIO. Bind the application to that new D1, configure production secrets securely, apply reviewed migrations, deploy, and validate the real Cloudflare-hosted application.
+Provision a **brand-new, dedicated Cloudflare Pages project** and a **brand-new, dedicated Cloudflare D1 database** for HOLBERY Intelligence OS (HIO). These are mandatory new resources, not optional alternatives and not a reuse of any existing project/database. Bind the application to the newly created D1, configure production secrets securely, apply reviewed migrations, deploy, and validate the real Cloudflare-hosted application. “HIO”, “Holbery Intelligence OS”, and “Library Intelligence OS” in the user's request refer to this same target system; provision one dedicated Pages project and its own dedicated D1 database for this system, not separate duplicate stacks.
 
 The target outcome is evidence-backed:
 
@@ -28,7 +28,7 @@ Never report a stage as complete without direct evidence from the relevant syste
 - Suggested production D1 name: `hio-production`.
 - Application D1 binding name: `DB`.
 - Use a separate preview D1 (suggested `hio-preview`) if a preview deployment is created. Never let preview and production share a database.
-- Create new resources only after confirming the exact Cloudflare account and checking for name conflicts. If a suggested name already exists, inspect ownership and purpose; do not adopt or overwrite it blindly.
+- Creating new resources is mandatory. First confirm the exact Cloudflare account and check for name conflicts. If a suggested name already exists, do not treat that old resource as satisfying this request and do not adopt, overwrite, or modify it; choose a unique HIO-specific name (for example, append a short unique suffix) and create a brand-new project/database. Record the actual newly created IDs.
 - Do not use, query for application data from, bind to, migrate, rename, or modify HOLBERY Commerce, Bozq One System, or any unrelated project/database. Bozq is private/internal and must remain completely separate.
 - Keep the existing HIO GitHub repository and preserve all original specification documents. Do not create a replacement repo.
 - Do not add GitHub Actions/CI as a workaround for deployment.
@@ -57,7 +57,7 @@ Never report a stage as complete without direct evidence from the relevant syste
 
 ### 5. Secrets & Owner Access — mandatory policy
 
-The owner must retain **practical, documented control** over every secret needed to operate HIO. “Owner access” does not mean exposing secrets publicly or displaying secret values in the application UI.
+The owner must retain **practical, documented control** over every secret needed to operate HIO. A dedicated authenticated owner-facing screen named **“Secrets Owner”** (also acceptable UI title: “Secrets Opener”) is mandatory. It must visibly expose the *secret inventory, configuration status, environment, purpose, and owner management/recovery actions* to the authenticated owner. It must **not** expose raw secret values in the app UI/API, because that would create a credential leak and Cloudflare may not permit secret readback. Raw values remain accessible through the owner-controlled password manager/provider credential page at creation time, or must be replaced through secure rotation.
 
 #### 5.1 Required owner capabilities
 
@@ -70,7 +70,24 @@ The owner must retain **practical, documented control** over every secret needed
 - Secrets must never be returned by application APIs, displayed in frontend HTML, written to logs, added to telemetry, embedded in build artifacts, or included in test screenshots/reports.
 - Add automated checks that reject accidental secret exposure in tracked files and build output where feasible. Tests must use synthetic values, not real production secrets.
 
-#### 5.2 Important platform limitation: secrets may not be readable after saving
+#### 5.2 Mandatory owner-facing “Secrets Owner / Secrets Opener” screen
+
+Implement and expose a dedicated owner-only page in the HIO application, linked from its authenticated navigation/settings, with a predictable route such as `/secrets`. The screen must be real and functional, not a mockup.
+
+It must:
+- Require the same fail-closed operator authentication and authorization as other sensitive settings. Anonymous users and ordinary non-owner users (if roles are added later) must not access it.
+- Display a clear inventory of the runtime secrets actually required by the code: key name, plain-language purpose, preview/production environment, required/optional status, configured/missing/unknown status, last rotation date if recorded, dependent feature/service, and safe rotation/recovery procedure.
+- Determine configured/missing state server-side for an explicit allowlist of secret names; never accept a client-supplied arbitrary environment-variable name and never return secret values, prefixes, suffixes, hashes of secret values, or token fragments.
+- For platform-managed secret configuration that cannot be read from runtime, show “status unknown—verify in Cloudflare” rather than pretending to know. Provide clear navigation/instructions to the correct Cloudflare Pages project/environment and safe commands for setting/replacing a secret.
+- Provide owner actions that are safe in the running application: view the inventory, copy non-secret setup/rotation instructions, mark rotation date/status as metadata where persistence is available, and open the relevant Cloudflare management instructions. Do not pretend a runtime web app can change Cloudflare bindings/secrets unless an explicitly authorized backend provisioning mechanism actually exists.
+- Never embed a Cloudflare API token with secret-write/read privileges into the browser or add a “reveal all secrets” endpoint. Do not implement secret-value viewing, copy-to-clipboard of configured values, a debug dump, or frontend secret storage.
+- Distinguish “configured” from “owner can recover the raw value”: a secret can be configured at Cloudflare while its old value is unreadable. The screen must explain that the owner may need to rotate it and securely save the replacement in their password manager.
+- Include tests for anonymous denial, authorized access, accurate configured/missing/unknown states, output redaction, hostile input, and confirmation that no secret value enters HTML, JSON responses, logs, or build artifacts.
+- Include accessible empty, loading, and error states; never display raw errors from the Cloudflare API that might contain sensitive metadata.
+
+If this screen cannot determine the configured state reliably from the runtime platform, be honest in the UI and use “unknown / verify in Cloudflare”. Do not fabricate status. “Secrets Owner is visible and functional” means an authenticated owner can inspect and manage the *inventory and safe operating procedures*; it never means publishing raw production credentials.
+
+#### 5.3 Important platform limitation: secrets may not be readable after saving
 
 Cloudflare may allow a secret to be **written or replaced without allowing its existing value to be retrieved**. Do not promise that a previously configured value can always be revealed later.
 
@@ -83,7 +100,7 @@ Therefore:
 - If the app requires `OPERATOR_SECRET`, `SESSION_SECRET`, or other runtime secrets, confirm the exact names and requirements from the code. Configure each in the appropriate environment using Cloudflare secret storage, not plaintext vars or source control. Keep local `.dev.vars` ignored and local-only.
 - Validate presence/configuration without printing values. Never echo tokens or secrets into tool output. Report configured/missing/rotation-needed status only.
 
-#### 5.3 Secret register format (values must never appear)
+#### 5.4 Secret register format (values must never appear)
 
 Maintain a safe register like this:
 
@@ -133,6 +150,7 @@ Run and report what actually applies:
 - authenticated CRUD/read workflow persists across reloads;
 - source/plugin kill switches and permission checks work;
 - workflow from fixture collection → normalized/deduplicated evidence → dossier → human decision → zero-cost experiment → outcome/learning works;
+- the authenticated “Secrets Owner / Secrets Opener” page works, accurately labels unknown states, and never exposes raw values;
 - no secret values appear in responses, logs, source, build output or screenshots;
 - preview and production bindings point to their own respective databases.
 
@@ -153,11 +171,11 @@ Return a concise evidence-based report with these exact status dimensions:
 
 - **GitHub:** repository, branch, commit SHA, push verification, working-tree status.
 - **Cloudflare account:** verified / blocked (never print the token).
-- **Pages:** created / already verified / blocked; exact project name and real URL if deployed.
-- **D1:** created / verified / blocked; exact database name and ID.
+- **Pages:** newly created / blocked; exact new project name and real URL if deployed. An old existing project does not satisfy this requirement.
+- **D1:** newly created / blocked; exact new database name and ID. An old existing database does not satisfy this requirement.
 - **Binding:** environment → database mapping.
 - **Migrations:** exact applied migrations and verification result.
-- **Secrets & owner access:** required names, configured/missing status, owner management location, safe rotation instructions. Never report or display raw values.
+- **Secrets Owner / Secrets Opener:** authenticated UI route, access-control result, required names and configured/missing/unknown status, owner management location, safe rotation instructions. Never report or display raw values.
 - **Tests:** pass/fail/skipped/blocked, with scope.
 - **Deployment:** actual deployment ID and URL, or explicitly **BLOCKED — NOT DEPLOYED**.
 - **Production validation:** each smoke check and evidence.
