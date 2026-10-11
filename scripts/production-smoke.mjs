@@ -20,6 +20,7 @@ let cookie = "";
 let browser;
 let browserContext;
 let briefId;
+let stage = "preflight";
 function clean(text) {
   assert.ok(
     sensitive.every((secret) => !text.includes(secret)),
@@ -155,15 +156,19 @@ try {
   const page = await browserContext.newPage();
   const errors = [];
   page.on("pageerror", () => errors.push("pageerror"));
+  stage = "browser-initial-login";
   await page.goto(base);
   await page.getByLabel("Kredensial operator").fill(secrets.OPERATOR_SECRET);
   await page.getByRole("button", { name: "Masuk ke workspace" }).click();
   await page.locator("#workspace").waitFor({ state: "visible" });
   clean(await page.content());
+  stage = "browser-intelligence-load";
   await page.goto(base + "/intelligence");
   await page.getByText(question, { exact: true }).waitFor();
+  stage = "browser-intelligence-reload";
   await page.reload();
   await page.getByText(question, { exact: true }).waitFor();
+  stage = "browser-secrets";
   await page.goto(base + "/secrets");
   await page
     .getByRole("heading", { name: "Secrets Owner", exact: true })
@@ -223,6 +228,7 @@ try {
         testedAt: new Date().toISOString(),
         gates,
         briefId,
+        stage,
         status: "FAIL",
         diagnostic,
       },
