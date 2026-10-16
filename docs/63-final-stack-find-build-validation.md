@@ -145,3 +145,19 @@ Before activating or expanding provider integrations, verify credentials are val
 | Final gate | **Validation experiment** | Evidence of usefulness and buyer intent before expansion |
 
 This is the canonical stack decision for HIO. It defines the intended architecture; implementation status must be reported separately from target design.
+
+
+## Final external-provider register (2026-10-17)
+
+The canonical provider register is [docs/65-final-external-provider-register.md](65-final-external-provider-register.md). The selected providers are sufficient to begin one controlled end-to-end MVP slice; do not acquire more providers before implementation/testing demonstrates a gap.
+
+Important free-tier/commercial-use guardrails:
+- Jina Reader is an optional extraction fallback. Its current pricing page labels the Toy Experiment token tier non-commercial; do not use that tier for customer SaaS traffic.
+- OpenRouter free models have strict request limits and no free-tier spend controls; it is optional, not a production SLA.
+- xAI/Grok Console API is usage-billed, including possible separate search-tool invocation costs; do not assume it is free.
+- Daytona's advertised free compute is a finite credit, not permanent free execution.
+- Resend, Sentry, and R2 are optional/feature-triggered additions; configure and verify them before enabling their customer-facing function.
+
+The owner reports that relevant credentials have been approved/saved, but this does not establish that they are present in the right environment or connected/tested. Track provider status using the states and checklist in doc 65. Do not publish credential values or fragments.
+
+**Stack sufficiency decision:** no further external provider is required to start the first MVP slice. Commercial launch remains blocked by implementation and acceptance gates, especially customer identity and tenant isolation, per-tenant usage/cost controls, safe Daytona execution, privacy/data lifecycle, recovery, support, and payment verification if charging customers.
