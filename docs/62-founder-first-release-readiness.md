@@ -1,4 +1,6 @@
-# 62 — Founder-first release readiness (canonical board)
+# 62 — HIO Release Readiness (canonical board)
+
+**Commercial product direction update — 2026-10-16:** HIO is being productized as a public-facing commercial SaaS following FIND → BUILD → VALIDATE → LAUNCH. The canonical product definition is [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md); the canonical stack is [docs/63-final-stack-find-build-validation.md](63-final-stack-find-build-validation.md). This board remains the source of truth for what is implemented and verified. A product-direction decision does **not** mean public self-service, multi-tenant SaaS, billing, all connectors, Daytona build execution, or commercial readiness are already live.
 
 **This is the single canonical readiness record for HIO from v0.3.0 onward.** Older gate tables (README release section, `implementation-status-and-audit.md`, docs 43/53/59) are historical evidence only; where they conflict, this file wins. The founder-facing board shown on Beranda (`/api/founder/progress`) is derived live from code + database state and must stay consistent with this file.
 
