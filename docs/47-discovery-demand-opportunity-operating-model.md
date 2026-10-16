@@ -82,3 +82,7 @@ These are architectural references, not evidence of a market opportunity for HOL
 ## Product direction synchronization (2026-10-12)
 
 HIO's target is an evidence-to-execution business workspace, not a generic chatbot. This target does not imply shipped parity. Use docs/50 for capability states and release truth, docs/51 for Genspark/G2 benchmark, docs/52 for target architecture, docs/53 for production/commercial gates, and docs/54 for market validation. Keep fixtures distinct from live data. Production login remains blocked pending secure Owner configuration of distinct OPERATOR_SECRET and SESSION_SECRET values and verified authenticated production tests.
+
+## Commercial SaaS direction update — 2026-10-16
+
+Commercial product direction update (2026-10-16): discovery is the first customer-facing stage in HIO's FIND → BUILD → VALIDATE → LAUNCH journey. The target product is commercial SaaS, not merely an internal founder workbench. The current source coverage and feature state remain limited to verified runtime evidence. See [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md).
