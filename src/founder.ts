@@ -6,8 +6,9 @@ import type { Context, Hono } from "hono";
 import { z } from "zod";
 import { configured, type Env } from "./auth";
 import { score } from "./contracts";
+import { researchReady, sourceStatus } from "./research-routes";
 
-export const APP_VERSION = "0.3.0";
+export const APP_VERSION = "0.4.0";
 
 export type FounderNotice = {
   judul: string;
@@ -115,7 +116,85 @@ const notices: Record<string, FounderNotice> = {
     perluKamu: false,
   },
 };
+Object.assign(notices, {
+  provider_missing: {
+    judul: "Sumber informasi belum tersambung",
+    dampak: "Riset pasar nyata belum bisa dijalankan.",
+    langkah:
+      "Asisten AI perlu menyambungkan sumbernya. Tidak ada yang perlu kamu siapkan sendiri.",
+    perluKamu: false,
+  },
+  research_paused: {
+    judul: "Riset otomatis sedang dihentikan sementara",
+    dampak:
+      "Tidak ada pencarian baru yang dijalankan, jadi tidak ada kuota terpakai.",
+    langkah: "Minta asisten AI menyalakannya kembali bila sudah siap.",
+    perluKamu: false,
+  },
+  provider_daily_cap: {
+    judul: "Batas riset harian tercapai",
+    dampak:
+      "Riset ini disimpan tetapi belum dijalankan, agar kuota layanan tidak habis.",
+    langkah: "Coba lagi besok, atau pilih sumber informasi lain.",
+    perluKamu: true,
+  },
+  provider_quota: {
+    judul: "Batas penggunaan sumber informasi tercapai",
+    dampak: "Pencarian belum bisa dilakukan dengan sumber ini.",
+    langkah:
+      "Pilih sumber informasi lain. Jika terus terjadi, asisten AI akan memeriksa kuota akun layanannya.",
+    perluKamu: true,
+  },
+  provider_auth: {
+    judul: "Sumber informasi menolak sambungan",
+    dampak: "Pencarian dengan sumber ini tidak bisa dilakukan.",
+    langkah:
+      "Asisten AI perlu memperbarui sambungan ke sumber ini. Kamu tidak perlu menyiapkan apa pun.",
+    perluKamu: false,
+  },
+  provider_unavailable: {
+    judul: "Sumber informasi sedang tidak bisa dihubungi",
+    dampak: "Pengumpulan informasi belum berhasil.",
+    langkah: "Coba lagi beberapa menit lagi, atau pilih sumber lain.",
+    perluKamu: true,
+  },
+  provider_timeout: {
+    judul: "Sumber informasi terlalu lama merespons",
+    dampak: "Hasil belum diterima. Kemungkinan kuota tetap terpakai satu kali.",
+    langkah: "Tunggu sebentar lalu coba lagi, atau pilih sumber lain.",
+    perluKamu: true,
+  },
+  no_results: {
+    judul: "Tidak ada informasi yang relevan ditemukan",
+    dampak: "Belum ada bukti untuk pertanyaan ini. Ini juga sebuah temuan.",
+    langkah:
+      "Coba ubah kata-kata pertanyaan, siapa yang mengalami masalah, atau wilayahnya.",
+    perluKamu: true,
+  },
+  model_invalid_output: {
+    judul: "Analisis AI belum bisa dipercaya",
+    dampak:
+      "Informasi sudah terkumpul dan tersimpan, tetapi kesimpulannya tidak ditampilkan karena tidak memenuhi pemeriksaan.",
+    langkah:
+      "Jalankan riset lagi. Bukti yang sudah terkumpul tetap bisa kamu baca.",
+    perluKamu: true,
+  },
+  model_busy: {
+    judul: "Analisis AI sedang sibuk",
+    dampak:
+      "Informasi sudah terkumpul dan tersimpan, tetapi analisisnya belum dibuat.",
+    langkah: "Tunggu sekitar satu menit, lalu jalankan riset lagi.",
+    perluKamu: true,
+  },
+  research_not_ready: {
+    judul: "Riset ini belum selesai",
+    dampak: "Keputusan baru bisa dicatat setelah analisis selesai.",
+    langkah: "Tunggu riset selesai atau jalankan riset baru.",
+    perluKamu: false,
+  },
+} satisfies Record<string, FounderNotice>);
 const aliases: Record<string, string> = {
+  provider_calls_disabled: "research_paused",
   invalid_json: "invalid_input",
   plugin_disabled: "source_inactive",
   permission_denied: "source_inactive",
@@ -312,6 +391,35 @@ async function opportunityView(c: Context<Env>) {
   };
 }
 
+async function liveSummary(c: Context<Env>) {
+  const ready = researchReady(c.env);
+  const jobs = (
+    await c.env.DB.prepare(
+      "SELECT j.id,j.input_json,j.state,j.created_at,(SELECT COUNT(*) FROM research_decisions d WHERE d.job_id=j.id) dec FROM research_jobs j WHERE j.input_json NOT LIKE '%SYNTHETIC%' ORDER BY j.created_at DESC LIMIT 20",
+    ).all<Row>()
+  ).results;
+  const real = await c.env.DB.prepare(
+    "SELECT COUNT(DISTINCT p.observation_id) n FROM research_provenance p JOIN research_jobs j ON j.id=p.job_id WHERE j.input_json NOT LIKE '%SYNTHETIC%'",
+  ).first<{ n: number }>();
+  const q = (j: Row) =>
+    String((JSON.parse(String(j.input_json)) as { question: string }).question);
+  const latest = jobs[0];
+  return {
+    ready,
+    realCount: Number(real?.n ?? 0),
+    waiting: jobs
+      .filter((j) => j.state === "complete" && Number(j.dec) === 0)
+      .map((j) => q(j).slice(0, 140)),
+    latest: latest
+      ? {
+          id: String(latest.id),
+          pertanyaan: q(latest),
+          tanggal: String(latest.created_at),
+        }
+      : null,
+  };
+}
+
 async function sampleState(c: Context<Env>) {
   const plugin = await one(
     c,
@@ -328,6 +436,38 @@ async function sampleState(c: Context<Env>) {
       !!source &&
       Number(source.enabled) === 1,
     terakhirDimuat: source?.last_run_at ? String(source.last_run_at) : null,
+  };
+}
+
+async function researchStage(c: Context<Env>) {
+  const ready = researchReady(c.env);
+  const r = (await c.env.DB.prepare(
+    "SELECT (SELECT COUNT(*) FROM research_jobs WHERE state='complete' AND input_json NOT LIKE '%SYNTHETIC%') selesai, (SELECT COUNT(*) FROM research_decisions) keputusan, (SELECT COUNT(*) FROM research_provenance) bukti",
+  ).first<Record<string, number>>())!;
+  const connected = sourceStatus(c.env).filter((s) => s.tersambung).length;
+  return {
+    tahap: "Riset pasar nyata",
+    memungkinkan:
+      "HIO mencari di web, menyusun bukti bersumber, lalu meminta keputusanmu.",
+    status: !ready
+      ? "Belum dimulai"
+      : Number(r.keputusan) > 0
+        ? "Terbukti digunakan"
+        : Number(r.selesai) > 0
+          ? "Menunggu persetujuan"
+          : "Lulus pemeriksaan",
+    terverifikasi: ready
+      ? `${connected} sumber informasi tersambung dan analisis AI aktif. ${r.selesai} riset selesai, ${r.bukti} bukti nyata tersimpan, ${r.keputusan} keputusan dicatat.`
+      : "Sumber informasi nyata belum tersambung.",
+    belumSelesai: ready
+      ? "Bukti masih berupa cuplikan hasil pencarian; belum membaca halaman utuh atau berbicara dengan calon pelanggan."
+      : "Seluruh pengumpulan informasi nyata.",
+    perluKamu: ready && Number(r.keputusan) === 0,
+    langkah: ready
+      ? Number(r.selesai) > 0
+        ? "Tinjau hasil riset dan beri keputusan."
+        : "Jalankan riset pertama di Intelijen Pasar."
+      : "Asisten AI menyambungkan sumber informasi.",
   };
 }
 
@@ -382,16 +522,7 @@ async function progressBoard(c: Context<Env>) {
           ? "Tinjau peluang contoh dan beri keputusan."
           : "Muat contoh data dari Beranda untuk mencoba alurnya.",
     },
-    {
-      tahap: "Riset pasar nyata",
-      memungkinkan: "HIO mengumpulkan bukti nyata dari sumber yang diizinkan.",
-      status:
-        Number(counts.buktiNyata) > 0 ? "Sedang dikerjakan" : "Belum dimulai",
-      terverifikasi: `${counts.pertanyaan} pertanyaan riset tersimpan. Belum ada sumber informasi nyata yang tersambung di versi ini.`,
-      belumSelesai: "Pengumpulan informasi nyata belum tersedia.",
-      perluKamu: false,
-      langkah: "Dikerjakan setelah tampilan dan akses selesai.",
-    },
+    await researchStage(c),
     {
       tahap: "Insight & publikasi",
       memungkinkan: "Menerbitkan insight berbasis bukti setelah kamu setujui.",
@@ -403,6 +534,9 @@ async function progressBoard(c: Context<Env>) {
     },
   ];
 }
+
+const keyAvailable = (env: Env["Bindings"]) =>
+  typeof env.GROQ_API_KEY === "string" && env.GROQ_API_KEY.length >= 16;
 
 export function registerFounder(app: Hono<Env>) {
   // Internal call into reviewed, audited workflow routes (same session and protections).
@@ -477,9 +611,23 @@ export function registerFounder(app: Hono<Env>) {
         tautan: "/produk",
         penjelasan: String(e.hypothesis).slice(0, 120),
       });
+    const live = await liveSummary(c);
+    for (const r of live.waiting)
+      waiting.unshift({
+        judul: "Beri keputusan untuk hasil riset",
+        tautan: "/intelijen",
+        penjelasan: r,
+      });
     const hasEvidence = !!opp && opp.bukti.length > 0;
     let next: { judul: string; alasan: string; tautan: string; aksi?: string };
-    if (!hasEvidence)
+    if (live.ready && !live.latest && !waiting.length)
+      next = {
+        judul: "Jalankan riset pasar nyata pertamamu",
+        alasan:
+          "Sumber informasi pasar nyata sudah tersambung. Tulis satu pertanyaan, HIO akan mencari di web, menyusun bukti beserta sumbernya, lalu meminta keputusanmu.",
+        tautan: "/intelijen",
+      };
+    else if (!hasEvidence && !live.ready)
       next = {
         judul: "Coba alur kerja dengan contoh data",
         alasan:
@@ -495,9 +643,12 @@ export function registerFounder(app: Hono<Env>) {
       };
     else
       next = {
-        judul: "Ajukan pertanyaan riset pasar pertamamu",
-        alasan:
-          "Alur contoh sudah dicoba. Langkah berikutnya adalah merumuskan pertanyaan nyata yang ingin kamu jawab.",
+        judul: live.ready
+          ? "Jalankan riset pasar berikutnya"
+          : "Ajukan pertanyaan riset pasar pertamamu",
+        alasan: live.ready
+          ? "Belum ada yang menunggu keputusanmu. Ajukan pertanyaan berikutnya yang ingin kamu jawab tentang pasar."
+          : "Langkah berikutnya adalah merumuskan pertanyaan nyata yang ingin kamu jawab.",
         tautan: "/intelijen",
       };
     return c.json({
@@ -511,18 +662,21 @@ export function registerFounder(app: Hono<Env>) {
             belumDiketahui: opp!.yangBelumDiketahui,
           }
         : null,
-      temuanPasarNyata: 0,
+      temuanPasarNyata: live.realCount,
       menungguKamu: waiting,
-      kendala: [
-        {
-          judul: "Sumber informasi pasar nyata belum tersambung",
-          dampak:
-            "HIO belum bisa menemukan peluang dari pasar sungguhan. Yang tampil saat ini hanya contoh data.",
-          perluKamu: false,
-          langkah:
-            "Dikerjakan setelah tampilan baru dan perlindungan akses selesai. Tidak ada yang perlu kamu lakukan sekarang.",
-        },
-      ],
+      kendala: live.ready
+        ? []
+        : [
+            {
+              judul: "Sumber informasi pasar nyata belum tersambung",
+              dampak:
+                "HIO belum bisa menemukan peluang dari pasar sungguhan. Yang tampil saat ini hanya contoh data.",
+              perluKamu: false,
+              langkah:
+                "Asisten AI perlu menyambungkan sumbernya. Tidak ada yang perlu kamu lakukan sekarang.",
+            },
+          ],
+      risetTerbaru: live.latest,
       langkahBerikutnya: next,
       contohData: sample,
       pertanyaanTerbaru: questions.map((q) => ({
@@ -861,11 +1015,18 @@ export function registerFounder(app: Hono<Env>) {
           penjelasan:
             "Data latihan buatan HIO untuk mencoba alur kerja. Tidak pernah dianggap sebagai bukti pasar.",
         },
+        ...sourceStatus(c.env).map((s) => ({
+          nama: s.nama,
+          status: s.tersambung ? "Tersambung" : "Belum tersambung",
+          penjelasan: s.tersambung
+            ? "Dipakai hanya saat kamu menjalankan riset. Setiap riset memakai satu pencarian."
+            : "Belum tersambung.",
+        })),
         {
-          nama: "Sumber informasi pasar nyata",
-          status: "Belum tersambung",
+          nama: "Analisis AI",
+          status: keyAvailable(c.env) ? "Tersambung" : "Belum tersambung",
           penjelasan:
-            "Akan disambungkan setelah tampilan dan akses selesai, dan hanya dari sumber yang diizinkan.",
+            "Membaca cuplikan yang terkumpul dan menyusun ringkasan, bukti pendukung dan berlawanan. Hasilnya selalu diberi label interpretasi AI.",
         },
       ],
       privasi: [

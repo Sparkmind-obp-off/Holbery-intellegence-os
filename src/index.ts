@@ -32,6 +32,7 @@ import {
 } from "./contracts";
 import { founderShell, maintenanceShell, notFoundPage } from "./view";
 import { registerFounder, founderNotice, APP_VERSION } from "./founder";
+import { registerResearch, researchReady } from "./research-routes";
 import { briefInput, researchPlan } from "./intelligence";
 import {
   secretInventory,
@@ -213,6 +214,9 @@ app.get("/api/health", async (c) => {
         "SELECT secret_name FROM secret_rotations LIMIT 1",
       ).first();
       await c.env.DB.prepare("SELECT id FROM research_briefs LIMIT 1").first();
+      await c.env.DB.prepare(
+        "SELECT id FROM research_decisions LIMIT 1",
+      ).first();
       database = true;
     } catch {
       /* Migration missing. */
@@ -228,8 +232,8 @@ app.get("/api/health", async (c) => {
       releaseState: configured(c)
         ? "operator-configured"
         : "setup-required-locked",
-      liveCollection: false,
-      aiInference: false,
+      liveCollection: researchReady(c.env),
+      aiInference: researchReady(c.env),
     },
     database && configured(c) ? 200 : 503,
   );
@@ -294,6 +298,7 @@ app.get("/api/v1/me", (c) =>
   }),
 );
 registerFounder(app);
+registerResearch(app);
 app.delete("/api/session", async (c) => {
   await revokeSession(c);
   await audit(c, "session.logout", "operator");

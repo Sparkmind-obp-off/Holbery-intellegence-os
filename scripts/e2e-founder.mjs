@@ -143,7 +143,8 @@ try {
 
   // Load sample data from Beranda
   await go("Beranda");
-  await page.getByRole("button", { name: "Muat contoh data" }).click();
+  // With live research connected, sample data is the secondary option.
+  await page.getByRole("button", { name: "Muat contoh data" }).first().click();
   await expect(page.locator("#notice")).toContainText("Contoh data dimuat");
   await expect(page.locator("#home-finding")).toContainText(
     "Hanya contoh data",
@@ -164,18 +165,19 @@ try {
   await assertNoLeak(page, "Intelijen (sample)");
   step("Intelijen Pasar: 3 bukti, sumber, tanggal, batasan, bukti berlawanan");
 
-  // Research question
-  await page
+  // Research question saved as a plan (no search)
+  const plan = page.locator("#question-form");
+  await plan
     .getByLabel("Apa yang ingin kamu ketahui?")
     .fill("Apakah toko daring kecil kesulitan mengatur stok?");
-  await page
+  await plan
     .getByLabel("Siapa yang mengalami masalahnya?")
     .fill("Pemilik toko daring kecil");
-  await page.getByLabel("Di mana?").fill("Jawa Timur");
-  await page
+  await plan.getByLabel("Di mana?").fill("Jawa Timur");
+  await plan
     .getByLabel("Masalah apa yang kamu duga?")
     .fill("Stok tidak cocok antara gudang dan toko");
-  await page
+  await plan
     .getByLabel("Siapa yang kamu duga mau membayar?")
     .fill("Pemilik toko");
   await page.getByRole("button", { name: "Simpan pertanyaan" }).click();
@@ -267,6 +269,56 @@ try {
   step(
     "Gangguan dijelaskan: dampak, perlu tindakan atau tidak, satu langkah berikutnya",
   );
+
+  // Live research through the founder UI (one real search + one AI analysis).
+  if (process.env.HIO_E2E_LIVE === "yes") {
+    await go("Intelijen Pasar");
+    const live = page.locator("#research-form");
+    await expect(live).toBeVisible();
+    await live
+      .getByLabel("Apa yang ingin kamu ketahui?")
+      .fill(
+        "Apakah penjual online kecil di Indonesia kesulitan membalas chat pembeli?",
+      );
+    await live
+      .getByLabel("Siapa yang mengalami masalahnya?")
+      .fill("Penjual online kecil");
+    await live.getByLabel("Di mana?").fill("Indonesia");
+    await live
+      .getByLabel("Masalah apa yang kamu duga?")
+      .fill("chat pembeli marketplace terlambat dibalas pesanan hilang");
+    await live.locator('input[value="tavily"]').check();
+    await live.getByLabel(/Saya setuju HIO memakai/).check();
+    await live.getByRole("button", { name: "Jalankan riset" }).click();
+    await expect(page.locator("#notice")).toContainText("Riset selesai", {
+      timeout: 60000,
+    });
+    const result = page.locator("#research-results .research").first();
+    await expect(result).toContainText("Interpretasi AI");
+    await expect(result).toContainText("Saran HIO");
+    await result.locator("summary").click();
+    const first = result.locator(".evidence").first();
+    await expect(first).toContainText("Temuan pasar nyata");
+    await expect(first.locator("a[href^='http']")).toHaveCount(1);
+    await assertNoLeak(page, "live research result");
+    await axe(page, "live research result");
+    await page.screenshot({
+      path: "test-results/founder-05-riset-nyata.png",
+      fullPage: true,
+    });
+    await result.locator('input[name="pilihan"][value="ubah"]').check();
+    await result
+      .getByLabel("Alasan singkatmu")
+      .fill("Perlu keluhan langsung dari penjual.");
+    await result.getByRole("button", { name: "Simpan keputusan" }).click();
+    await expect(page.locator("#notice")).toContainText("perlu diubah");
+    await expect(
+      page.locator("#research-results .research").first(),
+    ).toContainText("Perlu diubah dulu");
+    step(
+      "Riset nyata: satu pencarian, bukti bersumber, analisis AI berlabel, keputusan tercatat",
+    );
+  }
 
   // Maintenance is reachable only via Pengaturan > Lanjutan
   await go("Pengaturan");

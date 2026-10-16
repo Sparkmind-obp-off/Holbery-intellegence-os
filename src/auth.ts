@@ -10,6 +10,11 @@ export type Env = {
     HIO_ENVIRONMENT?: string;
     HIO_ACCOUNT_ID?: string;
     HIO_PAGES_PROJECT?: string;
+    TAVILY_API_KEY?: string;
+    FIRECRAWL_API_KEY?: string;
+    APIFY_TOKEN?: string;
+    GROQ_API_KEY?: string;
+    HIO_RESEARCH_ENABLED?: string;
   };
   Variables: { requestId: string; actor: string; role: string };
 };

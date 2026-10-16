@@ -5,46 +5,7 @@ import { founderShell } from "../src/view";
 import { founderNotice } from "../src/founder";
 import { LocalD1 } from "./helpers/local-d1";
 
-// Words that must never reach the founder in normal workflow screens.
-export const TECHNICAL_TERMS = [
-  /\bAPI\b/i,
-  /\bendpoint/i,
-  /\broute\b/i,
-  /\bpayload/i,
-  /\bschema/i,
-  /\bmigration/i,
-  /\bSQL\b/i,
-  /\bD1\b/,
-  /\bWorker/,
-  /\bPages\b/,
-  /\bruntime/i,
-  /\bdeploy/i,
-  /\bcommit\b/i,
-  /\bbranch\b/i,
-  /\brepositor/i,
-  /environment variable/i,
-  /\bsecret/i,
-  /\btoken/i,
-  /\bhash\b/i,
-  /\bwebhook/i,
-  /\bMCP\b/,
-  /\bplugin/i,
-  /\bfixture/i,
-  /\bmock\b/i,
-  /stack trace/i,
-  /\bHTTP\b/,
-  /\b[45]\d\d\b/,
-  /\badapter/i,
-  /\bconnector/i,
-  /\bprovenance/i,
-  /\bidempoten/i,
-  /\bJSON\b/,
-  /\bnull\b/,
-  /\bundefined\b/,
-  /\brequest ?id/i,
-  /\bsynthetic/i,
-  /_/, // snake_case identifiers, e.g. internal codes
-];
+import { TECHNICAL_TERMS } from "./helpers/terms";
 // The private recovery folder name is shown verbatim so the founder can find it.
 const ALLOWED_NAMES = /HIO_Private_Release/g;
 function leaks(text: string) {

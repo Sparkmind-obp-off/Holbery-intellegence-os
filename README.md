@@ -1,17 +1,17 @@
 # HOLBERY Intelligence OS
 
-**Version 0.3.0 — Founder-first workspace.** A business decision workspace in plain Bahasa Indonesia: observe → evidence → opportunity → recommendation → founder approval → experiment → learning.
+**Version 0.4.0 — Founder-first workspace with live market research.** A business decision workspace in plain Bahasa Indonesia: observe → evidence → opportunity → recommendation → founder approval → experiment → learning.
 
 > **Canonical readiness board:** [docs/62-founder-first-release-readiness.md](docs/62-founder-first-release-readiness.md). Older release sections below are historical evidence.
 
-**Current status (2026-10-16):** v0.3.0 verified locally (58 unit tests, 13 founder browser checks, legacy browser acceptance). **Not yet published** — production runs an older build that contains an unrepositoried "research engine"; see the deployment-risk section of doc 62. Production access protection verified active (read-only probe).
+**Current status (2026-10-16):** v0.4.0 verified (71 unit tests, 14 founder browser checks incl. one live search through the UI, legacy browser acceptance). Live research: Tavily / Firecrawl / Apify + Groq, keys only in Cloudflare secrets. See doc 62 for deployment state.
 
 ## Founder areas (default UI)
 
 | Area | Path | What it does |
 | --- | --- | --- |
 | Beranda | `/` | Findings, items waiting for approval, blockers, recommended next step, live progress board |
-| Intelijen Pasar | `/intelijen` | Evidence with source, dates, limitations, counter-evidence; patterns; research questions |
+| Intelijen Pasar | `/intelijen` | Run approved live research (one search + one AI analysis), numbered sourced evidence, labelled AI interpretation, guarded recommendation, decision; sample-data practice area |
 | Peluang | `/peluang` | Who/workaround/payer/uncertainty; recommendation; Setujui / Tolak / Ubah dulu / Putuskan nanti; decision history |
 | Produk & Eksperimen | `/produk` | Single-use approved Rp0 experiment, success/stop criteria, immutable result + learning |
 | Insight & Publikasi | `/publikasi` | Honest placeholder; nothing is generated or published yet |

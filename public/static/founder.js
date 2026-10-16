@@ -104,8 +104,15 @@ const problemBox = (p) =>
   `<div class="problem" role="alert"><p class="problem-title">${esc(p.judul)}</p><p><strong>Dampaknya:</strong> ${esc(p.dampak)}</p><p><strong>${p.perluKamu ? "Yang perlu kamu lakukan" : "Langkah berikutnya"}:</strong> ${esc(p.langkah)}</p>${p.perluKamu ? "" : '<p class="small">Kamu tidak perlu melakukan apa pun saat ini.</p>'}</div>`;
 const pageHead = (title, lead, extra = "") =>
   `<header class="page-head"><div><h1>${esc(title)}</h1><p class="lead">${esc(lead)}</p></div>${extra}</header>`;
-const field = (name, label, hint = "", type = "textarea", max = 500) =>
-  `<div class="field"><label for="f-${name}">${esc(label)}</label>${hint ? `<p class="hint" id="h-${name}">${esc(hint)}</p>` : ""}${type === "textarea" ? `<textarea id="f-${name}" name="${name}" required minlength="3" maxlength="${max}"${hint ? ` aria-describedby="h-${name}"` : ""}></textarea>` : `<input id="f-${name}" name="${name}" type="text" required minlength="3" maxlength="${max}"${hint ? ` aria-describedby="h-${name}"` : ""}>`}</div>`;
+const field = (
+  name,
+  label,
+  hint = "",
+  type = "textarea",
+  max = 500,
+  prefix = "f",
+) =>
+  `<div class="field"><label for="${prefix}-${name}">${esc(label)}</label>${hint ? `<p class="hint" id="${prefix}h-${name}">${esc(hint)}</p>` : ""}${type === "textarea" ? `<textarea id="${prefix}-${name}" name="${name}" required minlength="3" maxlength="${max}"${hint ? ` aria-describedby="${prefix}h-${name}"` : ""}></textarea>` : `<input id="${prefix}-${name}" name="${name}" type="text" required minlength="3" maxlength="${max}"${hint ? ` aria-describedby="${prefix}h-${name}"` : ""}>`}</div>`;
 const sampleNotice = () =>
   `<aside class="sample-notice"><strong>Ini contoh data, bukan temuan pasar nyata.</strong> Contoh data dipakai untuk mencoba alur kerja. Jangan gunakan untuk keputusan bisnis sungguhan.</aside>`;
 
@@ -137,7 +144,7 @@ async function beranda() {
   const nextAction =
     next.aksi === "muat-contoh"
       ? `<button data-action="muat-contoh">Muat contoh data</button><p class="small">Aman: tidak ada yang diterbitkan, tidak ada orang yang dihubungi, dan tidak ada biaya.</p>`
-      : `<a class="button" href="${esc(next.tautan)}">Buka</a>`;
+      : `<a class="button" href="${esc(next.tautan)}">Buka</a>${d.temuan ? "" : `<p class="small">Ingin mencoba alurnya dulu tanpa memakai kuota? <button class="ghost inline" data-action="muat-contoh">Muat contoh data</button></p>`}`;
   const waiting = d.menungguKamu.length
     ? `<ul class="todo">${d.menungguKamu.map((w) => `<li><a href="${esc(w.tautan)}"><strong>${esc(w.judul)}</strong><span>${esc(w.penjelasan)}</span></a></li>`).join("")}</ul>`
     : emptyState(
@@ -194,8 +201,50 @@ function progressTable(stages) {
 }
 
 // ---------- Intelijen Pasar ----------
+function researchForm(src) {
+  if (
+    !src.aktif ||
+    !src.analisisTersedia ||
+    !src.sumber.some((x) => x.tersambung)
+  )
+    return emptyState(
+      "Riset pasar nyata belum tersedia",
+      "Sumber informasi belum tersambung. Asisten AI akan menyambungkannya; kamu tidak perlu menyiapkan apa pun.",
+    );
+  const options = src.sumber
+    .filter((x) => x.tersambung)
+    .map(
+      (x, i) =>
+        `<label class="choice"><input type="radio" name="provider" value="${esc(x.id)}"${i === 0 ? " checked" : ""}${x.sisaHariIni ? "" : " disabled"}><span><strong>${esc(x.nama)}</strong><small>Sisa hari ini: ${x.sisaHariIni} dari ${x.batasHarian}</small></span></label>`,
+    )
+    .join("");
+  return `<form id="research-form" class="form"><p class="small">HIO akan melakukan <strong>satu pencarian web</strong> dan <strong>satu analisis AI</strong>, lalu menampilkan bukti beserta sumbernya. Tidak ada yang diterbitkan dan tidak ada orang yang dihubungi. Jangan masukkan data pribadi.</p>${field("question", "Apa yang ingin kamu ketahui?", "Contoh: Apakah toko daring kecil kesulitan mengatur stok?", "textarea", 500, "r")}${field("segment", "Siapa yang mengalami masalahnya?", "Contoh: Pemilik toko daring dengan 1–5 karyawan", "input", 120, "r")}${field("geography", "Di mana?", "Contoh: Indonesia", "input", 120, "r")}${field("problem", "Masalah apa yang kamu duga?", "Kata-kata ini dipakai untuk mencari, jadi tulis sespesifik mungkin.", "textarea", 500, "r")}<fieldset><legend>Sumber informasi</legend><div class="choices three">${options}</div></fieldset><label class="confirm"><input type="checkbox" name="approve" required> Saya setuju HIO memakai satu pencarian dan satu analisis AI dari kuota layanan yang tersambung.</label><p class="small">${esc(src.catatanBiaya)}</p><div class="actions"><button type="submit">Jalankan riset</button><span class="small">Biasanya selesai dalam 5–30 detik (hasil Google bisa sampai 30 detik).</span></div></form>`;
+}
+function researchCard(r) {
+  const head = `<div class="progress-head"><strong>${esc(r.pertanyaan)}</strong>${tag(r.status, r.selesai ? (r.menungguKeputusan ? "attention" : "good") : r.gagal ? "muted" : "info")}</div><p class="small">${esc(r.segmen)} · ${esc(r.wilayah)} · ${esc(r.sumber)} · ${dayTime(r.dibuat)}</p>`;
+  const problem = r.masalah ? problemBox(r.masalah) : "";
+  const a = r.analisis;
+  const analysis = a
+    ? `<section class="analysis"><p class="eyebrow">${esc(a.label)}</p><p class="big">${esc(a.ringkasan)}</p><dl class="facts two"><div><dt>Kekuatan bukti</dt><dd><strong>${esc(a.kekuatanBukti)}</strong> — ${esc(a.alasanKekuatan)}</dd></div><div><dt>Jumlah bukti</dt><dd>${a.jumlahMendukung} mendukung (${a.pendukungIndependen} dari pihak yang tidak menjual solusi) · ${a.jumlahBerlawanan} berlawanan atau tidak relevan · ${a.sumberBerbeda} situs pendukung berbeda</dd></div></dl><p class="small">${esc(a.batasanSampel)}</p>${a.pola.length ? `<h3>Pola yang terlihat</h3><ul class="plain">${a.pola.map((p) => `<li>${esc(p.judul)}${p.buktiNomor.length ? ` <span class="small">(bukti ${p.buktiNomor.join(", ")})</span>` : ""}</li>`).join("")}</ul>` : ""}${a.penjelasanLain.length ? `<h3>Penjelasan lain yang mungkin</h3><ul class="plain">${a.penjelasanLain.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}${a.belumDiketahui.length ? `<h3>Yang belum diketahui</h3><ul class="plain">${a.belumDiketahui.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}<p class="recommendation"><strong>Saran HIO: ${esc(a.saran)}.</strong> ${esc(a.alasanSaran)}</p>${a.catatanPengaman.map((x) => `<p class="small">${esc(x)}</p>`).join("")}<p><strong>Langkah validasi berikutnya:</strong> ${esc(a.langkahBerikutnya)}</p></section>`
+    : "";
+  const evidence = r.bukti.length
+    ? `<details class="evidence-list"${r.selesai ? "" : " open"}><summary>Lihat ${r.bukti.length} bukti beserta sumbernya</summary>${r.bukti.map((e) => `<article class="evidence ${e.berlawanan ? "counter" : e.mendukung ? "support" : "neutral"}"><div class="evidence-meta"><span class="tag muted">Bukti ${e.nomor}</span>${tag(e.hubungan, e.mendukung ? "good" : e.berlawanan ? "attention" : "muted")}${tag("Temuan pasar nyata", "info")}${e.berkepentingan ? tag("Dari penjual solusi", "attention") : ""}</div><p><strong>${esc(e.judul)}</strong></p><blockquote>${esc(e.kutipan)}</blockquote><dl class="facts"><div><dt>Sumber</dt><dd><a href="${esc(e.tautanSumber)}" target="_blank" rel="noopener noreferrer">${esc(e.situs)}</a></dd></div><div><dt>Tanggal sumber</dt><dd>${e.tanggalSumber ? day(e.tanggalSumber) : "Tidak tercantum"}</dd></div><div><dt>Dikumpulkan</dt><dd>${dayTime(e.tanggalDikumpulkan)}</dd></div><div><dt>Batasan</dt><dd>${esc(e.batasan)}</dd></div></dl></article>`).join("")}</details>`
+    : "";
+  const decide = r.menungguKeputusan
+    ? `<form class="form research-decision" data-id="${esc(r.id)}"><p><strong>Jika kamu setujui:</strong> ${esc(r.jikaDisetujui)}</p><fieldset><legend>Keputusanmu</legend><div class="choices"><label class="choice"><input type="radio" name="pilihan" value="setujui" required><span><strong>Setujui</strong><small>Lanjut ke uji kecil</small></span></label><label class="choice"><input type="radio" name="pilihan" value="tolak"><span><strong>Tolak</strong><small>Tidak dilanjutkan</small></span></label><label class="choice"><input type="radio" name="pilihan" value="ubah"><span><strong>Ubah dulu</strong><small>Teliti ulang</small></span></label><label class="choice"><input type="radio" name="pilihan" value="nanti"><span><strong>Putuskan nanti</strong><small>Tunda</small></span></label></div></fieldset><div class="field"><label for="ra-${esc(r.id)}">Alasan singkatmu</label><textarea id="ra-${esc(r.id)}" name="alasan" required maxlength="2000"></textarea></div><div class="actions"><button type="submit">Simpan keputusan</button></div></form>`
+    : "";
+  const history = r.riwayatKeputusan.length
+    ? `<ol class="history">${r.riwayatKeputusan.map((h) => `<li><strong>${esc(h.keputusan)}</strong> <span class="small">${dayTime(h.tanggal)}</span><p>${esc(h.alasan)}</p></li>`).join("")}</ol>`
+    : "";
+  return `<article class="research" id="research-${esc(r.id)}">${head}${problem}${analysis}${evidence}${decide}${history}</article>`;
+}
+
 async function intelijen() {
-  const d = await api("/founder/market");
+  const [d, src, research] = await Promise.all([
+    api("/founder/market"),
+    api("/founder/research/sources"),
+    api("/founder/research"),
+  ]);
   const patterns = d.pola.length
     ? d.pola
         .map(
@@ -227,11 +276,23 @@ async function intelijen() {
       "Pengamatan, masalah yang berulang, sumber, tanggal, serta bukti yang mendukung maupun yang membantah.",
       tag(`${d.temuanPasarNyata} temuan pasar nyata`, "muted"),
     ) +
-    `<aside class="info">${esc(d.catatanSumber)}</aside>` +
-    card("Pola yang terlihat", patterns) +
-    card("Bukti yang ditemukan", evidence, "", "market-evidence") +
+    card("Jalankan riset pasar nyata", researchForm(src), "", "research-card") +
     card(
-      "Ajukan pertanyaan riset",
+      "Hasil riset pasar nyata",
+      research.riset.length
+        ? research.riset.map(researchCard).join("")
+        : emptyState(
+            "Belum ada riset yang dijalankan",
+            "Hasil riset akan muncul di sini lengkap dengan sumber, tanggal, dan analisisnya.",
+          ),
+      "",
+      "research-results",
+    ) +
+    `<h2 class="section-title">Latihan dengan contoh data</h2><aside class="info">${esc(d.catatanSumber)}</aside>` +
+    card("Pola yang terlihat (contoh data)", patterns) +
+    card("Bukti contoh", evidence, "", "market-evidence") +
+    card(
+      "Simpan pertanyaan sebagai rencana (tanpa mencari)",
       `<form id="question-form" class="form"><p class="small">HIO akan menyimpan pertanyaanmu dan menyusun apa yang perlu dicari, apa yang bisa membantah, dan apa yang belum diketahui. Belum ada informasi yang dikumpulkan secara otomatis. Jangan masukkan data pribadi atau kata sandi.</p>${field("question", "Apa yang ingin kamu ketahui?", "Contoh: Apakah toko daring kecil di Jawa Timur kesulitan mengatur stok?")}${field("segment", "Siapa yang mengalami masalahnya?", "Contoh: Pemilik toko daring dengan 1–5 karyawan", "input", 120)}${field("geography", "Di mana?", "Contoh: Indonesia, Jawa Timur", "input", 120)}${field("problem", "Masalah apa yang kamu duga?")}${field("payerHypothesis", "Siapa yang kamu duga mau membayar?", "", "textarea", 300)}<div class="actions"><button type="submit">Simpan pertanyaan</button></div></form>`,
       "",
       "question-card",
@@ -520,6 +581,33 @@ document.addEventListener("submit", async (e) => {
   e.preventDefault();
   const data = Object.fromEntries(new FormData(form));
   const button = form.querySelector('button[type="submit"]');
+  if (form.id === "research-form") {
+    button.textContent = "Sedang mencari dan menganalisis…";
+    return act(button, async () => {
+      const r = await api("/founder/research", "POST", {
+        question: data.question,
+        segment: data.segment,
+        geography: data.geography,
+        problem: data.problem,
+        provider: data.provider,
+        approve: data.approve === "on",
+      });
+      return r.selesai
+        ? "Riset selesai. Tinjau bukti dan analisisnya di bawah, lalu beri keputusan."
+        : r.masalah
+          ? r.masalah.judul
+          : "Riset disimpan.";
+    });
+  }
+  if (form.classList.contains("research-decision"))
+    return act(button, async () => {
+      const r = await api(
+        `/founder/research/${encodeURIComponent(form.dataset.id)}/decision`,
+        "POST",
+        { pilihan: data.pilihan, alasan: data.alasan },
+      );
+      return r.pesan;
+    });
   if (form.id === "question-form")
     return act(button, async () => {
       const r = await api("/founder/questions", "POST", {
