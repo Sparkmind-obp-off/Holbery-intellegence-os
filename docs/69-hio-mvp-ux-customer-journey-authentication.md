@@ -212,3 +212,10 @@ No production auth cutover, destructive migration, billing enablement, or public
 - [Apple Human Interface Guidelines: onboarding](https://developer.apple.com/design/human-interface-guidelines/onboarding)
 
 These references support the design/identity recommendation; they do not establish that HIO's specific integration is implemented or tested.
+
+
+## Implementation handoff and Clerk credential configuration (2026-10-17)
+
+The paste-ready Phase 1 coding-agent prompt is [doc 70](70-master-implementation-prompt-phase-1-clerk-tenant-isolation.md).
+
+**Do not place all Clerk values into one secret.** Use the publishable key only as documented public/client configuration (`CLERK_PUBLISHABLE_KEY`), keep the secret key server-side (`CLERK_SECRET_KEY`), and configure a webhook secret only if a webhook is implemented and signature-verified (`CLERK_WEBHOOK_SECRET`). Google OAuth client setup belongs in the Clerk dashboard unless the chosen documented integration explicitly requires otherwise. Separate development/preview from production. Do not publish actual values in repository docs, source, logs, prompts or chat. Key availability does not prove connectivity; the actual Hono/Cloudflare runtime and cross-workspace tests must pass before cutover.
