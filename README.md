@@ -4,7 +4,7 @@
 
 > **Canonical product direction:** [docs/64-public-saas-product-direction.md](docs/64-public-saas-product-direction.md). **Canonical stack:** [docs/63-final-stack-find-build-validation.md](docs/63-final-stack-find-build-validation.md). **Canonical readiness board:** [docs/62-founder-first-release-readiness.md](docs/62-founder-first-release-readiness.md). The product direction is commercial; the readiness board distinguishes implemented/verified capabilities from planned ones. Older release sections below are historical evidence.
 
-**Current status (2026-10-16):** v0.4.0 verified (71 unit tests, 14 founder browser checks incl. one live search through the UI, legacy browser acceptance). Live research: Tavily / Firecrawl / Apify + Groq, keys only in Cloudflare secrets. See doc 62 for deployment state.
+**Current implementation status (2026-10-16):** v0.4.0 verification is recorded in doc 62. Existing live research code has reported Tavily / Firecrawl / Apify + Groq provider support with keys in Cloudflare secrets. This is distinct from the newly selected optional **Grok Console / xAI API** integration; do not treat the latter as implemented until independently connected and tested. The commercial product direction and canonical stack are documented in docs 64 and 63; doc 62 remains authoritative for deployment/readiness state.
 
 ## Founder areas (default UI)
 
