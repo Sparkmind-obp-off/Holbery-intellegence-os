@@ -53,3 +53,7 @@ HIO's intended direction is an AI Business Command Workspace: evidence → oppor
 ## Commercial SaaS direction update — 2026-10-16
 
 Commercial direction update (2026-10-16): validation is a core customer-facing product stage, not only an internal gate. Every opportunity must connect to a hypothesis, target customer, pre-set success/stop thresholds, actual signal, and continue/revise/stop decision. Canonical flow: [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md).
+
+## Commercial SaaS direction update — 2026-10-16
+
+Commercial direction update (2026-10-16): validation is a core customer-facing product stage, not only an internal gate. Every opportunity must connect to a hypothesis, target customer, pre-set success/stop thresholds, actual signal, and continue/revise/stop decision. Canonical flow: [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md).
