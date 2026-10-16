@@ -84,3 +84,11 @@ Tests: `tests/founder.test.ts` (language leakage on shell, script copy and every
 - Master coding-agent prompt: [docs/68](68-master-system-prompt-hio-mvp.md)
 
 The repository inspection confirms a founder/operator research foundation, but not a completed public multi-tenant SaaS. No test commands were executed during this source-only audit. Follow the roadmap in order: baseline and recovery, customer identity/tenant isolation, usage/cost controls, FIND/DECIDE, Daytona BUILD and private artifacts, VALIDATE, controlled beta, then payment only after its own acceptance gate. Do not mark a provider connected or a release gate passed without direct test evidence.
+
+
+## Customer authentication handoff — 2026-10-17
+
+- UX/customer journey/authentication specification: [docs/69](69-hio-mvp-ux-customer-journey-authentication.md)
+- Paste-ready Phase 1 implementation prompt for Clerk + tenant isolation: [docs/70](70-master-implementation-prompt-phase-1-clerk-tenant-isolation.md)
+
+Clerk is planned for customer identity only, subject to compatibility and security tests. HIO D1 remains authoritative for workspace membership and authorization; founder/operator auth stays separate. Use separate public `CLERK_PUBLISHABLE_KEY` and server-only `CLERK_SECRET_KEY`; webhook secret only if needed. No production auth cutover or deploy is authorized by this documentation update. Credential presence/configuration is not evidence of a successful integration.
