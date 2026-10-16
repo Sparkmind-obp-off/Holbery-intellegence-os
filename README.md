@@ -1,6 +1,25 @@
 # HOLBERY Intelligence OS
 
-**Version 0.2.0 — Discovery → Demand → Opportunity → Decision.** Internal fixture workflow plus persisted research planning; not live market validation or autonomous AI.
+**Version 0.3.0 — Founder-first workspace.** A business decision workspace in plain Bahasa Indonesia: observe → evidence → opportunity → recommendation → founder approval → experiment → learning.
+
+> **Canonical readiness board:** [docs/62-founder-first-release-readiness.md](docs/62-founder-first-release-readiness.md). Older release sections below are historical evidence.
+
+**Current status (2026-10-16):** v0.3.0 verified locally (58 unit tests, 13 founder browser checks, legacy browser acceptance). **Not yet published** — production runs an older build that contains an unrepositoried "research engine"; see the deployment-risk section of doc 62. Production access protection verified active (read-only probe).
+
+## Founder areas (default UI)
+
+| Area | Path | What it does |
+| --- | --- | --- |
+| Beranda | `/` | Findings, items waiting for approval, blockers, recommended next step, live progress board |
+| Intelijen Pasar | `/intelijen` | Evidence with source, dates, limitations, counter-evidence; patterns; research questions |
+| Peluang | `/peluang` | Who/workaround/payer/uncertainty; recommendation; Setujui / Tolak / Ubah dulu / Putuskan nanti; decision history |
+| Produk & Eksperimen | `/produk` | Single-use approved Rp0 experiment, success/stop criteria, immutable result + learning |
+| Insight & Publikasi | `/publikasi` | Honest placeholder; nothing is generated or published yet |
+| Pengaturan | `/pengaturan` | Access status, sign-in & recovery, sources, privacy; hidden link to maintenance |
+
+Owner-only technical diagnostics: `/pemeliharaan/*` (not in navigation). Founder data: `/api/founder/*` (plain-language response objects; private). Data storage: Cloudflare D1 (`hio-production`), unchanged schema (migrations 0001–0004).
+
+---
 
 **Canonical repository:** https://github.com/Sparkmind-obp-off/Holbery-intellegence-os
 

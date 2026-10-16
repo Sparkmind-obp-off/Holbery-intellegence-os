@@ -30,7 +30,8 @@ import {
   score,
   id,
 } from "./contracts";
-import { shell } from "./view";
+import { founderShell, maintenanceShell, notFoundPage } from "./view";
+import { registerFounder, founderNotice, APP_VERSION } from "./founder";
 import { briefInput, researchPlan } from "./intelligence";
 import {
   secretInventory,
@@ -160,6 +161,7 @@ app.use(
           error: {
             code: "body_too_large",
             message: "Body exceeds 16 KB",
+            founder: founderNotice("body_too_large"),
             requestId: c.get("requestId"),
           },
         },
@@ -190,7 +192,14 @@ app.onError(async (e, c) => {
     }
   }
   return c.json(
-    { error: { code, message, requestId: c.get("requestId") } },
+    {
+      error: {
+        code,
+        message,
+        founder: founderNotice(code, c.req.path),
+        requestId: c.get("requestId"),
+      },
+    },
     status,
   );
 });
@@ -212,7 +221,7 @@ app.get("/api/health", async (c) => {
   return c.json(
     {
       service: "HIO",
-      version: "0.2.0",
+      version: APP_VERSION,
       database,
       authentication: configured(c),
       mode: "fixture-and-research-planning",
@@ -284,6 +293,7 @@ app.get("/api/v1/me", (c) =>
     mode: "fixture-only",
   }),
 );
+registerFounder(app);
 app.delete("/api/session", async (c) => {
   await revokeSession(c);
   await audit(c, "session.logout", "operator");
@@ -904,38 +914,78 @@ app.post("/api/v1/settings/purge-expired", async (c) => {
   ]);
   return c.json({ purged: result[0]?.meta.changes ?? 0 });
 });
-app.get("/secrets", async (c) => {
-  if (!(await authenticated(c))) return c.html(shell(), 401);
-  if (!canManageSecrets(c.get("role")))
-    return fail("owner_required", 403, "Owner access required.");
-  return c.html(shell(!configured(c)));
-});
-app.use("/static/*", serveStatic({ root: "./public" }));
-for (const path of [
+// Founder workspace (default). Plain-language screens only.
+const founderPaths = [
   "/",
-  "/intelligence",
-  "/sources",
-  "/runs",
-  "/evidence",
-  "/clusters",
-  "/opportunities",
-  "/decisions",
-  "/experiments",
-  "/plugins",
-  "/settings",
-  "/manual",
-])
-  app.get(path, (c) => c.html(shell(!configured(c))));
-app.notFound((c) =>
-  c.json(
-    {
-      error: {
-        code: "not_found",
-        message: "Route not found",
-        requestId: c.get("requestId"),
-      },
-    },
-    404,
-  ),
-);
+  "/intelijen",
+  "/peluang",
+  "/produk",
+  "/publikasi",
+  "/pengaturan",
+];
+for (const path of founderPaths) {
+  app.get(path, (c) => c.html(founderShell(!configured(c))));
+  if (path !== "/") app.get(path + "/", (c) => c.redirect(path, 301));
+}
+// Owner-only maintenance area: hidden from founder navigation, never the landing page.
+const maintenancePages = [
+  "overview",
+  "intelligence",
+  "sources",
+  "runs",
+  "evidence",
+  "clusters",
+  "opportunities",
+  "decisions",
+  "experiments",
+  "plugins",
+  "settings",
+  "secrets",
+  "manual",
+];
+app.get("/pemeliharaan/", (c) => c.redirect("/pemeliharaan", 301));
+app.get("/pemeliharaan/:page?", async (c) => {
+  const page = c.req.param("page") || "overview";
+  if (!maintenancePages.includes(page)) return c.redirect("/pemeliharaan", 302);
+  if (!(await authenticated(c))) return c.redirect("/pengaturan", 302);
+  if (page === "secrets" && !canManageSecrets(c.get("role")))
+    return c.redirect("/pengaturan", 302);
+  return c.html(maintenanceShell());
+});
+// Legacy engineering URLs map to the matching founder area.
+const legacy: Record<string, string> = {
+  "/intelligence": "/intelijen",
+  "/sources": "/pengaturan",
+  "/runs": "/intelijen",
+  "/evidence": "/intelijen",
+  "/clusters": "/intelijen",
+  "/opportunities": "/peluang",
+  "/decisions": "/peluang",
+  "/experiments": "/produk",
+  "/plugins": "/pengaturan",
+  "/settings": "/pengaturan",
+  "/secrets": "/pengaturan",
+  "/manual": "/pengaturan",
+};
+for (const [from, to] of Object.entries(legacy))
+  app.get(from, (c) => c.redirect(to, 301));
+app.use("/static/*", serveStatic({ root: "./public" }));
+// Explicit catch-all: the Pages build wrapper cannot forward Hono's notFound
+// handler (it becomes undefined and produced 500s). Pages get a friendly 404.
+const notFound = (c: Context<Env>) =>
+  c.req.path.startsWith("/api/")
+    ? c.json(
+        {
+          error: {
+            code: "not_found",
+            message: "Route not found",
+            founder: founderNotice("not_found"),
+            requestId: c.get("requestId"),
+          },
+        },
+        404,
+      )
+    : c.html(notFoundPage(), 404);
+app.notFound(notFound);
+app.all("*", notFound);
 export default app;

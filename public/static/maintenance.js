@@ -24,8 +24,6 @@ const labels = {
 };
 let currentPage = "overview";
 let renderToken = 0;
-let bootstrapping = true;
-const loginLocked = $("#operator-secret").dataset.locked === "true";
 const timestamp = (s) =>
   s
     ? new Date(s).toLocaleString("id-ID", {
@@ -84,9 +82,7 @@ async function api(path, method = "GET", body) {
   return data;
 }
 function showLogin() {
-  $("#workspace").hidden = true;
-  $("#login-panel").hidden = false;
-  $("#operator-secret").value = "";
+  location.href = "/";
 }
 function detail(title, data) {
   $("#dialog-title").textContent = title;
@@ -170,11 +166,11 @@ async function overview() {
     `<section class="metrics" aria-label="Workspace metrics">${metrics.map(([label, value, sub]) => `<article class="metric"><div class="metric-label">${label}<span>↗</span></div><div class="metric-value">${value}</div><small>${sub}</small></article>`).join("")}</section><div class="grid-two">` +
     panel(
       "The intelligence loop",
-      `<div class="panel-body"><p class="muted">Satu alur kerja, dengan bukti dan persetujuan manusia pada setiap keputusan penting.</p><div class="workflow">${["Source", "Collect", "Evidence", "Cluster", "Dossier", "Decide", "Test", "Learn"].map((v, i) => `<span class="${i === 2 ? "current" : ""}">${String(i + 1).padStart(2, "0")} / ${v}</span>`).join("")}</div><ol class="checklist"><li><span class="step-number">01</span><div><a class="text-link" href="/plugins">Install & authorize the fixture →</a><p>Installed: ${plugins.items.length} · Default tanpa grants dan disabled.</p></div></li><li><span class="step-number">02</span><div><a class="text-link" href="/sources">Enable the permitted source →</a><p>${sources.items.filter((s) => s.enabled).length} source enabled · zero external requests.</p></div></li><li><span class="step-number">03</span><div><a class="text-link" href="/opportunities">Review evidence, then decide →</a><p>Counter-evidence dan uncertainty tidak disembunyikan.</p></div></li></ol></div>`,
+      `<div class="panel-body"><p class="muted">Satu alur kerja, dengan bukti dan persetujuan manusia pada setiap keputusan penting.</p><div class="workflow">${["Source", "Collect", "Evidence", "Cluster", "Dossier", "Decide", "Test", "Learn"].map((v, i) => `<span class="${i === 2 ? "current" : ""}">${String(i + 1).padStart(2, "0")} / ${v}</span>`).join("")}</div><ol class="checklist"><li><span class="step-number">01</span><div><a class="text-link" href="/pemeliharaan/plugins">Install & authorize the fixture →</a><p>Installed: ${plugins.items.length} · Default tanpa grants dan disabled.</p></div></li><li><span class="step-number">02</span><div><a class="text-link" href="/pemeliharaan/sources">Enable the permitted source →</a><p>${sources.items.filter((s) => s.enabled).length} source enabled · zero external requests.</p></div></li><li><span class="step-number">03</span><div><a class="text-link" href="/pemeliharaan/opportunities">Review evidence, then decide →</a><p>Counter-evidence dan uncertainty tidak disembunyikan.</p></div></li></ol></div>`,
     ) +
     panel(
       "Research discipline",
-      `<div class="panel-body"><span class="warning-label">HUMAN APPROVAL REQUIRED</span><h2>Decision authority</h2><p>HIO menyiapkan bukti. Operator memutuskan apakah hipotesis layak diteliti.</p><ul class="checklist"><li>Data fixture ≠ demand nyata</li><li>Duplicates tidak dihitung dua kali</li><li>Test hanya sintetis dan budget Rp0</li><li>Tidak ada public launch atau outreach</li></ul><div class="form-actions"><a class="text-link" href="/manual">Baca Manual & batasan →</a></div></div>`,
+      `<div class="panel-body"><span class="warning-label">HUMAN APPROVAL REQUIRED</span><h2>Decision authority</h2><p>HIO menyiapkan bukti. Operator memutuskan apakah hipotesis layak diteliti.</p><ul class="checklist"><li>Data fixture ≠ demand nyata</li><li>Duplicates tidak dihitung dua kali</li><li>Test hanya sintetis dan budget Rp0</li><li>Tidak ada public launch atau outreach</li></ul><div class="form-actions"><a class="text-link" href="/pemeliharaan/manual">Baca Manual & batasan →</a></div></div>`,
     ) +
     `</div>` +
     panel(
@@ -190,7 +186,7 @@ async function overview() {
             timestamp(r.finished_at),
           ]),
       ),
-      `<a class="text-link" href="/runs">Semua runs →</a>`,
+      `<a class="text-link" href="/pemeliharaan/runs">Semua runs →</a>`,
     )
   );
 }
@@ -279,7 +275,7 @@ async function clusters() {
           `<strong>${esc(c.title)}</strong>`,
           `<p>${esc(c.problem)}</p>${pill("UNVERIFIED HYPOTHESIS", "warm")}`,
           String(c.evidence_count),
-          '<a class="text-link" href="/opportunities">Buka dossier →</a>',
+          '<a class="text-link" href="/pemeliharaan/opportunities">Buka dossier →</a>',
         ]),
       ),
     ) +
@@ -457,7 +453,7 @@ async function settings() {
     `<div class="grid-two">` +
     panel(
       "Operating envelope",
-      `<div class="panel-body"><p>Mode: ${pill(s.mode, "warm")}</p><p>Retention: ${s.retentionDays} hari · max ${s.limits.recordsPerRun} records/run</p><p>Network: disabled · spending: disabled</p><p>Role: owner-operator · session 8 hours</p><button class="secondary" data-action="purge">Purge expired fixture payloads</button><p><a class="text-link" href="/secrets">Secrets Owner — inventory & recovery →</a></p></div>`,
+      `<div class="panel-body"><p>Mode: ${pill(s.mode, "warm")}</p><p>Retention: ${s.retentionDays} hari · max ${s.limits.recordsPerRun} records/run</p><p>Network: disabled · spending: disabled</p><p>Role: owner-operator · session 8 hours</p><button class="secondary" data-action="purge">Purge expired fixture payloads</button><p><a class="text-link" href="/pemeliharaan/secrets">Secrets Owner — inventory & recovery →</a></p></div>`,
     ) +
     panel(
       "Known limitations",
@@ -512,10 +508,11 @@ const pages = {
 };
 async function render() {
   const token = ++renderToken;
-  currentPage = location.pathname.slice(1) || "overview";
+  currentPage =
+    location.pathname.replace(/^\/pemeliharaan\/?/, "") || "overview";
   if (!pages[currentPage]) currentPage = "overview";
   $("#breadcrumb").textContent = labels[currentPage];
-  document.title = `${labels[currentPage]} · HOLBERY HIO`;
+  document.title = `${labels[currentPage]} · Pemeliharaan HIO`;
   document.querySelectorAll("nav a").forEach((a) => {
     a.classList.toggle("active", a.dataset.page === currentPage);
     if (a.dataset.page === currentPage) a.setAttribute("aria-current", "page");
@@ -549,7 +546,7 @@ async function mutate(button, work) {
   }
 }
 document.addEventListener("click", async (e) => {
-  const link = e.target.closest('a[href^="/"]');
+  const link = e.target.closest('a[href^="/pemeliharaan"]');
   if (link && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
     e.preventDefault();
     history.pushState({}, "", link.href);
@@ -651,11 +648,14 @@ document.addEventListener("click", async (e) => {
 });
 document.addEventListener("submit", async (e) => {
   const form = e.target;
-  if (form.id === "login-form") return;
   e.preventDefault();
   const data = Object.fromEntries(new FormData(form));
   if (form.id === "search-form") {
-    history.pushState({}, "", "/evidence?q=" + encodeURIComponent(data.q));
+    history.pushState(
+      {},
+      "",
+      "/pemeliharaan/evidence?q=" + encodeURIComponent(data.q),
+    );
     await render();
     return;
   }
@@ -720,27 +720,6 @@ document.addEventListener("submit", async (e) => {
       });
   });
 });
-$("#login-form").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  if (bootstrapping || loginLocked) return;
-  const button = e.target.querySelector("button");
-  button.disabled = true;
-  $("#login-error").textContent = "";
-  try {
-    const d = await api("/session", "POST", {
-      secret: $("#operator-secret").value,
-    });
-    $("#operator-name").textContent = d.actor;
-    $("#operator-secret").value = "";
-    $("#login-panel").hidden = true;
-    $("#workspace").hidden = false;
-    await render();
-  } catch (error) {
-    $("#login-error").textContent = error.message;
-  } finally {
-    button.disabled = false;
-  }
-});
 $("#logout-button").addEventListener("click", async () => {
   try {
     await api("/session", "DELETE");
@@ -764,9 +743,5 @@ window.addEventListener("popstate", render);
     await render();
   } catch {
     showLogin();
-  } finally {
-    bootstrapping = false;
-    $("#operator-secret").disabled = loginLocked;
-    $("#login-form button").disabled = loginLocked;
   }
 })();

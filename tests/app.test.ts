@@ -273,12 +273,19 @@ describe("Intelligence planning and locked release", () => {
     };
     const root = await app.request("https://hio.test/", {}, lockedEnv);
     expect(root.status).toBe(200);
-    expect(await root.text()).toContain("workspace terkunci");
+    expect(await root.text()).toContain("Ruang kerja sedang dikunci");
+    const maintenance = await app.request(
+      "https://hio.test/pemeliharaan/secrets",
+      { headers: { Cookie: cookie } },
+      lockedEnv,
+    );
+    expect(maintenance.status).toBe(302);
+    expect(maintenance.headers.get("location")).toBe("/pengaturan");
     for (const path of [
       "/api/v1/intelligence",
       "/api/v1/evidence",
       "/api/v1/secrets",
-      "/secrets",
+      "/api/founder/home",
     ])
       expect(
         (
@@ -320,11 +327,21 @@ describe("Intelligence planning and locked release", () => {
 });
 describe("Secrets Owner safety", () => {
   it("denies anonymous page/API access and ignores forged role headers", async () => {
-    for (const path of ["/secrets", "/api/v1/secrets"])
-      expect(
-        (await request(path, "GET", undefined, { "X-Role": "owner-operator" }))
-          .status,
-      ).toBe(401);
+    expect(
+      (
+        await request("/api/v1/secrets", "GET", undefined, {
+          "X-Role": "owner-operator",
+        })
+      ).status,
+    ).toBe(401);
+    const page = await request("/pemeliharaan/secrets", "GET", undefined, {
+      "X-Role": "owner-operator",
+    });
+    expect(page.status).toBe(302);
+    expect(page.headers.get("location")).toBe("/pengaturan");
+    expect((await request("/secrets")).headers.get("location")).toBe(
+      "/pengaturan",
+    );
     expect(canManageSecrets("viewer")).toBe(false);
     expect(canManageSecrets("operator")).toBe(false);
     expect(canManageSecrets(undefined)).toBe(false);
@@ -335,7 +352,7 @@ describe("Secrets Owner safety", () => {
     const r = await request("/api/v1/secrets");
     expect(r.status).toBe(200);
     const body = await r.text();
-    const html = await (await request("/secrets")).text();
+    const html = await (await request("/pemeliharaan/secrets")).text();
     for (const value of [env().OPERATOR_SECRET, env().SESSION_SECRET])
       for (const sensitive of [
         value,

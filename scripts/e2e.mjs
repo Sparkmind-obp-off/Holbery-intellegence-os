@@ -63,15 +63,15 @@ try {
   );
   await page.goto(base);
   await expect(page.locator("#login-panel")).toBeVisible();
-  await expect(
-    page.getByRole("button", { name: "Masuk ke workspace" }),
-  ).toBeDisabled();
-  await expect(page.getByLabel("Kredensial operator")).toBeDisabled();
-  await page.getByLabel("Kredensial operator").fill(secret);
-  await page.getByRole("button", { name: "Masuk ke workspace" }).click();
+  await expect(page.getByRole("button", { name: "Masuk" })).toBeDisabled();
+  await expect(page.getByLabel("Kata sandi akses")).toBeDisabled();
+  await page.getByLabel("Kata sandi akses").fill(secret);
+  await page.getByRole("button", { name: "Masuk" }).click();
   await expect(page.locator("#workspace")).toBeVisible();
   await page.waitForTimeout(1800);
   await expect(page.locator("#workspace")).toBeVisible();
+  // Technical diagnostics live in the separate owner-only maintenance area.
+  await page.goto(base + "/pemeliharaan");
   await expect(page.locator("#page-content h1")).toHaveText(
     "Evidence before exposure.",
   );
@@ -79,7 +79,7 @@ try {
     path: "test-results/overview-desktop.png",
     fullPage: true,
   });
-  await page.locator('nav a[href="/intelligence"]').click();
+  await page.locator('nav a[href="/pemeliharaan/intelligence"]').click();
   await expect(page.locator("#intelligence-form")).toBeVisible();
   await page
     .locator("#field-question")
@@ -113,7 +113,7 @@ try {
     path: "test-results/intelligence-desk-desktop.png",
     fullPage: true,
   });
-  await page.locator('nav a[href="/runs"]').click();
+  await page.locator('nav a[href="/pemeliharaan/runs"]').click();
   await expect(page.locator("#run-form")).toBeVisible();
   await page.locator("#field-key").fill("browser-" + crypto.randomUUID());
   await page.waitForTimeout(2200);
@@ -121,12 +121,12 @@ try {
   await expect(page.locator("#detail-dialog")).toBeVisible();
   await expect(page.locator("#dialog-content")).toContainText("succeeded");
   await page.locator("#close-dialog").click();
-  await page.locator('nav a[href="/evidence"]').click();
+  await page.locator('nav a[href="/pemeliharaan/evidence"]').click();
   await expect(page.locator(".evidence-card")).toHaveCount(3);
   await page.getByRole("button", { name: "Lihat provenance" }).first().click();
   await expect(page.locator("#dialog-content")).toContainText("captured_at");
   await page.locator("#close-dialog").click();
-  await page.locator('nav a[href="/opportunities"]').click();
+  await page.locator('nav a[href="/pemeliharaan/opportunities"]').click();
   await expect(page.locator(".score")).toContainText("67");
   await page.locator("#field-choice").selectOption("approve_fixture");
   await page
@@ -141,7 +141,7 @@ try {
   await expect(page.locator("#notice")).toContainText(
     "Perubahan dikonfirmasi server",
   );
-  await page.locator('nav a[href="/experiments"]').click();
+  await page.locator('nav a[href="/pemeliharaan/experiments"]').click();
   await expect(page.locator("#experiment-form")).toBeVisible();
   const latest = (await call("/v1/decisions")).items[0];
   await page.locator("#field-decisionId").selectOption(latest.id);
@@ -188,7 +188,7 @@ try {
     },
     400,
   );
-  await page.goto(base + "/secrets");
+  await page.goto(base + "/pemeliharaan/secrets");
   await expect(page.locator("#page-content h1")).toHaveText("Secrets Owner");
   await expect(page.locator("#page-content")).toContainText(
     "Configured ≠ recoverable",
@@ -238,7 +238,7 @@ try {
     fullPage: true,
   });
   for (const path of [
-    "/",
+    "",
     "/intelligence",
     "/sources",
     "/runs",
@@ -252,7 +252,7 @@ try {
     "/secrets",
     "/manual",
   ]) {
-    await page.goto(base + path);
+    await page.goto(base + "/pemeliharaan" + path);
     await expect(page.locator("#page-content h1")).toBeVisible();
     const a11y = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
@@ -267,7 +267,7 @@ try {
       `Accessibility violations: ${path}`,
     );
   }
-  await page.goto(base + "/manual");
+  await page.goto(base + "/pemeliharaan/manual");
   await expect(page.locator("#page-content")).toContainText(
     "Manual version 0.2.0",
   );
@@ -277,7 +277,7 @@ try {
     "Keyboard focus should reach an interactive control",
   );
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto(base);
+  await page.goto(base + "/pemeliharaan");
   await expect(page.locator("#page-content h1")).toBeVisible();
   assert.ok(
     await page.evaluate(
@@ -287,7 +287,7 @@ try {
   );
   await page.locator("#menu-toggle").click();
   await expect(page.locator("#sidebar")).toHaveClass("open");
-  await page.locator('nav a[href="/manual"]').click();
+  await page.locator('nav a[href="/pemeliharaan/manual"]').click();
   await expect(page.locator("#page-content h1")).toHaveText("Manual & help");
   await expect(page.locator("#sidebar")).not.toHaveClass("open");
   await page.screenshot({
@@ -295,6 +295,7 @@ try {
     fullPage: true,
   });
   await page.locator("#logout-button").click();
+  await page.waitForURL(base + "/");
   await expect(page.locator("#login-panel")).toBeVisible();
   await page.reload();
   await expect(page.locator("#login-panel")).toBeVisible();
