@@ -51,3 +51,7 @@ HIO's intended direction is an AI Business Command Workspace: evidence → oppor
 ## Commercial SaaS direction update — 2026-10-16
 
 Commercial SaaS update (2026-10-16): public access must not expose private customer workspaces or owner operations. Enforce tenant isolation server-side; keep all provider/Daytona credentials server-side; apply source permission checks, data minimization, retention/deletion, usage caps, sandbox isolation and auditable approvals before onboarding external customers. See [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md).
+
+## Commercial SaaS direction update — 2026-10-16
+
+Commercial SaaS update (2026-10-16): public access must not expose private customer workspaces or owner operations. Enforce tenant isolation server-side; keep all provider/Daytona credentials server-side; apply source permission checks, data minimization, retention/deletion, usage caps, sandbox isolation and auditable approvals before onboarding external customers. See [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md).
