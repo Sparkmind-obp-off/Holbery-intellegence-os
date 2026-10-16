@@ -106,3 +106,7 @@ It can be marked **commercially validated** only after real-world behavior and p
 - Y Combinator, Essential Startup Advice: https://www.ycombinator.com/blog/ycs-essential-startup-advice/
 - G2 AI Agents for Business Operations: https://www.g2.com/categories/ai-agents-for-business-operations
 - Genspark AI Workspace 6.0 (vendor claims, accessed 2026-10-12): https://www.genspark.ai/blog/genspark-ai-workspace-6
+
+## Commercial SaaS direction update — 2026-10-16
+
+Commercial product update (2026-10-16): all demand evidence and validation results should be attributable to a customer workspace and a specific opportunity/experiment. Distinguish public-source evidence, AI inference, stated interest, actual use, and payment. Keep data provenance and sampling limitations visible. Canonical flow: [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md).
