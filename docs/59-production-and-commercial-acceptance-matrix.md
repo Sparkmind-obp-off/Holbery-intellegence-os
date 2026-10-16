@@ -106,3 +106,8 @@ Prior verified status reported a live Pages deployment and cloud smoke checks, b
 - NIST SSDF project and publications: https://csrc.nist.gov/projects/ssdf
 - Cloudflare Pages bindings/secrets: https://developers.cloudflare.com/pages/functions/bindings/
 - Cloudflare D1 migrations: https://developers.cloudflare.com/d1/reference/migrations/
+
+
+## Public SaaS gate — 2026-10-16
+
+The commercial target is a public-facing HIO SaaS, but launch must remain gated until evidence exists for: cross-workspace tenant isolation; signup/login/session recovery; per-tenant usage limits and cost accounting; provider/Daytona sandbox isolation; export/deletion/retention controls; privacy/terms/support; end-to-end FIND → BUILD → VALIDATE; billing and plan entitlements before taking recurring payments; backup/restore and rollback; and accurate marketing claims. A marketing landing page is not permission to expose internal APIs or onboard arbitrary customer data. See [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md) and the canonical status in [docs/62-founder-first-release-readiness.md](62-founder-first-release-readiness.md).
