@@ -179,3 +179,15 @@ The expanded decision framework is documented in:
 - [61 — Research source register & decision log](docs/61-research-source-register-and-decision-log.md): source register, synthesized findings, decisions and open questions.
 
 These documents define a target operating standard, not proof that all runtime controls are implemented. HIO remains non-commercial until production authentication, security, data integrity, support, payment (if enabled), and real-customer value gates have been evidenced. All customer, price, product-market-fit and ROI claims remain hypotheses until validated.
+
+## Final FIND / BUILD / VALIDATE stack (2026-10-16)
+
+Canonical stack decision: [docs/63-final-stack-find-build-validation.md](docs/63-final-stack-find-build-validation.md).
+
+- **FIND:** Apify is the required primary social/community acquisition layer; Tavily is the standard public-web research complement.
+- **Optional providers:** Grok Console / xAI API for targeted X/web search and model API; Cloudflare Workers AI for suitable inference tasks. The chosen xAI integration is Grok Console/API, not “Grok AI.”
+- **BUILD:** Daytona is the required standard isolated build/test environment. Choose the output that fits the problem: spreadsheet, document, dashboard, or web demo.
+- **DELIVERY:** existing HIO Cloudflare stack—Workers, Pages, D1, and optional R2—supports APIs, publication, structured state, and generated artifacts.
+- **VALIDATE:** every prototype needs a defined experiment and recorded result before expansion.
+
+This is the target architecture, not a claim that every provider is connected or production-tested. Keep Commerce and Bozq resources isolated.
