@@ -39,3 +39,7 @@ A reviewer who did not create a dossier can find its evidence, challenge its con
 ## Product direction synchronization (2026-10-12)
 
 HIO's target is an evidence-to-execution business workspace, not a generic chatbot. This target does not imply shipped parity. Use docs/50 for capability states and release truth, docs/51 for the Genspark/G2 benchmark, docs/52 for target architecture, docs/53 for production/commercial gates, and docs/54 for market validation. Keep fixtures distinct from live data. Production login remains blocked pending secure Owner configuration of distinct OPERATOR_SECRET and SESSION_SECRET values and verified authenticated production tests.
+
+## Commercial SaaS direction update — 2026-10-16
+
+UX direction update (2026-10-16): public product landing/onboarding, authenticated customer workspace, and separate owner/admin operations must be distinct surfaces. Customer navigation should express FIND, Opportunities, BUILD, VALIDATE, and Launch/Artifacts; unavailable capabilities must be labelled honestly and never presented as working. See [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md).
