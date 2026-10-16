@@ -50,3 +50,7 @@ Do not mark readiness from documentation, build success, a mock, or a static dep
 ## Product direction synchronization (2026-10-12)
 
 HIO's target is an evidence-to-execution business workspace, not a generic chatbot. This target does not imply shipped parity. Use docs/50 for capability states and release truth, docs/51 for Genspark/G2 benchmark, docs/52 for target architecture, docs/53 for production/commercial gates, and docs/54 for market validation. Keep fixtures distinct from live data. Production login remains blocked pending secure Owner configuration of distinct OPERATOR_SECRET and SESSION_SECRET values and verified authenticated production tests.
+
+## Commercial SaaS direction update — 2026-10-16
+
+The internal-alpha checklist is not sufficient for commercial release. Commercial SaaS additionally requires tenant isolation, customer onboarding/access lifecycle, workspace-scoped quotas and usage accounting, provider/Daytona sandbox isolation, data retention/export/deletion, terms/privacy/support, billing/entitlements before charging, recovery/rollback evidence, and end-to-end FIND → BUILD → VALIDATE acceptance. Canonical requirements: [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md).
