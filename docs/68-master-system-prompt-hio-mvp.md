@@ -149,3 +149,10 @@ Do not make one giant rewrite or work on every phase in a single context window.
 - **Next phase:** one recommended next step.
 
 **Definition of done for the initial MVP:** one controlled customer can find traceable evidence, approve one opportunity, create and retrieve one tested artifact through an isolated Daytona build, record a real validation outcome, and see measured usage/cost—without accessing another workspace's data. Until all gates pass, describe HIO as a controlled MVP/beta, not a fully launched commercial SaaS.
+
+
+## Phase 1 execution addendum — Clerk and customer tenancy
+
+For the dedicated Phase 1 implementation prompt, use [doc 70 — Master Implementation Prompt: Phase 1 Customer Identity, Clerk & Tenant Isolation](70-master-implementation-prompt-phase-1-clerk-tenant-isolation.md). It specializes this master prompt without replacing the wider roadmap or safety rules.
+
+Clerk credential rule: keep `CLERK_PUBLISHABLE_KEY` (public/client configuration) separate from server-only `CLERK_SECRET_KEY`; add `CLERK_WEBHOOK_SECRET` only if a signed webhook is actually implemented. Do not put credentials together in one secret, expose secret values, or assume that a saved key proves a working connection. Configure separate dev/preview and production values. Preserve founder auth; no production auth cutover or deployment during Phase 1.
