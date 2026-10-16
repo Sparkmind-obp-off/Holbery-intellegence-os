@@ -196,3 +196,8 @@ This is the target architecture, not a claim that every provider is connected or
 ## Final external provider register (2026-10-17)
 
 [65 — Final External Provider Register for HIO MVP](docs/65-final-external-provider-register.md) is the canonical register for provider roles, free-tier limits, commercial-use restrictions, optional integrations, and connection verification. The chosen stack is sufficient to start one controlled MVP slice; the register does not claim credentials or integrations are already connected/tested. Jina's non-commercial Toy Experiment tier must not be used for commercial SaaS workloads. Keep Commerce and Bozq resources isolated.
+
+
+## Implementation audit and execution prompt (2026-10-17)
+
+The source-based implementation audit is [docs/66](docs/66-implementation-audit-before-commercial-mvp.md), the phased execution plan is [docs/67](docs/67-mvp-implementation-roadmap.md), and the repository-aware coding agent prompt is [docs/68](docs/68-master-system-prompt-hio-mvp.md). These distinguish the current founder/research foundation from the target commercial SaaS. They do not claim that a new audit test run, provider connection, Daytona build, or customer multi-tenancy has already passed.
