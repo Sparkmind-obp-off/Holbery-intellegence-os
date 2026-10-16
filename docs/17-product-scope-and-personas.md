@@ -28,3 +28,7 @@ Which decisions are slow or guesswork-driven? What does the dossier enable? Whic
 ## Product direction synchronization (2026-10-12)
 
 HIO's target is an evidence-to-execution business workspace, not a generic chatbot. This target does not imply shipped parity. Use docs/50 for capability states and release truth, docs/51 for the Genspark/G2 benchmark, docs/52 for target architecture, docs/53 for production/commercial gates, and docs/54 for market validation. Keep fixtures distinct from live data. Production login remains blocked pending secure Owner configuration of distinct OPERATOR_SECRET and SESSION_SECRET values and verified authenticated production tests.
+
+## Commercial SaaS direction update — 2026-10-16
+
+Scope update (2026-10-16): include external customers/creators/sellers/operators as target users, with workspace-level data ownership. The product journey is FIND → BUILD → VALIDATE → LAUNCH. Do not imply self-service signup, paid plans, all connectors, or full agent execution exist until verified. See [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md).
