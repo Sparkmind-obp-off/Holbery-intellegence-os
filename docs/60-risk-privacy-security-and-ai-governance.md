@@ -88,3 +88,8 @@ This policy is operational guidance, not a certification or legal opinion. Befor
 - NIST SSDF overview: https://csrc.nist.gov/projects/ssdf
 - Cloudflare Pages secrets: https://developers.cloudflare.com/pages/functions/bindings/
 - Genspark Workspace 6.0 (market benchmark, not a security standard): https://www.genspark.ai/blog/genspark-ai-workspace-6
+
+
+## Commercial SaaS governance addendum — 2026-10-16
+
+The public-SaaS direction adds explicit tenant-boundary requirements: every API, query, job, artifact, usage record, and connector credential must be scoped server-side to an authenticated workspace; never rely on hidden UI controls. Owner/admin controls must be separated from customer surfaces. Provider keys and Daytona credentials stay server-side; sandbox output is untrusted and must not gain production credentials. Apply per-tenant budgets, cancellation, idempotency, retention/deletion policy, abuse controls, audit, incident response, and human approval for publication or other consequential actions. Connector use must respect platform terms and authorized access; do not bypass private-group restrictions. See [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md).
