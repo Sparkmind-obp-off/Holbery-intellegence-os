@@ -4,11 +4,18 @@
 
 Last verified: 2026-10-16, repository version 0.4.0. Directive: `docs/55-founder-first-ui-master-system-prompt.md`.
 
+## Production deployment — 2026-10-16
+
+- Deployment `5bab2058-dcdf-4e07-9b08-08c995e73fce`, runtime commit `60097fe`, branch `main`, via guarded `scripts/deploy.mjs` (BYOK, account `a167a50f…`, project `holbery-intelligence-os`, D1 `hio-production`).
+- Verified live: `/api/health` → version 0.4.0, database true, authentication true, liveCollection/aiInference true (all four provider secrets bound). Founder pages 200; private data 401; wrong password → plain "Kata sandi tidak cocok"; `/pemeliharaan` anonymous → redirect; unknown URL 404 (was 500). Short live log tail: no provider key found.
+- **Not tested by the agent:** an authenticated research run on production (requires the founder password, which the agent does not hold). Live research itself was tested end-to-end against the real providers in the sandbox, including through the browser UI.
+- Rollback: previous production deployment `5980463f` (commit `1ecb319`, unrepositoried research engine) can be restored from the Cloudflare dashboard; schema change 0006 is additive and harmless to it.
+
 ## Board
 
 | Stage | Founder status | What was actually verified | Open / blocker | Founder action? |
 | --- | --- | --- | --- | --- |
-| Founder workspace (Task 1) | Lulus pemeriksaan (local) | 6-area plain-Indonesian UI; 17 founder unit tests + 13 browser checks (leakage, a11y axe serious/critical = 0, mobile 390px, empty/loading/error, approval flow, logout) | **Not published to production** | Yes — approve publication (see deployment risk) |
+| Founder workspace (Task 1) | Lulus pemeriksaan (live) | 6-area plain-Indonesian UI; 17 founder unit tests + 13 browser checks (leakage, a11y axe serious/critical = 0, mobile 390px, empty/loading/error, approval flow, logout) | Published 2026-10-16 (deployment 5bab2058) | No |
 | Founder access (Task 2) | Lulus pemeriksaan | Production probe (read-only, 2026-10-16): `/` 200, all private data 401, wrong password 401, cross-origin sign-in 403, HSTS + CSP present. Local: first sign-in, wrong password, expired session, logout, unauthorized requests, locked state when not configured | Recovery drill with founder never run; founder receipt of credential still unacknowledged (from 2026-10-11 release) | Optional — confirm credential is in a password manager |
 | Decision path (sample data) | Terbukti digunakan (local) | sample → evidence (support+counter, dedup) → recommendation → approve/reject/edit/later → single-use Rp0 experiment → immutable result; all through audited workflow routes | Sample data only | No |
 | Real market research (v0.4.0) | Lulus pemeriksaan | Tavily, Firecrawl, Apify (Google) + Groq `openai/gpt-oss-120b`. Live runs on all three sources returned sourced evidence + guarded AI dossier; browser check #14 runs one real search through the UI (bukti, label AI, keputusan, axe, leakage). 13 research unit tests with mocked providers | Evidence = search snippets only; no full-page reading or interviews. Daily caps tavily 20 / firecrawl 10 / apify 3 / groq 30 | Yes — review results and decide |
