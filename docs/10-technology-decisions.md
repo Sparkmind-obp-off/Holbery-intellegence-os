@@ -36,3 +36,7 @@ Reconsider a choice only when there is evidence: quota pressure, cost, reliabili
 ## Canonical productization baseline — 2026-10-12
 
 HIO's intended direction is an AI Business Command Workspace: evidence → opportunity → approved execution → measurable outcomes. This is a target product direction, not proof that every capability is shipped or commercially ready. Keep fixture/demo evidence distinct from live data, and use [the canonical productization and production-parity contract](50-ai-workspace-productization-and-production-parity.md) for current capability labels, security boundaries, release verification, and SaaS launch gates. Current production login remains blocked until the Owner configures distinct `OPERATOR_SECRET` and `SESSION_SECRET` values securely and the deployed authenticated workflow is verified. Benchmark current Genspark AI Workspace and G2 product evidence before turning assumptions into requirements.
+
+## Commercial SaaS direction update — 2026-10-16
+
+Canonical stack update (2026-10-16): Apify is required primary FIND acquisition; Tavily is the standard web-research complement; Grok Console / xAI API is optional; Cloudflare Workers AI is optional; Daytona is the required standard BUILD sandbox; Cloudflare Workers/Pages and existing D1 with optional R2 support control plane, persistence and delivery. Full contract: [docs/63-final-stack-find-build-validation.md](63-final-stack-find-build-validation.md).
