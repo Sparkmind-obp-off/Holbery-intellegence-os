@@ -123,3 +123,8 @@ A high weighted score must not override a hard failure in safety, permissions, p
 - Y Combinator, The Real Product Market Fit: https://www.ycombinator.com/blog/the-real-product-market-fit/
 - Stripe, Essential SaaS Metrics (updated 2026-04-13): https://stripe.com/resources/more/essential-saas-metrics
 - Stripe, CAC in SaaS: https://stripe.com/resources/more/cac-in-saas
+
+
+## Product direction update — 2026-10-16
+
+HIO is targeting a commercial SaaS product with the journey FIND → BUILD → VALIDATE → LAUNCH. Plan names and prices remain hypotheses, not published commitments. Before charging, measure actual Apify/Tavily/xAI/Workers AI and Daytona costs, implement per-workspace entitlements and usage metering, define caps/overages/refunds/support, and test willingness to pay. BYOK can be considered later; it does not eliminate sandbox, storage, or platform costs. Do not treat deployment as proof of commercial readiness. Canonical commercial model: [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md).
