@@ -63,3 +63,7 @@ HIO's target is an evidence-to-execution business workspace, not a generic chatb
 ## Commercial SaaS direction update — 2026-10-16
 
 Decision recorded 2026-10-16: HIO product destination changes from founder-first internal workspace to public-facing commercial SaaS, with staged rollout and explicit readiness gates. Canonical product direction: [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md); stack: [docs/63-final-stack-find-build-validation.md](63-final-stack-find-build-validation.md).
+
+## Commercial SaaS direction update — 2026-10-16
+
+Decision recorded 2026-10-16: HIO product destination changes from founder-first internal workspace to public-facing commercial SaaS, with staged rollout and explicit readiness gates. Canonical product direction: [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md); stack: [docs/63-final-stack-find-build-validation.md](63-final-stack-find-build-validation.md).
