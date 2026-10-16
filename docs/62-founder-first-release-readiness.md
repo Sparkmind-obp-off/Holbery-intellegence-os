@@ -11,6 +11,12 @@ Last verified: 2026-10-16, repository version 0.4.0. Directive: `docs/55-founder
 - **Not tested by the agent:** an authenticated research run on production (requires the founder password, which the agent does not hold). Live research itself was tested end-to-end against the real providers in the sandbox, including through the browser UI.
 - Rollback: previous production deployment `5980463f` (commit `1ecb319`, unrepositoried research engine) can be restored from the Cloudflare dashboard; schema change 0006 is additive and harmless to it.
 
+## Founder credential rotation — 2026-10-16
+
+- On founder request, a new 48-character CSPRNG `OPERATOR_SECRET` was generated and set as Production `secret_text`; redeployed as `08658a27`. The previous value is no longer valid (Cloudflare cannot read old secrets back, and the earlier AI Drive handoff was not reachable from this sandbox).
+- Verified live with the new value: sign-in 200, private data 200, logout 200, replay after logout 401. One authenticated production research run (Tavily + AI) completed with 6 sourced items.
+- Delivered to the founder as a private download link (authenticated Genspark file link); never committed, logged, or shown in UI/API.
+
 ## Board
 
 | Stage | Founder status | What was actually verified | Open / blocker | Founder action? |
