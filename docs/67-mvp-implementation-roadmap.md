@@ -134,3 +134,12 @@ Deliverables:
 8. Payment/billing only if beta evidence warrants it.
 
 Do not parallelize all phases in a single large code change. Implement, test, review and checkpoint each phase. Stop if a change threatens existing production data or requires an unverified destructive migration.
+
+
+## Phase 1 clarification — Clerk customer identity (2026-10-17)
+
+The selected direction is to evaluate and, if the compatibility gate passes, use Clerk for **customer identity authentication**. HIO remains authoritative for internal users, workspaces, memberships, roles and record-level authorization. The existing founder/operator login must remain separate.
+
+Credential handling: do not combine Clerk credentials into one secret. `CLERK_PUBLISHABLE_KEY` is public/client configuration as documented by Clerk; `CLERK_SECRET_KEY` is server-only; `CLERK_WEBHOOK_SECRET` is needed only if a verified webhook is implemented. Configure Google OAuth in the Clerk dashboard and use separate development/preview and production configuration. Never place values in docs, source, D1, prompts, logs or chat. Availability of credentials is not proof of connectivity.
+
+Use the paste-ready implementation instructions in [doc 70 — Phase 1 Clerk and tenant isolation](70-master-implementation-prompt-phase-1-clerk-tenant-isolation.md). No production cutover/deploy is authorized by this phase.
