@@ -74,3 +74,7 @@ HIO's intended direction is an AI Business Command Workspace: evidence → oppor
 ## Commercial SaaS direction update — 2026-10-16
 
 Commercial architecture update (2026-10-16): separate public marketing pages, authenticated tenant workspaces, and owner/admin operations. FIND → BUILD → VALIDATE → LAUNCH is the customer flow. Enforce workspace scope in every API, job, query, artifact, quota, and audit record. Canonical target: [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md).
+
+## Commercial SaaS direction update — 2026-10-16
+
+Commercial architecture update (2026-10-16): separate public marketing pages, authenticated tenant workspaces, and owner/admin operations. FIND → BUILD → VALIDATE → LAUNCH is the customer flow. Enforce workspace scope in every API, job, query, artifact, quota, and audit record. Canonical target: [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md).
