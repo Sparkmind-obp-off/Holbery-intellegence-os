@@ -39,3 +39,8 @@ The intended product is a sellable AI Business Command Workspace connecting dema
 ## Product direction synchronization (2026-10-12)
 
 HIO's target is an evidence-to-execution business workspace, not a generic chatbot. This target does not imply shipped parity. Use docs/50 for capability states and release truth, docs/51 for Genspark/G2 benchmark, docs/52 for target architecture, docs/53 for production/commercial gates, and docs/54 for market validation. Keep fixtures distinct from live data. Production login remains blocked pending secure Owner configuration of distinct OPERATOR_SECRET and SESSION_SECRET values and verified authenticated production tests.
+
+
+## Canonical product-direction update — 2026-10-16
+
+This strategy is now subordinate to [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md): HIO is intended as a customer-facing commercial SaaS for **FIND → BUILD → VALIDATE → LAUNCH**, not only an internal founder workspace. Free/trial, Starter, Pro, and Team are packaging hypotheses only until provider/Daytona cost-to-serve and customer willingness to pay are measured. Do not publish fixed pricing or claim billing/self-service is ready until implemented and verified. Stack authority: [docs/63-final-stack-find-build-validation.md](63-final-stack-find-build-validation.md). Release claims authority: [docs/62-founder-first-release-readiness.md](62-founder-first-release-readiness.md).
