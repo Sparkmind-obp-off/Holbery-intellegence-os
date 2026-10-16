@@ -38,3 +38,7 @@ A feature is complete only with implementation, automated tests, documented limi
 ## Product direction synchronization (2026-10-12)
 
 HIO's target is an evidence-to-execution business workspace, not a generic chatbot. This target does not imply shipped parity. Use docs/50 for capability states and release truth, docs/51 for Genspark/G2 benchmark, docs/52 for target architecture, docs/53 for production/commercial gates, and docs/54 for market validation. Keep fixtures distinct from live data. Production login remains blocked pending secure Owner configuration of distinct OPERATOR_SECRET and SESSION_SECRET values and verified authenticated production tests.
+
+## Commercial SaaS direction update — 2026-10-16
+
+Product target update (2026-10-16): the intended public SaaS journey is FIND → BUILD → VALIDATE → LAUNCH. Requirements must distinguish target design from implemented features and include tenant isolation, provider/Daytona budgets, artifact tests, validation outcome persistence, privacy/retention, and commercial launch gates. See [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md).
