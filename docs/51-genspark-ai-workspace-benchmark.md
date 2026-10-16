@@ -47,3 +47,7 @@ Potential wedge: a founder/operator can answer “What should I do next, why, wh
 - [ ] Identify one repeated, expensive workflow HIO can complete reliably.
 - [ ] Test with target users and compare baseline vs assisted result.
 - [ ] Revise the product wedge from evidence.
+
+## Commercial SaaS direction update — 2026-10-16
+
+Commercial direction update (2026-10-16): Genspark is a capability benchmark, not a requirement to clone its entire stack. HIO's differentiating workflow is FIND → BUILD → VALIDATE → LAUNCH with Apify/Tavily evidence discovery, Daytona as standard build environment, and Cloudflare as control plane/delivery. xAI integration is Grok Console / xAI API, not a product dependency named “Grok AI”. See [docs/63-final-stack-find-build-validation.md](63-final-stack-find-build-validation.md) and [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md).
