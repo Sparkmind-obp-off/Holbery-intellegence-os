@@ -64,3 +64,7 @@ HIO's intended direction is an AI Business Command Workspace: evidence → oppor
 ## Commercial SaaS direction update — 2026-10-16
 
 Commercial operating update (2026-10-16): Apify, Tavily, xAI/Grok Console, Workers AI, Daytona, Workers, D1 and R2 usage must be measured and capped per workspace. Do not set public pricing until actual cost-to-serve and willingness to pay are tested. BYOK is optional later and does not eliminate platform/sandbox costs. See [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md).
+
+## Commercial SaaS direction update — 2026-10-16
+
+Commercial operating update (2026-10-16): Apify, Tavily, xAI/Grok Console, Workers AI, Daytona, Workers, D1 and R2 usage must be measured and capped per workspace. Do not set public pricing until actual cost-to-serve and willingness to pay are tested. BYOK is optional later and does not eliminate platform/sandbox costs. See [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md).
