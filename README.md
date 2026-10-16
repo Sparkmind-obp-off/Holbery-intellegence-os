@@ -1,8 +1,8 @@
 # HOLBERY Intelligence OS
 
-**Version 0.4.0 — Founder-first workspace with live market research.** A business decision workspace in plain Bahasa Indonesia: observe → evidence → opportunity → recommendation → founder approval → experiment → learning.
+**Product direction (2026-10-16): Public-facing commercial SaaS — FIND → BUILD → VALIDATE → LAUNCH.** HOLBERY Intelligence OS helps customers discover evidence-backed problems, build a suitable prototype (spreadsheet, document, web demo, or system), and validate demand. This is the target commercial product direction; actual feature availability and launch readiness remain governed by the canonical readiness board.
 
-> **Canonical readiness board:** [docs/62-founder-first-release-readiness.md](docs/62-founder-first-release-readiness.md). Older release sections below are historical evidence.
+> **Canonical product direction:** [docs/64-public-saas-product-direction.md](docs/64-public-saas-product-direction.md). **Canonical stack:** [docs/63-final-stack-find-build-validation.md](docs/63-final-stack-find-build-validation.md). **Canonical readiness board:** [docs/62-founder-first-release-readiness.md](docs/62-founder-first-release-readiness.md). The product direction is commercial; the readiness board distinguishes implemented/verified capabilities from planned ones. Older release sections below are historical evidence.
 
 **Current status (2026-10-16):** v0.4.0 verified (71 unit tests, 14 founder browser checks incl. one live search through the UI, legacy browser acceptance). Live research: Tavily / Firecrawl / Apify + Groq, keys only in Cloudflare secrets. See doc 62 for deployment state.
 
