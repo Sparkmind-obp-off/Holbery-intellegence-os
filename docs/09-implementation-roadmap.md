@@ -59,3 +59,7 @@ One approved source → collection run → normalized record → evidence item �
 
 
 > **Current roadmap rule (2026-10-12):** Treat the numbered stages below as dependency hints, not calendar promises or proof of completion. Prioritize the production login blocker, then feature-to-runtime parity, then narrow customer validation. Use [the canonical productization and production parity contract](50-ai-workspace-productization-and-production-parity.md) as the source of truth for release evidence and capability status.
+
+## Commercial SaaS direction update — 2026-10-16
+
+Roadmap direction update (2026-10-16): prioritize one external-customer FIND → BUILD → VALIDATE vertical slice before broad features. Add tenant isolation, usage/cost controls, artifact packaging, privacy/retention, and launch gates before self-service SaaS. Do not equate a strategy decision with implementation completion. See [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md) and [docs/62-founder-first-release-readiness.md](62-founder-first-release-readiness.md).
