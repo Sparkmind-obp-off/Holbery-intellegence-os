@@ -63,3 +63,7 @@ One approved source → collection run → normalized record → evidence item �
 ## Commercial SaaS direction update — 2026-10-16
 
 Roadmap direction update (2026-10-16): prioritize one external-customer FIND → BUILD → VALIDATE vertical slice before broad features. Add tenant isolation, usage/cost controls, artifact packaging, privacy/retention, and launch gates before self-service SaaS. Do not equate a strategy decision with implementation completion. See [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md) and [docs/62-founder-first-release-readiness.md](62-founder-first-release-readiness.md).
+
+## Commercial SaaS direction update — 2026-10-16
+
+Roadmap direction update (2026-10-16): prioritize one external-customer FIND → BUILD → VALIDATE vertical slice before broad features. Add tenant isolation, usage/cost controls, artifact packaging, privacy/retention, and launch gates before self-service SaaS. Do not equate a strategy decision with implementation completion. See [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md) and [docs/62-founder-first-release-readiness.md](62-founder-first-release-readiness.md).
