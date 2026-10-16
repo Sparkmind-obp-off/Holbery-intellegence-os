@@ -66,3 +66,7 @@ Refresh this register when:
 - the release moves from internal alpha to pilot or commercial availability.
 
 Every update should state date, author, change, source and impact on the decision. Do not silently rewrite old assumptions as if they were always facts.
+
+## Commercial SaaS direction update — 2026-10-16
+
+Decision update (2026-10-16): HIO's product destination is a public-facing commercial SaaS. FIND uses Apify as required primary acquisition and Tavily as standard public-web complement; Grok Console / xAI API is optional. BUILD uses Daytona as standard isolated build/test environment. This is a design decision, not proof of connected integrations or launch readiness. See [docs/63-final-stack-find-build-validation.md](63-final-stack-find-build-validation.md) and [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md).
