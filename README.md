@@ -191,3 +191,8 @@ Canonical stack decision: [docs/63-final-stack-find-build-validation.md](docs/63
 - **VALIDATE:** every prototype needs a defined experiment and recorded result before expansion.
 
 This is the target architecture, not a claim that every provider is connected or production-tested. Keep Commerce and Bozq resources isolated.
+
+
+## Final external provider register (2026-10-17)
+
+[65 — Final External Provider Register for HIO MVP](docs/65-final-external-provider-register.md) is the canonical register for provider roles, free-tier limits, commercial-use restrictions, optional integrations, and connection verification. The chosen stack is sufficient to start one controlled MVP slice; the register does not claim credentials or integrations are already connected/tested. Jina's non-commercial Toy Experiment tier must not be used for commercial SaaS workloads. Keep Commerce and Bozq resources isolated.
