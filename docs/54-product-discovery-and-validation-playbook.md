@@ -48,3 +48,7 @@ Avoid spam, unauthorized scraping, unsolicited automated outreach, or bypassing 
 - Result and next action:
 
 Research broadly, validate narrowly, build one end-to-end workflow, and expand only after repeated user value is demonstrated.
+
+## Commercial SaaS direction update — 2026-10-16
+
+Commercial product update (2026-10-16): use FIND → BUILD → VALIDATE → LAUNCH as the customer-visible journey, with Daytona as the standard build environment and evidence-led validation. A demo, generated artifact, or positive survey response alone does not prove willingness to pay. Canonical product direction: [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md).
