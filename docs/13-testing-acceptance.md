@@ -53,3 +53,7 @@ HIO's target is an evidence-to-execution business workspace, not a generic chatb
 ## Commercial SaaS direction update — 2026-10-16
 
 Commercial acceptance update (2026-10-16): tests must include tenant-to-tenant access denial, per-workspace quotas, connector failures/rate limits, Daytona sandbox isolation and cleanup, artifact validation, cancellation, secret-leak scanning, and one end-to-end FIND → BUILD → VALIDATE journey. Passing unit tests alone is not commercial launch approval. See [docs/59-production-and-commercial-acceptance-matrix.md](59-production-and-commercial-acceptance-matrix.md).
+
+## Commercial SaaS direction update — 2026-10-16
+
+Commercial acceptance update (2026-10-16): tests must include tenant-to-tenant access denial, per-workspace quotas, connector failures/rate limits, Daytona sandbox isolation and cleanup, artifact validation, cancellation, secret-leak scanning, and one end-to-end FIND → BUILD → VALIDATE journey. Passing unit tests alone is not commercial launch approval. See [docs/59-production-and-commercial-acceptance-matrix.md](59-production-and-commercial-acceptance-matrix.md).
