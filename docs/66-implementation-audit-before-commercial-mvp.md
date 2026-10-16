@@ -87,3 +87,8 @@ This audit is based on source files and documentation inspected on 2026-10-17. P
 ## Next documents
 - [67 — MVP Implementation Roadmap](67-mvp-implementation-roadmap.md)
 - [68 — Master System Prompt for Coding Agent](68-master-system-prompt-hio-mvp.md)
+
+
+## Clerk follow-up (2026-10-17)
+
+The owner reports that Clerk credentials have been obtained. This is an owner-reported setup update only; the audit has not independently verified their presence, validity, runtime compatibility, or successful sign-in. Do not record Clerk as connected until the Hono/Cloudflare compatibility spike and authentication/tenant tests pass. Credential boundaries: publishable key is client/public configuration; secret key is server-only; webhook secret only if a signed webhook is used. Keep dev/preview and production configuration separate, and never record credential values. See [doc 69](69-hio-mvp-ux-customer-journey-authentication.md) and [doc 70](70-master-implementation-prompt-phase-1-clerk-tenant-isolation.md).
