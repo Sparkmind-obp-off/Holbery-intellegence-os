@@ -48,3 +48,10 @@ Prefer the existing Cloudflare Pages/Workers + D1 stack initially. Verify real b
 8. Validate one paying workflow before expanding suites.
 
 A layer is not complete because its documentation exists. Verify code, database effects, authorization, tests, deployed version, and failure behavior.
+
+
+## Commercial product direction — 2026-10-16
+
+The canonical customer journey is now **FIND → BUILD → VALIDATE → LAUNCH**. HIO is the customer-facing product/control plane; the product is intended to be commercial SaaS rather than founder-only internal tooling. Layer 1 FIND uses Apify as the required primary acquisition layer and Tavily as the standard public-web complement, with Grok Console / xAI API optional for targeted X/search and model API. Layer 2 BUILD uses Daytona as the required standard isolated build/test environment. Cloudflare Workers, Pages, existing D1, and optional R2 provide control-plane, persistence, and publication.
+
+This direction does not assert these integrations or SaaS features are implemented. Existing implementation/readiness evidence remains authoritative. Public pages, authenticated customer workspaces, and owner/admin controls must be separate surfaces with server-enforced tenant isolation. See [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md), [docs/63-final-stack-find-build-validation.md](63-final-stack-find-build-validation.md), and [docs/62-founder-first-release-readiness.md](62-founder-first-release-readiness.md).
