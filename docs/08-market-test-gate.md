@@ -49,3 +49,7 @@ Record actuals, deviations, costs, sample limitations, failed assumptions, and d
 ## Canonical productization baseline — 2026-10-12
 
 HIO's intended direction is an AI Business Command Workspace: evidence → opportunity → approved execution → measurable outcomes. This is a target product direction, not proof that every capability is shipped or commercially ready. Keep fixture/demo evidence distinct from live data, and use [the canonical productization and production-parity contract](50-ai-workspace-productization-and-production-parity.md) for current capability labels, security boundaries, release verification, and SaaS launch gates. Current production login remains blocked until the Owner configures distinct `OPERATOR_SECRET` and `SESSION_SECRET` values securely and the deployed authenticated workflow is verified. Benchmark current Genspark AI Workspace and G2 product evidence before turning assumptions into requirements.
+
+## Commercial SaaS direction update — 2026-10-16
+
+Commercial direction update (2026-10-16): validation is a core customer-facing product stage, not only an internal gate. Every opportunity must connect to a hypothesis, target customer, pre-set success/stop thresholds, actual signal, and continue/revise/stop decision. Canonical flow: [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md).
