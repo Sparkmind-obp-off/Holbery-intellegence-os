@@ -118,3 +118,8 @@ No-go if login/auth is not verified, tenant boundaries are untested, a payment c
 - Y Combinator, Essential Startup Advice: https://www.ycombinator.com/blog/ycs-essential-startup-advice/
 - Stripe, Essential SaaS Metrics: https://stripe.com/resources/more/essential-saas-metrics
 - Cloudflare Pages bindings and encrypted secrets: https://developers.cloudflare.com/pages/functions/bindings/
+
+
+## Canonical positioning update — 2026-10-16
+
+Position HIO as a customer-facing AI Business Workspace that helps users **find evidence-backed demand, build the smallest useful product, validate it, and prepare to launch**. Do not market it as guaranteed revenue, universal social access, or a fully autonomous agent. Use a limited invited-customer pilot before opening public self-service. Public marketing pages may describe the product direction, but any statement about live capabilities must match the readiness board. Canonical product scope: [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md); current readiness: [docs/62-founder-first-release-readiness.md](62-founder-first-release-readiness.md).
