@@ -197,3 +197,7 @@ This directive applies to HIO only. Do not modify HOLBERY Commerce, Bozq One Sys
 ---
 
 **Instruction to the AI agent:** Start with the current repository and live deployment audit. Preserve sound backend and data foundations. Prioritize the founder-facing experience first, then access setup. Make decisions autonomously when safe, reversible, and supported by evidence; ask the founder only when a genuine business, security, privacy, or irreversible decision is required.
+
+## Commercial SaaS direction update — 2026-10-16
+
+Superseding product-direction note (2026-10-16): retain founder-first clarity and safety, but the product destination is a customer-facing commercial SaaS. Design separate public, authenticated customer-workspace, and owner/admin surfaces. The canonical customer journey is FIND → BUILD → VALIDATE → LAUNCH. Do not imply planned features are live. See [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md).
