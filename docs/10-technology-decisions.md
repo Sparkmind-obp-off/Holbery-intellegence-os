@@ -40,3 +40,7 @@ HIO's intended direction is an AI Business Command Workspace: evidence → oppor
 ## Commercial SaaS direction update — 2026-10-16
 
 Canonical stack update (2026-10-16): Apify is required primary FIND acquisition; Tavily is the standard web-research complement; Grok Console / xAI API is optional; Cloudflare Workers AI is optional; Daytona is the required standard BUILD sandbox; Cloudflare Workers/Pages and existing D1 with optional R2 support control plane, persistence and delivery. Full contract: [docs/63-final-stack-find-build-validation.md](63-final-stack-find-build-validation.md).
+
+## Commercial SaaS direction update — 2026-10-16
+
+Canonical stack update (2026-10-16): Apify is required primary FIND acquisition; Tavily is the standard web-research complement; Grok Console / xAI API is optional; Cloudflare Workers AI is optional; Daytona is the required standard BUILD sandbox; Cloudflare Workers/Pages and existing D1 with optional R2 support control plane, persistence and delivery. Full contract: [docs/63-final-stack-find-build-validation.md](63-final-stack-find-build-validation.md).
