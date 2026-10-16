@@ -2,6 +2,12 @@
 
 **Version 0.4.0 — Founder-first workspace with live market research.** A business decision workspace in plain Bahasa Indonesia: observe → evidence → opportunity → recommendation → founder approval → experiment → learning.
 
+## Product direction — public-first HOLBERY
+
+HOLBERY's proposed next direction is a public market-discovery workspace built around **FIND → BUILD → SELL**, adopting ORDVELA's useful demand-discovery concepts under the HOLBERY brand. This direction is documented in [docs/64-holbery-public-first-find-build-sell.md](docs/64-holbery-public-first-find-build-sell.md).
+
+**Important:** this is a product direction, not a claim that public signup, multi-user workspaces, billing, publishing, or all social-platform connectors are already shipped. Current v0.4.0 capability and production truth remain governed by the readiness board below. Public access to the marketing page must not expose private research or bypass authentication. ORDVELA's runtime/resources remain isolated during capability review; HOLBERY Commerce and Bozq are out of scope.
+
 > **Canonical readiness board:** [docs/62-founder-first-release-readiness.md](docs/62-founder-first-release-readiness.md). Older release sections below are historical evidence.
 
 **Current status (2026-10-16):** v0.4.0 verified (71 unit tests, 14 founder browser checks incl. one live search through the UI, legacy browser acceptance). Live research: Tavily / Firecrawl / Apify + Groq, keys only in Cloudflare secrets. See doc 62 for deployment state.
