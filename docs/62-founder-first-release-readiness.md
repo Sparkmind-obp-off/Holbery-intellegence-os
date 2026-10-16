@@ -75,3 +75,12 @@ Tests: `tests/founder.test.ts` (language leakage on shell, script copy and every
 - Technical-term leakage test is pattern-based; it catches the listed vocabulary, not every possible jargon word.
 - Recommendation copy is rule-based (support+counter present), not AI.
 - Experiments still require the legacy "fixture" approval type internally; real-money or external actions remain impossible by schema (`budget_minor=0`).
+
+
+## Implementation audit and next execution plan — 2026-10-17
+
+- Source audit: [docs/66](66-implementation-audit-before-commercial-mvp.md)
+- Phased roadmap: [docs/67](67-mvp-implementation-roadmap.md)
+- Master coding-agent prompt: [docs/68](68-master-system-prompt-hio-mvp.md)
+
+The repository inspection confirms a founder/operator research foundation, but not a completed public multi-tenant SaaS. No test commands were executed during this source-only audit. Follow the roadmap in order: baseline and recovery, customer identity/tenant isolation, usage/cost controls, FIND/DECIDE, Daytona BUILD and private artifacts, VALIDATE, controlled beta, then payment only after its own acceptance gate. Do not mark a provider connected or a release gate passed without direct test evidence.
