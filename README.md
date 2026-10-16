@@ -201,3 +201,11 @@ This is the target architecture, not a claim that every provider is connected or
 ## Implementation audit and execution prompt (2026-10-17)
 
 The source-based implementation audit is [docs/66](docs/66-implementation-audit-before-commercial-mvp.md), the phased execution plan is [docs/67](docs/67-mvp-implementation-roadmap.md), and the repository-aware coding agent prompt is [docs/68](docs/68-master-system-prompt-hio-mvp.md). These distinguish the current founder/research foundation from the target commercial SaaS. They do not claim that a new audit test run, provider connection, Daytona build, or customer multi-tenancy has already passed.
+
+
+## Customer UX and authentication implementation
+
+- [MVP UX, Customer Journey, Onboarding & Authentication](docs/69-hio-mvp-ux-customer-journey-authentication.md)
+- [Paste-ready Phase 1 Prompt — Clerk & Tenant Isolation](docs/70-master-implementation-prompt-phase-1-clerk-tenant-isolation.md)
+
+Clerk is the proposed customer identity provider only after runtime compatibility and security gates pass. HIO continues to enforce workspace authorization internally; founder/operator access remains separate. Keep the publishable key separate from the server-only secret key; never publish credential values. See docs 69–70 for the precise boundary and execution gates.
