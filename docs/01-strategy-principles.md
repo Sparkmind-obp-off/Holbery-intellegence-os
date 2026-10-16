@@ -42,3 +42,7 @@ HIO's intended direction is an AI Business Command Workspace: evidence → oppor
 ## Commercial SaaS direction update — 2026-10-16
 
 Commercial direction update (2026-10-16): design for paying customer workspaces, not only a single founder. Evidence before claims; isolate tenants; cap provider and Daytona spend; keep launch gates evidence-based. Canonical scope: [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md).
+
+## Commercial SaaS direction update — 2026-10-16
+
+Commercial direction update (2026-10-16): design for paying customer workspaces, not only a single founder. Evidence before claims; isolate tenants; cap provider and Daytona spend; keep launch gates evidence-based. Canonical scope: [docs/64-public-saas-product-direction.md](64-public-saas-product-direction.md).
