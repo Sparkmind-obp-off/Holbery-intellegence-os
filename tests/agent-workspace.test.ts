@@ -117,6 +117,40 @@ describe("AI Agent Workspace", () => {
     const otherOwner = await request("/api/v1/agent/runs/" + body.run.id, "GET", undefined, { OPERATOR_NAME: "different-owner" });
     expect(otherOwner.status).toBe(404);
   });
+\n
+  it("requires explicit approval before a planned tool can execute", async () => {
+    await login();
+    const plan = { title: "Rencana", summary: "Rencana uji.", steps: [
+      { title: "Cari", description: "Cari bukti.", tool: "research.search", risk: "read_only" },
+      { title: "Analisis", description: "Analisis bukti.", tool: "workspace.analyze", risk: "read_only" },
+      { title: "Draft", description: "Tulis draft.", tool: "artifact.draft", risk: "draft_only" }
+    ] };
+    const mockFetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(plan) } }] }), { status: 200, headers: { "Content-Type": "application/json" } }));
+    vi.stubGlobal("fetch", mockFetch);
+    const created = await request("/api/v1/agent/runs", "POST", { objective: "Rencanakan riset produk." }, { GROQ_API_KEY: "fake-test-key-only" });
+    const body = await created.json() as { run: { id: string } };
+    const denied = await request("/api/v1/agent/runs/" + body.run.id + "/steps/1/execute", "POST", { approve: false, provider: "tavily" }, { GROQ_API_KEY: "fake-test-key-only" });
+    expect(denied.status).toBe(400);
+    expect(mockFetch).toHaveBeenCalledOnce();
+    expect(storage.db.prepare("SELECT status FROM agent_steps WHERE run_id=? AND sequence=1").get(body.run.id)).toMatchObject({ status: "planned" });
+  });
+
+  it("does not consume a planned step when research provider credentials are missing", async () => {
+    await login();
+    const plan = { title: "Rencana", summary: "Rencana uji.", steps: [
+      { title: "Cari", description: "Cari bukti.", tool: "research.search", risk: "read_only" },
+      { title: "Analisis", description: "Analisis bukti.", tool: "workspace.analyze", risk: "read_only" },
+      { title: "Draft", description: "Tulis draft.", tool: "artifact.draft", risk: "draft_only" }
+    ] };
+    const mockFetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(plan) } }] }), { status: 200, headers: { "Content-Type": "application/json" } }));
+    vi.stubGlobal("fetch", mockFetch);
+    const created = await request("/api/v1/agent/runs", "POST", { objective: "Rencanakan riset produk." }, { GROQ_API_KEY: "fake-test-key-only" });
+    const body = await created.json() as { run: { id: string } };
+    const attempt = await request("/api/v1/agent/runs/" + body.run.id + "/steps/1/execute", "POST", { approve: true, provider: "tavily" }, { GROQ_API_KEY: "fake-test-key-only" });
+    expect(attempt.status).toBe(503);
+    expect(mockFetch).toHaveBeenCalledOnce();
+    expect(storage.db.prepare("SELECT status FROM agent_steps WHERE run_id=? AND sequence=1").get(body.run.id)).toMatchObject({ status: "planned" });
+  });
 \n  it("returns an honest unavailable state when no provider key is configured", async () => {
     await login();
     const r = await request("/api/v1/agent/chat", "POST", { message: "Bantu rancang produk digital." });
