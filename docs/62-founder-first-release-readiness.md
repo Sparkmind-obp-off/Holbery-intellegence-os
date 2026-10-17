@@ -109,3 +109,5 @@ Clerk is planned for customer identity only, subject to compatibility and securi
 **Release gate:** coding engine remains planned/incomplete until baseline commands and local migrations pass with recorded output, sandbox execution is verified (or explicitly blocked), auth/path/command restrictions are tested, test/repair results are persisted honestly, and a human approves the exact diff. No GitHub Actions/workflows; no production migration or deployment without separate authorization.
 
 - Workspace orchestration map: [docs/75](75-workspace-orchestration-map.md), including the current route inventory, target task state machine, tool registry contract, UI acceptance criteria, and the decision not to use PR #10's GitHub Actions-based validation.
+
+- Master execution prompt for Opus 5.5/Genspark: [docs/76](76-master-execution-prompt-opus-genspark.md). It requires autonomous implementation and manual verification, while forbidding GitHub Actions and unauthorized production changes.
