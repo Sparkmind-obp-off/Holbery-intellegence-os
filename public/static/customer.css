@@ -1,0 +1,16 @@
+.customer-alert{border-radius:10px;padding:10px 14px;margin:0 0 16px}
+.customer-alert.ok{background:var(--good-bg);color:var(--good)}
+.customer-alert.warn{background:var(--attention-bg);color:var(--attention)}
+.customer-alert.bad{background:var(--bad-bg);color:var(--bad)}
+.customer-alert.info{background:var(--info-bg);color:var(--info)}
+.customer-form{display:grid;gap:12px;max-width:640px;margin:16px 0 24px;padding:20px}
+.customer-field{display:grid;gap:6px;margin:0}
+.customer-field input,.customer-field textarea{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink)}
+.customer-field textarea{min-height:72px;resize:vertical}
+.customer-error{color:var(--bad);min-height:1em;margin:0}
+.customer-list{list-style:none;padding:0;display:grid;gap:10px}
+.customer-list .card{padding:14px 16px}
+.muted{color:var(--ink-3)}
+#customer-nav a[aria-current="page"]{font-weight:700;text-decoration:underline}
+#clerk-sign-in{display:flex;justify-content:center;margin:24px 0}
+main#main-content{max-width:960px;margin:0 auto;padding:24px 16px}

@@ -43,3 +43,15 @@ export function notFoundPage() {
 <html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Halaman tidak ditemukan · HIO</title><link rel="stylesheet" href="/static/founder.css"></head>
 <body><main class="login"><section class="login-card"><p class="brand"><span class="brand-mark" aria-hidden="true">H</span> HOLBERY Intelligence OS</p><h1>Halaman tidak ditemukan</h1><p class="lead">Alamat ini tidak ada atau sudah dipindahkan. Data bisnismu tidak terpengaruh.</p><a class="button" href="/">Kembali ke Beranda</a></section></main></body></html>`;
 }
+
+// Customer area (Clerk). Separate from the founder workspace: no founder
+// navigation, no diagnostics. Clerk's browser SDK is loaded by customer.js from
+// the instance's own Frontend API (allowed only by the customer CSP).
+export function customerShell() {
+  return `<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>HOLBERY Intelligence OS · Ruang pelanggan</title><link rel="stylesheet" href="/static/founder.css"><link rel="stylesheet" href="/static/customer.css"><script src="/static/clerk-id.js" defer></script><script src="/static/customer.js" defer></script></head>
+<body><a class="skip-link" href="#main-content">Lewati ke isi utama</a>
+<header class="topbar"><a class="brand" href="/ruang"><span class="brand-mark" aria-hidden="true">H</span><span>HOLBERY <small>Ruang pelanggan</small></span></a><nav id="customer-nav" aria-label="Navigasi pelanggan" hidden><a href="/ruang" data-page="ruang">Ruang kerja</a><a href="/ruang/brief" data-page="brief">Brief riset</a></nav><div class="account"><span id="customer-email"></span><div id="clerk-user-button"></div></div></header>
+<main id="main-content" tabindex="-1"><div id="customer-notice" role="status" aria-live="polite"></div><section id="customer-content" aria-live="polite"><p class="lead">Memuat…</p></section><div id="clerk-sign-in"></div></main>
+<footer class="footer"><span>Uji coba terbatas khusus undangan.</span><span>Versi ${APP_VERSION}</span></footer></body></html>`;
+}

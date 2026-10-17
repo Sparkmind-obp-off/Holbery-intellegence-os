@@ -1,2 +1,3 @@
 public/static/*.css
 migrations/*.sql
+public/static/clerk-id.js

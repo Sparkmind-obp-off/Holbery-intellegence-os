@@ -9,7 +9,7 @@
   "scripts": {
     "build": "vite build",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src tests scripts public/static/founder.js public/static/maintenance.js public/static/code-console.js",
+    "lint": "eslint src tests scripts public/static/founder.js public/static/maintenance.js public/static/code-console.js public/static/customer.js",
     "format:check": "prettier --check src tests scripts public/static package.json *.ts *.cjs migrations",
     "format": "prettier --write src tests scripts public/static package.json *.ts *.cjs migrations",
     "test": "vitest run",
@@ -17,6 +17,7 @@
     "test:founder": "node scripts/e2e-founder.mjs",
     "test:console": "node scripts/e2e-code-console.mjs",
     "test:daytona-live": "node scripts/daytona-live-smoke.mjs",
+    "test:clerk-live": "node scripts/e2e-clerk-live.mjs",
     "test:production": "node scripts/production-smoke.mjs",
     "security:check": "node scripts/security-check.mjs",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm test && npm run build",
@@ -30,10 +31,12 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",
+    "@clerk/localizations": "^4.23.0",
     "@cloudflare/workers-types": "5.20261011.1",
     "@eslint/js": "9.39.1",
     "@hono/vite-cloudflare-pages": "0.4.2",
     "@playwright/test": "1.56.1",
+    "@types/node": "22.19.11",
     "eslint": "9.39.1",
     "globals": "16.4.0",
     "prettier": "3.6.2",
@@ -41,7 +44,6 @@
     "typescript-eslint": "8.71.1",
     "vite": "6.4.4",
     "vitest": "5.0.3",
-    "wrangler": "4.149.0",
-    "@types/node": "22.19.11"
+    "wrangler": "4.149.0"
   }
 }

@@ -20,6 +20,12 @@ export type Env = {
     DAYTONA_TARGET?: string;
     GITHUB_TOKEN?: string;
     HIO_RESEARCH_ENABLED?: string;
+    CLERK_PUBLISHABLE_KEY?: string;
+    CLERK_SECRET_KEY?: string;
+    CLERK_AUTHORIZED_PARTIES?: string;
+    HIO_CUSTOMER_AUTH?: string;
+    HIO_CUSTOMER_SIGNUP?: string;
+    HIO_ALLOW_DEV_CLERK_IN_PROD?: string;
   };
   Variables: { requestId: string; actor: string; role: string };
 };

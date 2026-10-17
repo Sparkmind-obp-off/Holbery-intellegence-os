@@ -30,7 +30,12 @@ import {
   score,
   id,
 } from "./contracts";
-import { founderShell, maintenanceShell, notFoundPage } from "./view";
+import {
+  founderShell,
+  maintenanceShell,
+  notFoundPage,
+  customerShell,
+} from "./view";
 import { registerFounder, founderNotice, APP_VERSION } from "./founder";
 import { registerResearch, researchReady } from "./research-routes";
 import {
@@ -39,6 +44,8 @@ import {
   codeConsolePage,
 } from "./agent-workspace";
 import { registerCodingAgent } from "./coding-agent";
+import { registerCustomer, registerCustomerInvites } from "./customer";
+import { issuerFromPublishableKey } from "./clerk";
 import { briefInput, researchPlan } from "./intelligence";
 import {
   secretInventory,
@@ -48,6 +55,13 @@ import {
 } from "./secrets";
 
 const app = new Hono<Env>();
+// Customer pages load Clerk's browser SDK from the instance's own Frontend API.
+// Founder pages keep the strict self-only policy.
+function customerCsp(pk?: string) {
+  const host = issuerFromPublishableKey(pk)?.issuer ?? "";
+  const clerk = host ? " " + host : "";
+  return `default-src 'self'; script-src 'self'${clerk} https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' https://img.clerk.com data:; connect-src 'self'${clerk}; frame-src 'self'${clerk} https://challenges.cloudflare.com; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'`;
+}
 const now = () => new Date().toISOString();
 class Fault extends Error {
   constructor(
@@ -273,7 +287,11 @@ app.post("/api/session", async (c) => {
   await establishSession(c);
   return c.json({ actor: c.get("actor"), expiresIn: 28800 });
 });
+// Customer API: Clerk identity + HIO workspace authorization. Mounted before
+// the founder guard and fully separate from it.
+registerCustomer(app);
 app.use("/api/*", async (c, next) => {
+  if (c.req.path.startsWith("/api/customer/")) return next();
   if (!(await authenticated(c)))
     return fail(
       "unauthorized",
@@ -307,6 +325,7 @@ registerFounder(app);
 registerResearch(app);
 registerAgentWorkspace(app);
 registerCodingAgent(app);
+registerCustomerInvites(app);
 app.delete("/api/session", async (c) => {
   await revokeSession(c);
   await audit(c, "session.logout", "operator");
@@ -927,6 +946,16 @@ app.post("/api/v1/settings/purge-expired", async (c) => {
   ]);
   return c.json({ purged: result[0]?.meta.changes ?? 0 });
 });
+// Customer area (invite-only beta). No founder navigation or diagnostics.
+for (const path of ["/masuk", "/ruang", "/ruang/brief"])
+  app.get(path, (c) => {
+    c.header(
+      "Content-Security-Policy",
+      customerCsp(c.env.CLERK_PUBLISHABLE_KEY),
+    );
+    return c.html(customerShell());
+  });
+
 // Founder workspace (default). Plain-language screens only.
 const founderPaths = [
   "/",
