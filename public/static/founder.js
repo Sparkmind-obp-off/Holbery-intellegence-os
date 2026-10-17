@@ -10,7 +10,7 @@ const esc = (s) =>
       ],
   );
 const pages = {
-  beranda: { path: "/", title: "Beranda" },
+  beranda: { path: "/founder", title: "Beranda" },
   intelijen: { path: "/intelijen", title: "Intelijen Pasar" },
   peluang: { path: "/peluang", title: "Peluang" },
   produk: { path: "/produk", title: "Produk & Eksperimen" },
@@ -262,7 +262,7 @@ async function intelijen() {
     : emptyState(
         "Belum ada bukti",
         "Sumber informasi pasar nyata belum tersambung. Kamu bisa memuat contoh data dari Beranda untuk melihat cara HIO menyajikan bukti.",
-        '<a class="link" href="/">Ke Beranda →</a>',
+        '<a class="link" href="/founder">Ke Beranda →</a>',
       );
   const questions = d.pertanyaan.length
     ? `<ul class="questions">${d.pertanyaan.map((q) => `<li><button class="row-button" data-action="lihat-pertanyaan" data-id="${esc(q.id)}"><strong>${esc(q.pertanyaan)}</strong><span>${esc(q.segmen)} · ${esc(q.wilayah)} · ${day(q.tanggal)}</span><span class="small">${esc(q.status)}</span></button></li>`).join("")}</ul>`
@@ -333,7 +333,7 @@ function opportunityBlock(o) {
     : emptyState(
         "Belum ada bukti untuk peluang ini",
         "Muat contoh data dari Beranda untuk melihat bukti pendukung dan bukti berlawanan.",
-        '<a class="link" href="/">Ke Beranda →</a>',
+        '<a class="link" href="/founder">Ke Beranda →</a>',
       );
   const history = o.riwayatKeputusan.length
     ? `<ol class="history">${o.riwayatKeputusan.map((h) => `<li><strong>${esc(h.keputusan)}</strong> <span class="small">${dayTime(h.tanggal)} · oleh ${esc(h.oleh)}</span><p>${esc(h.alasan)}</p>${h.catatan && h.catatan !== "Tidak ada catatan tambahan." ? `<p class="small">Catatan: ${esc(h.catatan)}</p>` : ""}</li>`).join("")}</ol>`
@@ -464,7 +464,8 @@ const renderers = {
   pengaturan,
 };
 function pageFromPath() {
-  const path = location.pathname;
+  const path =
+    location.pathname === "/founder/login" ? "/founder" : location.pathname;
   return Object.keys(pages).find((k) => pages[k].path === path) || "beranda";
 }
 async function render(focus = false) {
@@ -667,6 +668,8 @@ $("#login-form").addEventListener("submit", async (e) => {
     });
     $("#login-password").value = "";
     showWorkspace(d.actor);
+    if (location.pathname === "/founder/login")
+      history.replaceState({}, "", "/founder");
     await render(true);
   } catch (error) {
     $("#login-error").innerHTML = problemBox(
@@ -682,6 +685,8 @@ $("#logout-button").addEventListener("click", async () => {
   } catch {
     /* Session already ended; show sign-in regardless. */
   }
+  if (location.pathname !== "/founder/login")
+    history.replaceState({}, "", "/founder/login");
   showLogin();
   $("#login-error").innerHTML =
     '<p class="small">Kamu sudah keluar. Sampai jumpa lagi.</p>';
@@ -697,6 +702,8 @@ window.addEventListener("popstate", () => render());
   try {
     const me = await api("/v1/me");
     showWorkspace(me.actor);
+    if (location.pathname === "/founder/login")
+      history.replaceState({}, "", "/founder");
     await render();
   } catch {
     $("#workspace").hidden = true;

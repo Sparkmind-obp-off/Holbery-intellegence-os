@@ -201,7 +201,11 @@
         el("p", {
           text: "Masuk lagi di halaman utama HIO, lalu buka konsol ini kembali.",
         }),
-        el("a", { class: "plan-button", href: "/" }, "Ke halaman masuk HIO"),
+        el(
+          "a",
+          { class: "plan-button", href: "/founder/login" },
+          "Ke halaman masuk founder",
+        ),
       ),
     );
     setStatus("Sesi tidak aktif");

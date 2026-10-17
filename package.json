@@ -18,6 +18,7 @@
     "test:console": "node scripts/e2e-code-console.mjs",
     "test:daytona-live": "node scripts/daytona-live-smoke.mjs",
     "test:clerk-live": "node scripts/e2e-clerk-live.mjs",
+    "test:landing": "node scripts/e2e-landing.mjs",
     "test:production": "node scripts/production-smoke.mjs",
     "security:check": "node scripts/security-check.mjs",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm test && npm run build",

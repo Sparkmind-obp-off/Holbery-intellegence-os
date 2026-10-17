@@ -154,7 +154,7 @@ describe("Coding Agent Execution Console", () => {
   it("redirects anonymous visitors and serves a CSP-compatible page to the operator", async () => {
     const anon = await request("/agent/code");
     expect(anon.status).toBe(302);
-    expect(anon.headers.get("location")).toBe("/");
+    expect(anon.headers.get("location")).toBe("/founder/login");
     await login();
     const r = await request("/agent/code");
     expect(r.status).toBe(200);

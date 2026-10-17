@@ -271,7 +271,14 @@ describe("Intelligence planning and locked release", () => {
       OPERATOR_SECRET: undefined,
       SESSION_SECRET: undefined,
     };
-    const root = await app.request("https://hio.test/", {}, lockedEnv);
+    const landing = await app.request("https://hio.test/", {}, lockedEnv);
+    expect(landing.status).toBe(200);
+    expect(await landing.text()).not.toContain("Ruang kerja sedang dikunci");
+    const root = await app.request(
+      "https://hio.test/founder/login",
+      {},
+      lockedEnv,
+    );
     expect(root.status).toBe(200);
     expect(await root.text()).toContain("Ruang kerja sedang dikunci");
     const maintenance = await app.request(

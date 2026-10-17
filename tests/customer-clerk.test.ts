@@ -476,4 +476,120 @@ describe("Clerk Phase 1 — customer identity and tenant isolation (offline)", (
       "clerk",
     );
   });
+
+  it("serves a public landing page at / with separate customer and founder entry points", async () => {
+    const r = await app.request(ORIGIN + "/", {}, env());
+    expect(r.status).toBe(200);
+    const html = await r.text();
+    expect(html).toContain('href="/masuk"');
+    expect(html).toContain('href="/founder/login"');
+    expect(html).not.toMatch(
+      /Kata sandi akses|login-password|<script|style="|sk_test|OPERATOR/,
+    );
+    expect(r.headers.get("content-security-policy")).toContain(
+      "script-src 'self'",
+    );
+    expect(r.headers.get("content-security-policy")).not.toContain("clerk");
+    // No fabricated social proof.
+    expect(html).not.toMatch(/testimoni|pengguna aktif|ISO 27001|SOC ?2/i);
+  });
+
+  it("keeps the founder sign-in at /founder/login and redirects signed-in founders to /founder", async () => {
+    const anon = await app.request(ORIGIN + "/founder/login", {}, env());
+    expect(anon.status).toBe(200);
+    expect(await anon.text()).toContain("Kata sandi akses");
+    expect(
+      (await app.request(ORIGIN + "/agent", {}, env())).headers.get("location"),
+    ).toBe("/founder/login");
+    const login = await app.request(
+      ORIGIN + "/api/session",
+      {
+        method: "POST",
+        headers: {
+          Origin: ORIGIN,
+          "X-HIO-Request": "operator",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          secret: "clerk-test-operator-secret-never-production",
+        }),
+      },
+      env(),
+    );
+    const cookie = login.headers.get("set-cookie")!.split(";")[0]!;
+    const signedIn = await app.request(
+      ORIGIN + "/founder/login",
+      { headers: { Cookie: cookie } },
+      env(),
+    );
+    expect(signedIn.status).toBe(302);
+    expect(signedIn.headers.get("location")).toBe("/founder");
+    // A Clerk customer token is not a founder session.
+    invite("alice@example.com");
+    const asCustomer = await app.request(
+      ORIGIN + "/founder/login",
+      { headers: { Authorization: "Bearer " + (await token()) } },
+      env(),
+    );
+    expect(asCustomer.status).toBe(200);
+    expect(
+      (
+        await app.request(
+          ORIGIN + "/api/v1/me",
+          { headers: { Authorization: "Bearer " + (await token()) } },
+          env(),
+        )
+      ).status,
+    ).toBe(401);
+  });
+
+  it("ends the founder session on logout", async () => {
+    const login = await app.request(
+      ORIGIN + "/api/session",
+      {
+        method: "POST",
+        headers: {
+          Origin: ORIGIN,
+          "X-HIO-Request": "operator",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          secret: "clerk-test-operator-secret-never-production",
+        }),
+      },
+      env(),
+    );
+    const cookie = login.headers.get("set-cookie")!.split(";")[0]!;
+    expect(
+      (
+        await app.request(
+          ORIGIN + "/api/v1/me",
+          { headers: { Cookie: cookie } },
+          env(),
+        )
+      ).status,
+    ).toBe(200);
+    const out = await app.request(
+      ORIGIN + "/api/session",
+      {
+        method: "DELETE",
+        headers: {
+          Origin: ORIGIN,
+          "X-HIO-Request": "operator",
+          Cookie: cookie,
+        },
+      },
+      env(),
+    );
+    expect(out.status).toBeLessThan(300);
+    expect(
+      (
+        await app.request(
+          ORIGIN + "/api/v1/me",
+          { headers: { Cookie: cookie } },
+          env(),
+        )
+      ).status,
+    ).toBe(401);
+  });
 });

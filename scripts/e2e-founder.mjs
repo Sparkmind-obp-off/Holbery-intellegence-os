@@ -87,7 +87,7 @@ const step = (s) => {
 };
 try {
   // Sign-in screen
-  await page.goto(base);
+  await page.goto(base + "/founder/login");
   await expect(page.locator("#login-panel")).toBeVisible();
   await expect(page.locator("#workspace")).toBeHidden();
   await expect(page.getByRole("button", { name: "Masuk" })).toBeEnabled();

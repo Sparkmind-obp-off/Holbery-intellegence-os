@@ -82,7 +82,7 @@ async function api(path, method = "GET", body) {
   return data;
 }
 function showLogin() {
-  location.href = "/";
+  location.href = "/founder/login";
 }
 function detail(title, data) {
   $("#dialog-title").textContent = title;

@@ -632,7 +632,7 @@ export function registerFounder(app: Hono<Env>) {
         judul: "Coba alur kerja dengan contoh data",
         alasan:
           "Sumber informasi pasar nyata belum tersambung. Contoh data membantumu melihat bagaimana HIO menyajikan bukti dan meminta keputusan, tanpa risiko apa pun.",
-        tautan: "/",
+        tautan: "/founder",
         aksi: "muat-contoh",
       };
     else if (waiting.length)

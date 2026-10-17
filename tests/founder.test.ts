@@ -155,7 +155,8 @@ describe("Founder access", () => {
     for (const path of ["/api/founder/sample", "/api/founder/decisions"])
       expect((await call(path, "POST", {})).status).toBe(401);
     for (const path of [
-      "/",
+      "/founder",
+      "/founder/login",
       "/intelijen",
       "/peluang",
       "/produk",
@@ -455,7 +456,12 @@ describe("Founder workflow", () => {
       OPERATOR_SECRET: undefined,
       SESSION_SECRET: undefined,
     };
-    const page = await call("/", "GET", undefined, locked as never);
+    const page = await call(
+      "/founder/login",
+      "GET",
+      undefined,
+      locked as never,
+    );
     expect(await page.text()).toContain("Ruang kerja sedang dikunci");
     const r = await call(
       "/api/session",

@@ -17,3 +17,15 @@ Secrets: `CLERK_SECRET_KEY`. Plain/secret: `CLERK_PUBLISHABLE_KEY`, `HIO_CUSTOME
 ## Verification
 - Offline: `tests/customer-clerk.test.ts` (10 tests: JWT negatives, invite-only, idempotent provisioning, tenant isolation, roles, CSRF, founder/customer separation, CSP).
 - Live: `npm run test:clerk-live` (env `HIO_BASE`, `CLERK_TEST_IDENTIFIER`, `CLERK_TEST_USER_ID`, `CLERK_SECRET_KEY`) mounts the real Clerk SignIn, signs in a `+clerk_test` user via a Backend-API sign-in token, creates a brief, and checks tampered/anonymous/founder-route tokens are rejected. The interactive password + new-device email-code path is not automated.
+
+## Route map (public landing + two separate sign-in paths)
+
+| Route | Audience | Guard |
+|---|---|---|
+| `/` | public | none — landing page, `'self'`-only CSP, no session read |
+| `/masuk`, `/ruang`, `/ruang/brief` | invited customer | page public; data via `/api/customer/*` with verified Clerk Bearer token + workspace membership |
+| `/founder/login` | founder/operator | sign-in panel; signed-in operator → 302 `/founder` |
+| `/founder`, `/intelijen`, `/peluang`, `/produk`, `/publikasi`, `/pengaturan` | founder | shell shows sign-in until `/api/v1/me` succeeds; all `/api/v1/*`, `/api/founder/*` require the operator session |
+| `/agent`, `/agent/code`, `/pemeliharaan/*` | founder | server redirect to `/founder/login` (`/pemeliharaan` → `/pengaturan`) when no session |
+
+A Clerk token never authenticates founder routes (401), and the founder cookie never authenticates `/api/customer/*` (401). Founder logout calls `DELETE /api/session` (server-side session deleted) and returns to `/founder/login`; customer logout is Clerk's UserButton sign-out → `/masuk`.

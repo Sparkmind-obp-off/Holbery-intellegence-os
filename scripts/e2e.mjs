@@ -61,7 +61,7 @@ try {
     },
     { times: 1 },
   );
-  await page.goto(base);
+  await page.goto(base + "/founder/login");
   await expect(page.locator("#login-panel")).toBeVisible();
   await expect(page.getByRole("button", { name: "Masuk" })).toBeDisabled();
   await expect(page.getByLabel("Kata sandi akses")).toBeDisabled();
@@ -295,7 +295,7 @@ try {
     fullPage: true,
   });
   await page.locator("#logout-button").click();
-  await page.waitForURL(base + "/");
+  await page.waitForURL(base + "/founder/login");
   await expect(page.locator("#login-panel")).toBeVisible();
   await page.reload();
   await expect(page.locator("#login-panel")).toBeVisible();

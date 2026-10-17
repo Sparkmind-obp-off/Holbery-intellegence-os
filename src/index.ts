@@ -35,6 +35,7 @@ import {
   maintenanceShell,
   notFoundPage,
   customerShell,
+  landingPage,
 } from "./view";
 import { registerFounder, founderNotice, APP_VERSION } from "./founder";
 import { registerResearch, researchReady } from "./research-routes";
@@ -956,9 +957,21 @@ for (const path of ["/masuk", "/ruang", "/ruang/brief"])
     return c.html(customerShell());
   });
 
-// Founder workspace (default). Plain-language screens only.
+// Public landing page: the single public entry point. No session is read.
+app.get("/", (c) => c.html(landingPage()));
+// Founder entry points. /founder/login and /founder render the same founder
+// shell (it shows the sign-in panel until the operator session is valid);
+// a signed-in founder visiting /founder/login is sent to the dashboard.
+app.get("/founder/login", async (c) => {
+  if (configured(c) && (await authenticated(c)))
+    return c.redirect("/founder", 302);
+  return c.html(founderShell(!configured(c)));
+});
+app.get("/founder/", (c) => c.redirect("/founder", 301));
+app.get("/founder/login/", (c) => c.redirect("/founder/login", 301));
+// Founder workspace. Plain-language screens only.
 const founderPaths = [
-  "/",
+  "/founder",
   "/intelijen",
   "/peluang",
   "/produk",
@@ -967,16 +980,16 @@ const founderPaths = [
 ];
 for (const path of founderPaths) {
   app.get(path, (c) => c.html(founderShell(!configured(c))));
-  if (path !== "/") app.get(path + "/", (c) => c.redirect(path, 301));
+  if (path !== "/founder") app.get(path + "/", (c) => c.redirect(path, 301));
 }
 // Owner-only AI workspace beta; reuses the existing HIO operator session.
 app.get("/agent", async (c) => {
-  if (!(await authenticated(c))) return c.redirect("/", 302);
+  if (!(await authenticated(c))) return c.redirect("/founder/login", 302);
   return c.html(agentWorkspacePage());
 });
 app.get("/agent/", (c) => c.redirect("/agent", 301));
 app.get("/agent/code", async (c) => {
-  if (!(await authenticated(c))) return c.redirect("/", 302);
+  if (!(await authenticated(c))) return c.redirect("/founder/login", 302);
   return c.html(codeConsolePage());
 });
 app.get("/agent/code/", (c) => c.redirect("/agent/code", 301));
