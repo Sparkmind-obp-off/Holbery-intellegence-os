@@ -1158,10 +1158,11 @@ export function registerCodingAgent(app: Hono<Env>) {
 
     const runId = crypto.randomUUID();
     const startedAt = now();
+    const staleBefore = new Date(Date.now() - 30 * 60 * 1000).toISOString();
     const claim = await c.env.DB.prepare(
-      "INSERT INTO agent_code_execution_runs(task_id,run_id,owner_id,status,current_step,started_at,updated_at) VALUES (?,?,?,'running','preparing_sandbox',?,?) ON CONFLICT(task_id) DO UPDATE SET run_id=excluded.run_id,owner_id=excluded.owner_id,status='running',current_step='preparing_sandbox',started_at=excluded.started_at,updated_at=excluded.updated_at,finished_at=NULL,error_code=NULL,evidence_json=NULL WHERE agent_code_execution_runs.status!='running'",
+      "INSERT INTO agent_code_execution_runs(task_id,run_id,owner_id,status,current_step,started_at,updated_at) VALUES (?,?,?,'running','preparing_sandbox',?,?) ON CONFLICT(task_id) DO UPDATE SET run_id=excluded.run_id,owner_id=excluded.owner_id,status='running',current_step='preparing_sandbox',started_at=excluded.started_at,updated_at=excluded.updated_at,finished_at=NULL,error_code=NULL,evidence_json=NULL WHERE agent_code_execution_runs.status!='running' OR agent_code_execution_runs.updated_at<?",
     )
-      .bind(task.id, runId, owner, startedAt, startedAt)
+      .bind(task.id, runId, owner, startedAt, startedAt, staleBefore)
       .run();
     if ((claim.meta.changes ?? 0) !== 1) {
       return c.json(
@@ -1173,9 +1174,7 @@ export function registerCodingAgent(app: Hono<Env>) {
     let sandboxId: string | null = null;
     const results: { name: string; exitCode: number; output: string }[] = [];
     let failure: string | null = null;
-    let currentStep = "preparing_sandbox";
     const saveProgress = async (step: string) => {
-      currentStep = step;
       const updatedAt = now();
       const progress = {
         provider: "daytona",
