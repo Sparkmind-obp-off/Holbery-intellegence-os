@@ -52,3 +52,11 @@ Evidence is written to `agent_code_events` and `audit_events`. The sandbox is de
 ## Verification status
 
 Unit tests cover path restrictions, missing credentials, sandbox creation headers, and command exit-code parsing. Runtime integration remains unverified until an operator runs the unit suite and provides a valid Daytona key in the configured Worker environment. Do not report a successful sandbox run without the returned per-step evidence.
+
+
+## Execution progress endpoint
+
+- `GET /api/v1/agent/code-tasks/{taskId}/execution` returns the latest run status, current step, timestamps, and bounded evidence for the authenticated owner.
+- `POST .../{taskId}/execute` claims a run atomically. Concurrent requests for the same task receive `409 execution_already_running` instead of creating duplicate sandboxes.
+- Migration `0010_agent_code_execution_runs.sql` adds the progress record. Apply it only through the reviewed HIO migration process before enabling the endpoint.
+- The execute request is still a synchronous Worker request; progress polling can observe its work while it is active, but this is not a durable background job. A future durable orchestration provider would be needed to guarantee completion beyond request/runtime limits.
