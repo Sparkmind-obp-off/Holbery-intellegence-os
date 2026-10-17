@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   DaytonaSandboxAdapter,
   validateSandboxPath,
+  didSandboxRunPass,
 } from "../src/daytona-sandbox";
 
 describe("Daytona sandbox adapter", () => {
@@ -43,6 +44,39 @@ describe("Daytona sandbox adapter", () => {
         }),
       }),
     );
+  });
+
+  it("passes when a failed check is repaired and the final rerun passes", () => {
+    const results = [
+      { name: "install", exitCode: 0 },
+      { name: "typecheck", exitCode: 2 },
+      { name: "repair_attempt", exitCode: 0 },
+      { name: "typecheck", exitCode: 0 },
+      { name: "lint", exitCode: 0 },
+      { name: "format", exitCode: 0 },
+      { name: "tests", exitCode: 0 },
+      { name: "security", exitCode: 0 },
+      { name: "build", exitCode: 0 },
+    ];
+    expect(didSandboxRunPass(results, null)).toBe(true);
+  });
+
+  it("does not pass if the latest check attempt failed or a step is missing", () => {
+    expect(
+      didSandboxRunPass(
+        [
+          { name: "install", exitCode: 0 },
+          { name: "typecheck", exitCode: 0 },
+          { name: "lint", exitCode: 0 },
+          { name: "format", exitCode: 0 },
+          { name: "tests", exitCode: 0 },
+          { name: "security", exitCode: 0 },
+          { name: "build", exitCode: 1 },
+        ],
+        null,
+      ),
+    ).toBe(false);
+    expect(didSandboxRunPass([], "sandbox_failed")).toBe(false);
   });
 
   it("returns the provider exit code and output", async () => {
