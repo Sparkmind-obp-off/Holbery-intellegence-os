@@ -1066,6 +1066,36 @@ export function registerCodingAgent(app: Hono<Env>) {
     }
   });
 
+  app.get("/api/v1/agent/code-tasks/:id/execution", async (c) => {
+    const parsedId = z.string().uuid().safeParse(c.req.param("id"));
+    if (!parsedId.success) return c.json({ error: "invalid_task_id" }, 400);
+    const row = await c.env.DB.prepare(
+      "SELECT task_id,run_id,status,current_step,started_at,updated_at,finished_at,error_code,evidence_json FROM agent_code_execution_runs WHERE task_id=? AND owner_id=?",
+    )
+      .bind(parsedId.data, c.get("actor"))
+      .first<Record<string, unknown>>();
+    if (!row) return c.json({ error: "execution_not_found" }, 404);
+    let evidence: unknown = null;
+    try {
+      evidence = row.evidence_json ? JSON.parse(String(row.evidence_json)) : null;
+    } catch {
+      evidence = null;
+    }
+    return c.json({
+      execution: {
+        taskId: row.task_id,
+        runId: row.run_id,
+        status: row.status,
+        currentStep: row.current_step,
+        startedAt: row.started_at,
+        updatedAt: row.updated_at,
+        finishedAt: row.finished_at,
+        errorCode: row.error_code,
+        evidence,
+      },
+    });
+  });
+
   app.post("/api/v1/agent/code-tasks/:id/execute", async (c) => {
     const parsedId = z.string().uuid().safeParse(c.req.param("id"));
     if (!parsedId.success) return c.json({ error: "invalid_task_id" }, 400);
@@ -1126,13 +1156,50 @@ export function registerCodingAgent(app: Hono<Env>) {
       return c.json({ error: "daytona_configuration_invalid" }, 503);
     }
 
-    let sandboxId: string | null = null;
+    const runId = crypto.randomUUID();
     const startedAt = now();
+    const claim = await c.env.DB.prepare(
+      "INSERT INTO agent_code_execution_runs(task_id,run_id,owner_id,status,current_step,started_at,updated_at) VALUES (?,?,?,'running','preparing_sandbox',?,?) ON CONFLICT(task_id) DO UPDATE SET run_id=excluded.run_id,owner_id=excluded.owner_id,status='running',current_step='preparing_sandbox',started_at=excluded.started_at,updated_at=excluded.updated_at,finished_at=NULL,error_code=NULL,evidence_json=NULL WHERE agent_code_execution_runs.status!='running'",
+    )
+      .bind(task.id, runId, owner, startedAt, startedAt)
+      .run();
+    if ((claim.meta.changes ?? 0) !== 1) {
+      return c.json(
+        { error: "execution_already_running", message: "Task ini sedang dieksekusi. Pantau endpoint /execution; jangan kirim ulang." },
+        409,
+      );
+    }
+
+    let sandboxId: string | null = null;
     const results: { name: string; exitCode: number; output: string }[] = [];
     let failure: string | null = null;
+    let currentStep = "preparing_sandbox";
+    const saveProgress = async (step: string) => {
+      currentStep = step;
+      const updatedAt = now();
+      const progress = {
+        provider: "daytona",
+        sandboxCreated: Boolean(sandboxId),
+        startedAt,
+        updatedAt,
+        repairAttempts: results.filter((result) => result.name === "repair_attempt").length,
+        steps: results.map((result) => ({
+          name: result.name,
+          exitCode: result.exitCode,
+          output: result.output.slice(0, 1000),
+        })),
+      };
+      await c.env.DB.prepare(
+        "UPDATE agent_code_execution_runs SET current_step=?,updated_at=?,evidence_json=? WHERE task_id=? AND run_id=? AND status='running'",
+      )
+        .bind(step, updatedAt, JSON.stringify(progress), task.id, runId)
+        .run();
+    };
 
     try {
+      await saveProgress("creating_sandbox");
       sandboxId = await adapter.create();
+      await saveProgress("cloning_repository");
       const clone = await adapter.execute(
         sandboxId,
         "git clone --depth 1 https://github.com/" + REPOSITORY + ".git workspace",
@@ -1149,6 +1216,7 @@ export function registerCodingAgent(app: Hono<Env>) {
           file.content,
         );
         results.push({ name: "write:" + file.path, ...write });
+        await saveProgress("writing_files");
         if (write.exitCode !== 0) throw new Error("sandbox_file_write_failed");
       }
 
@@ -1165,12 +1233,14 @@ export function registerCodingAgent(app: Hono<Env>) {
       let repairAttempts = 0;
       while (commandIndex < commands.length) {
         const step = commands[commandIndex]!;
+        await saveProgress(step.name);
         const result = await adapter.execute(
           sandboxId,
           step.command,
           step.timeout,
         );
         results.push({ name: step.name, ...result });
+        await saveProgress(step.name);
         if (result.exitCode === 0) {
           commandIndex += 1;
           continue;
@@ -1278,6 +1348,7 @@ export function registerCodingAgent(app: Hono<Env>) {
           exitCode: 0,
           output: "Applied validated repair proposal " + repairAttempts + " of 2.",
         });
+        await saveProgress("repair_applied");
         commandIndex = commands.findIndex((command) => command.name === "typecheck");
       }
     } catch (error) {
@@ -1299,6 +1370,7 @@ export function registerCodingAgent(app: Hono<Env>) {
     const timestamp = now();
     const evidence = {
       provider: "daytona",
+      runId,
       sandboxCreated: Boolean(sandboxId),
       startedAt,
       finishedAt: timestamp,
@@ -1312,6 +1384,21 @@ export function registerCodingAgent(app: Hono<Env>) {
       })),
       note: "Executed in a disposable Daytona sandbox. This does not submit, merge, or deploy code.",
     };
+    await c.env.DB.prepare(
+      "UPDATE agent_code_execution_runs SET status=?,current_step=?,updated_at=?,finished_at=?,error_code=?,evidence_json=? WHERE task_id=? AND run_id=?",
+    )
+      .bind(
+        passed ? "passed" : "failed",
+        passed ? "completed" : "failed",
+        timestamp,
+        timestamp,
+        failure,
+        JSON.stringify(evidence),
+        task.id,
+        runId,
+      )
+      .run();
+
     await c.env.DB.batch([
       c.env.DB.prepare(
         "INSERT INTO agent_code_events(id,task_id,actor_id,event_type,details_json,created_at) VALUES (?,?,?,'code.sandbox_executed',?,?)",
