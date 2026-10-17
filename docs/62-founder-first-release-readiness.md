@@ -92,3 +92,18 @@ The repository inspection confirms a founder/operator research foundation, but n
 - Paste-ready Phase 1 implementation prompt for Clerk + tenant isolation: [docs/70](70-master-implementation-prompt-phase-1-clerk-tenant-isolation.md)
 
 Clerk is planned for customer identity only, subject to compatibility and security tests. HIO D1 remains authoritative for workspace membership and authorization; founder/operator auth stays separate. Use separate public `CLERK_PUBLISHABLE_KEY` and server-only `CLERK_SECRET_KEY`; webhook secret only if needed. No production auth cutover or deploy is authorized by this documentation update. Credential presence/configuration is not evidence of a successful integration.
+
+
+## Agent workspace and coding engine status — 2026-10-17
+
+- Agent workspace blueprint: [docs/71](71-ai-agent-workspace-implementation-blueprint.md)
+- Coding Agent v1 current contract: [docs/72](72-hio-coding-agent-v1.md)
+- Coding Engine v2 execution contract: [docs/73](73-coding-engine-v2-execution-contract.md)
+- Manual verification and Opus/Genspark handoff: [docs/74](74-manual-verification-and-opus-genspark-handoff.md)
+- GitHub Actions removal/manual verification change: [PR #11](https://github.com/Sparkmind-obp-off/Holbery-intellegence-os/pull/11) (draft; not merged as of this update).
+
+**Repository capability status:** chat/planning, persisted agent runs/steps/events, an approval-gated research step, and a bounded coding proposal flow exist in repository source. Coding Agent v1 proposes replacements for up to three user-selected files and can request draft-PR submission after explicit approval if the optional GitHub credential is configured. It does not yet provide repository-aware sandbox execution, actual command/test execution, bounded test repair, or artifact delivery.
+
+**Verification status:** not verified by this connector-only documentation pass. No local test suite, local D1 migration run, authenticated production coding-agent run, sandbox lifecycle, or production deployment comparison was executed here. Migrations 0008 and 0009 exist in the repository; do not assume they have been applied to production. Historical deployment records in this document and newer source-audit notes must be reconciled against current Cloudflare deployment metadata before any release decision.
+
+**Release gate:** coding engine remains planned/incomplete until baseline commands and local migrations pass with recorded output, sandbox execution is verified (or explicitly blocked), auth/path/command restrictions are tested, test/repair results are persisted honestly, and a human approves the exact diff. No GitHub Actions/workflows; no production migration or deployment without separate authorization.
