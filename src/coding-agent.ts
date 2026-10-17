@@ -161,6 +161,67 @@ export function registerCodingAgent(app: Hono<Env>) {
     return c.json({ task: { id: taskId, title: proposal.title, summary: proposal.summary, status: "draft", created_at: timestamp }, files: proposal.files.map((f) => ({ path: f.path, content: f.content, rationale: f.rationale })), checks, applyAvailable: Boolean(c.env.GITHUB_TOKEN) }, 201);
   });
 
+
+  app.post("/api/v1/agent/code-tasks/:id/validate", async (c) => {
+    const id = z.string().uuid().safeParse(c.req.param("id"));
+    if (!id.success) return c.json({ error: "invalid_task_id" }, 400);
+    const owner = c.get("actor");
+    const task = await c.env.DB.prepare(
+      "SELECT id,status,branch_name,pr_url FROM agent_code_tasks WHERE id=? AND owner_id=?",
+    ).bind(id.data, owner).first<{ id: string; status: string; branch_name: string | null; pr_url: string | null }>();
+    if (!task) return c.json({ error: "not_found" }, 404);
+    if (task.status !== "submitted" || !task.pr_url || !task.branch_name) {
+      return c.json({ error: "task_not_submitted", message: "Validasi CI tersedia setelah task memiliki draft PR." }, 409);
+    }
+    if (!c.env.GITHUB_TOKEN || c.env.GITHUB_TOKEN.length < 20) {
+      return c.json({ error: "github_not_configured", message: "GITHUB_TOKEN belum tersedia untuk membaca status pemeriksaan." }, 503);
+    }
+    try {
+      const match = /^https:\/\/github\.com\/Sparkmind-obp-off\/Holbery-intellegence-os\/pull\/(\d+)(?:\/)?$/.exec(task.pr_url);
+      if (!match) return c.json({ error: "invalid_pr_reference" }, 409);
+      const prResponse = await github("/repos/" + REPOSITORY + "/pulls/" + match[1], c.env.GITHUB_TOKEN);
+      if (!prResponse.ok) throw new Error("github_pr_unavailable");
+      const pr = await prResponse.json() as { head?: { sha?: string }; html_url?: string; state?: string; merged?: boolean };
+      if (!pr.head?.sha) throw new Error("github_pr_sha_missing");
+      const [checksResponse, statusesResponse] = await Promise.all([
+        github("/repos/" + REPOSITORY + "/commits/" + pr.head.sha + "/check-runs?per_page=50", c.env.GITHUB_TOKEN),
+        github("/repos/" + REPOSITORY + "/commits/" + pr.head.sha + "/statuses", c.env.GITHUB_TOKEN),
+      ]);
+      if (!checksResponse.ok || !statusesResponse.ok) throw new Error("github_checks_unavailable");
+      const checksData = await checksResponse.json() as { check_runs?: { name: string; status: string; conclusion: string | null; html_url?: string; completed_at?: string | null }[] };
+      const statusesData = await statusesResponse.json() as { context: string; state: string; target_url?: string | null; updated_at?: string }[];
+      const checks = (checksData.check_runs ?? []).map((x) => ({
+        name: x.name, status: x.status, conclusion: x.conclusion ?? null,
+        url: x.html_url ?? null, completedAt: x.completed_at ?? null,
+      }));
+      const statuses = statusesData.map((x) => ({
+        name: x.context, status: x.state, url: x.target_url ?? null, updatedAt: x.updated_at ?? null,
+      }));
+      const all = [
+        ...checks.map((x) => ({ status: x.status === "completed" ? x.conclusion : x.status })),
+        ...statuses.map((x) => ({ status: x.status })),
+      ];
+      const state = all.length === 0 ? "pending" :
+        all.some((x) => ["failure", "cancelled", "timed_out", "action_required", "error"].includes(String(x.status))) ? "failure" :
+        all.every((x) => ["success", "neutral", "skipped"].includes(String(x.status))) ? "success" : "pending";
+      const timestamp = now();
+      await c.env.DB.batch([
+        c.env.DB.prepare("INSERT INTO agent_code_events(id,task_id,actor_id,event_type,details_json,created_at) VALUES (?,?,?,'code.validated',?,?)")
+          .bind(crypto.randomUUID(), task.id, owner, JSON.stringify({ sha: pr.head.sha, state, checks: checks.length, statuses: statuses.length }), timestamp),
+        c.env.DB.prepare("INSERT INTO audit_events VALUES (?,?,?,?,?,?,?,?)")
+          .bind(crypto.randomUUID(), owner, "agent.code.validated", task.id, c.get("requestId"), "ok", timestamp, JSON.stringify({ sha: pr.head.sha, state, checks: checks.length, statuses: statuses.length })),
+      ]);
+      return c.json({
+        taskId: task.id, pullRequest: pr.html_url ?? task.pr_url, pullRequestState: pr.state ?? "unknown",
+        merged: Boolean(pr.merged), headSha: pr.head.sha, state, checkedAt: timestamp,
+        checkRuns: checks, commitStatuses: statuses,
+        nextAction: state === "success" ? "review_diff_then_merge_manually" : state === "failure" ? "inspect_failure_then_create_repair_proposal" : "wait_for_checks",
+      });
+    } catch {
+      return c.json({ error: "validation_unavailable", message: "Status pemeriksaan GitHub belum bisa dibaca. Periksa izin Checks: read dan Pull requests: read pada GITHUB_TOKEN." }, 502);
+    }
+  });
+
   app.post("/api/v1/agent/code-tasks/:id/submit", async (c) => {
     const id = z.string().uuid().safeParse(c.req.param("id"));
     const approval = z.object({ approve: z.literal(true) }).strict().safeParse(await c.req.json().catch(() => null));
