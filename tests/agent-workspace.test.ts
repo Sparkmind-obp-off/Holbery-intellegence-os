@@ -31,6 +31,24 @@ const env = (overrides: { OPERATOR_NAME?: string; GROQ_API_KEY?: string } = {}) 
   OPERATOR_NAME: "agent-test-owner",
   HIO_ENVIRONMENT: "local",
   ...overrides,
+
+  it("requires an owned submitted coding task before checking GitHub CI", async () => {
+    expect((await request("/api/v1/agent/code-tasks/00000000-0000-4000-8000-000000000001/validate", "POST")).status).toBe(401);
+    await login();
+    const missing = await request("/api/v1/agent/code-tasks/00000000-0000-4000-8000-000000000001/validate", "POST");
+    expect(missing.status).toBe(404);
+  });
+
+  it("does not call GitHub when CI validation has no configured token", async () => {
+    await login();
+    const id = "00000000-0000-4000-8000-000000000002";
+    await storage.db.prepare("INSERT INTO agent_code_tasks(id,owner_id,objective,status,base_ref,branch_name,title,summary,files_json,checks_json,pr_url,created_at,updated_at,submitted_at) VALUES (?,?,?,'submitted','main',?,?,?,?,?,?,?, ?,?)")
+      .run(id, "agent-test-owner", "Validate CI status for a submitted coding task", "hio-agent/test0002", "Task uji", "Ringkasan uji", "[]", "[]", "https://github.com/Sparkmind-obp-off/Holbery-intellegence-os/pull/99999", new Date().toISOString(), new Date().toISOString(), new Date().toISOString());
+    const r = await request("/api/v1/agent/code-tasks/" + id + "/validate", "POST");
+    expect(r.status).toBe(503);
+    expect((await r.json() as { error: string }).error).toBe("github_not_configured");
+  });
+
 });
 async function request(path: string, method = "GET", body?: unknown, bindings: Record<string, unknown> = {}) {
   return app.request("https://hio.test" + path, {
