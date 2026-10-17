@@ -47,3 +47,14 @@ The code hard-codes the HIO repository identifier and does not accept a reposito
 6. Local D1 migration and route tests.
 7. Review the GitHub API permission scope and test submission against a temporary branch.
 8. Confirm CI results, then separately approve production migration/deployment.
+
+## CI validation endpoint (v1.1)
+
+After a coding task is submitted as a draft PR, the owner can request a read-only validation snapshot:
+
+- `POST /api/v1/agent/code-tasks/:id/validate`
+- The endpoint checks the task is owned by the current operator and is in `submitted` state.
+- It reads the draft PR head SHA, GitHub check runs, and commit statuses; the aggregate state is `success`, `failure`, or `pending`.
+- Each snapshot is recorded in task events and the existing audit log. It does not merge, alter, or deploy code.
+- The optional token needs Pull requests: read and Checks: read (plus the existing repository access needed by the submission endpoint). Without a token, validation returns a clear 503 and does not call GitHub.
+- A failed check is a signal for a human-reviewed repair proposal; the endpoint does not automatically modify code.
