@@ -1155,6 +1155,7 @@ export function registerCodingAgent(app: Hono<Env>) {
         apiKey: c.env.DAYTONA_API_KEY,
         apiUrl: c.env.DAYTONA_API_URL,
         toolboxUrl: c.env.DAYTONA_TOOLBOX_URL,
+        target: c.env.DAYTONA_TARGET,
       });
     } catch {
       return c.json({ error: "daytona_configuration_invalid" }, 503);

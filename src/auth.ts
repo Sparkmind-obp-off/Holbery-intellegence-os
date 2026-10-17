@@ -17,6 +17,7 @@ export type Env = {
     DAYTONA_API_KEY?: string;
     DAYTONA_API_URL?: string;
     DAYTONA_TOOLBOX_URL?: string;
+    DAYTONA_TARGET?: string;
     GITHUB_TOKEN?: string;
     HIO_RESEARCH_ENABLED?: string;
   };

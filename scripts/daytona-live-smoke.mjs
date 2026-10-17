@@ -11,6 +11,7 @@ if (!key || key.length < 16) {
   process.exit(2);
 }
 const adapter = new DaytonaSandboxAdapter({
+  target: process.env.DAYTONA_TARGET,
   apiKey: key,
   startTimeoutSeconds: 120,
 });

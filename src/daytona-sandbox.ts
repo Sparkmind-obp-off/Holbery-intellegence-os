@@ -7,6 +7,8 @@ export type SandboxRunConfig = {
   apiKey: string;
   apiUrl?: string;
   toolboxUrl?: string;
+  /** Daytona region/target (SDK `target`), e.g. "us" or "eu". Optional. */
+  target?: string;
   fetcher?: typeof fetch;
 } & SandboxTimings;
 
@@ -102,6 +104,7 @@ export class DaytonaSandboxAdapter {
   private readonly sleep: (ms: number) => Promise<void>;
   /** Per-sandbox toolbox base URL as reported by Daytona (SDK: toolboxProxyUrl). */
   private readonly toolboxBases = new Map<string, string>();
+  private readonly target: string | undefined;
 
   constructor(config: SandboxRunConfig) {
     if (config.apiKey.trim().length < 16) {
@@ -113,7 +116,14 @@ export class DaytonaSandboxAdapter {
       /\/+$/,
       "",
     );
-    this.fetcher = config.fetcher || fetch;
+    // Never store the global `fetch` and call it as a method: in workerd
+    // (Cloudflare Workers) that throws "Illegal invocation". Wrap it instead.
+    this.fetcher =
+      config.fetcher || ((input, init) => globalThis.fetch(input, init));
+    const target = config.target?.trim();
+    if (target && !/^[a-z0-9-]{1,40}$/.test(target))
+      throw new Error("daytona_target_invalid");
+    this.target = target || undefined;
     this.startTimeoutMs =
       Math.max(1, Math.min(config.startTimeoutSeconds ?? 90, 300)) * 1000;
     this.pollIntervalMs = Math.max(0, config.pollIntervalMs ?? 1500);
@@ -166,7 +176,14 @@ export class DaytonaSandboxAdapter {
           await this.sleep(500 * 2 ** attempt);
           continue;
         }
-        throw new Error(aborted ? "daytona_timeout" : "daytona_network_error");
+        if (aborted) throw new Error("daytona_timeout");
+        const detail =
+          error instanceof Error
+            ? this.redact(error.name + ": " + error.message)
+            : "";
+        throw new Error(
+          "daytona_network_error" + (detail ? ":" + detail.slice(0, 120) : ""),
+        );
       }
       try {
         const text = await response.text();
@@ -275,6 +292,7 @@ export class DaytonaSandboxAdapter {
           // Backstops if the explicit delete in `dispose` is ever missed.
           autoStopInterval: 15,
           autoDeleteInterval: 30,
+          ...(this.target ? { target: this.target } : {}),
         }),
       },
       60_000,

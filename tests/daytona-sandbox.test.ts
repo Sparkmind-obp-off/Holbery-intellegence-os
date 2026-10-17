@@ -300,4 +300,42 @@ describe("Daytona sandbox adapter", () => {
     );
     expect(fetcher).toHaveBeenCalledTimes(3);
   });
+
+  it("sends the configured target region on create and rejects invalid targets", async () => {
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValueOnce(
+      json(
+        {
+          id: "sb-t",
+          state: "started",
+          toolboxProxyUrl: "https://proxy.app.daytona.io/toolbox",
+        },
+        201,
+      ),
+    );
+    await fast({ fetcher, target: "us" }).create();
+    expect(JSON.parse(String(fetcher.mock.calls[0]![1]!.body))).toMatchObject({
+      target: "us",
+    });
+    expect(() => fast({ target: "us; rm -rf" })).toThrow(
+      "daytona_target_invalid",
+    );
+  });
+
+  it("calls the global fetch unbound-safe (workerd rejects fetch called as a method)", async () => {
+    const original = globalThis.fetch;
+    const strict = vi.fn(function (this: unknown) {
+      if (this !== undefined && this !== globalThis)
+        throw new TypeError("Illegal invocation");
+      return Promise.resolve(json({ exitCode: 0, result: "ok" }));
+    });
+    globalThis.fetch = strict as unknown as typeof fetch;
+    try {
+      const adapter = new DaytonaSandboxAdapter({ apiKey: KEY });
+      await expect(adapter.execute("sb-1", "true")).resolves.toMatchObject({
+        exitCode: 0,
+      });
+    } finally {
+      globalThis.fetch = original;
+    }
+  });
 });
