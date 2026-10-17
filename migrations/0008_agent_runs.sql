@@ -18,7 +18,9 @@ CREATE TABLE IF NOT EXISTS agent_steps (
   description TEXT NOT NULL CHECK(length(description) BETWEEN 1 AND 1000),
   tool TEXT NOT NULL CHECK(tool IN ('research.search','workspace.analyze','artifact.draft','quality.check')),
   risk TEXT NOT NULL CHECK(risk IN ('read_only','draft_only')),
-  status TEXT NOT NULL CHECK(status IN ('planned','blocked','completed','failed','skipped')),
+  status TEXT NOT NULL CHECK(status IN ('planned','running','blocked','completed','failed','skipped')),
+  result_json TEXT,
+  completed_at TEXT,
   created_at TEXT NOT NULL,
   UNIQUE(run_id, sequence)
 );
