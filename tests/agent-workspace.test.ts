@@ -117,7 +117,7 @@ describe("AI Agent Workspace", () => {
     const otherOwner = await request("/api/v1/agent/runs/" + body.run.id, "GET", undefined, { OPERATOR_NAME: "different-owner" });
     expect(otherOwner.status).toBe(404);
   });
-\n
+
   it("requires explicit approval before a planned tool can execute", async () => {
     await login();
     const plan = { title: "Rencana", summary: "Rencana uji.", steps: [
