@@ -19,6 +19,35 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  format-owned-branch:
+    if: github.event_name == 'pull_request' && github.repository == 'Sparkmind-obp-off/Holbery-intellegence-os' && github.head_ref == 'feat/hio-agent-validation-loop-v1'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout the owned feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.16.0"
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Format agent source and tests
+        run: npx prettier --write src/coding-agent.ts tests/agent-workspace.test.ts public/static/agent.js
+      - name: Commit formatter fixes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/coding-agent.ts tests/agent-workspace.test.ts public/static/agent.js
+          if ! git diff --cached --quiet; then
+            git commit -m "style(agent): format repair loop"
+            git push origin HEAD:${{ github.head_ref }}
+          fi
+
   checks:
     runs-on: ubuntu-latest
     timeout-minutes: 15
