@@ -47,3 +47,24 @@ The code hard-codes the HIO repository identifier and does not accept a reposito
 6. Local D1 migration and route tests.
 7. Review the GitHub API permission scope and test submission against a temporary branch.
 8. Confirm CI results, then separately approve production migration/deployment.
+
+## CI validation endpoint (v1.1)
+
+After a coding task is submitted as a draft PR, the owner can request a read-only validation snapshot:
+
+- `POST /api/v1/agent/code-tasks/:id/validate`
+- The endpoint checks the task is owned by the current operator and is in `submitted` state.
+- It reads the draft PR head SHA, GitHub check runs, and commit statuses; the aggregate state is `success`, `failure`, or `pending`.
+- Each snapshot is recorded in task events and the existing audit log. It does not merge, alter, or deploy code.
+- The optional token needs Pull requests: read and Checks: read (plus the existing repository access needed by the submission endpoint). Without a token, validation returns a clear 503 and does not call GitHub.
+- A failed check is a signal for a human-reviewed repair proposal; the endpoint does not automatically modify code.
+
+## Repair loop from a failed CI run
+
+- `POST /api/v1/agent/code-tasks/:id/repair` accepts a bounded `failureSummary` only.
+- The parent task must belong to the signed-in owner, be submitted, and have a valid HIO draft-PR branch.
+- The service reads the current source from that branch through GitHub's Contents API, but only for the original task's already-allowlisted files. It does not accept arbitrary target paths from the repair request.
+- The existing Groq provider generates a complete-file proposal. The same schema, path allowlist, per-file size bound, and owner scoping are applied before persisting it.
+- The repair task's base ref is the parent task's branch. After explicit approval, the normal submit route creates a separate draft PR targeting that branch. Merging that repair PR is a human action; it updates the original PR branch and causes the original CI checks to run again.
+- If GitHub or Groq credentials are absent, the route returns a clear error and does not create a pretend repair. No merge, deployment, arbitrary shell, or general-purpose sandbox execution is provided by this loop.
+- CI validation and repair-source retrieval require a narrowly scoped `GITHUB_TOKEN` in the Worker runtime. It is not configured by this feature branch.
