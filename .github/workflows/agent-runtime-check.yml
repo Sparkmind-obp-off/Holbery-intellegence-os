@@ -12,21 +12,23 @@ on:
       - main
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: hio-agent-runtime-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  checks:
+  format-owned-branch:
+    if: github.event_name == 'pull_request' && github.repository == 'Sparkmind-obp-off/Holbery-intellegence-os' && github.head_ref == 'feat/hio-agent-validation-loop-v1'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    permissions:
+      contents: write
     steps:
-      - name: Checkout repository
+      - name: Checkout the owned feature branch
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref || github.ref_name }}
+          ref: ${{ github.head_ref }}
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -34,10 +36,9 @@ jobs:
           cache: npm
       - name: Install locked dependencies
         run: npm ci
-      - name: Temporary format export for reviewed source files
+      - name: Format changed source files
         run: npx prettier --write src/agent-workspace.ts src/coding-agent.ts tests/agent-workspace.test.ts public/static/agent.js
-      - name: Commit formatter fixes on the owned feature branch
-        if: github.event_name == 'pull_request' && github.repository == 'Sparkmind-obp-off/Holbery-intellegence-os' && github.head_ref == 'feat/hio-agent-validation-loop-v1'
+      - name: Commit formatter fixes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -46,15 +47,20 @@ jobs:
             git commit -m "style(agent): apply repository formatter"
             git push origin HEAD:${{ github.head_ref }}
           fi
-      - name: Export formatted source for review
-        uses: actions/upload-artifact@v4
+
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          name: hio-agent-formatted-source
-          path: |
-            src/agent-workspace.ts
-            src/coding-agent.ts
-            tests/agent-workspace.test.ts
-            public/static/agent.js
+          node-version: "22.16.0"
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
       - name: Run typecheck, lint, format, tests, and build
         run: npm run check
       - name: Scan source and build output for secret leakage
