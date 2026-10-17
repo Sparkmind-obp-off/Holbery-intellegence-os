@@ -51,12 +51,12 @@ export function registerAgentWorkspace(app: Hono<Env>) {
     }>();
     if (!run) return c.json({ error: "not_found" }, 404);
     const steps = await c.env.DB.prepare(
-      "SELECT id,sequence,title,description,tool,risk,status,created_at FROM agent_steps WHERE run_id=? ORDER BY sequence ASC",
+      "SELECT id,sequence,title,description,tool,risk,status,result_json,completed_at,created_at FROM agent_steps WHERE run_id=? ORDER BY sequence ASC",
     ).bind(run.id).all();
     const events = await c.env.DB.prepare(
       "SELECT event_type,details_json,created_at FROM agent_run_events WHERE run_id=? ORDER BY created_at ASC LIMIT 100",
     ).bind(run.id).all();
-    return c.json({ run: { ...run, plan_json: undefined }, plan: JSON.parse(run.plan_json), steps: steps.results, events: events.results.map((e: Record<string, unknown>) => ({ ...e, details_json: undefined, details: JSON.parse(String(e.details_json)) })) });
+    return c.json({ run: { ...run, plan_json: undefined }, plan: JSON.parse(run.plan_json), steps: steps.results.map((s: Record<string, unknown>) => ({ ...s, result_json: undefined, result: s.result_json ? JSON.parse(String(s.result_json)) : null })), events: events.results.map((e: Record<string, unknown>) => ({ ...e, details_json: undefined, details: JSON.parse(String(e.details_json)) })) });
   });
 
 
