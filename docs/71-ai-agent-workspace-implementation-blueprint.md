@@ -185,3 +185,18 @@ Do not ask the owner to paste secrets into chat. Ask only for a decision or acce
 - No production resource was mutated.
 - No application code, database migration, secret, or production deployment was changed in this blueprint pass.
 - Test commands were not executed because this session has GitHub/Cloudflare API access but no verified local checkout/Node execution environment. Treat this as a documented audit and phased implementation plan, not a passing test report.
+## 9. Implementation update (2026-10-17)
+
+An initial authenticated AI chat vertical slice has now been added on the feature branch:
+- `src/agent-workspace.ts`: standalone AI Workspace UI and authenticated chat/history APIs.
+- `migrations/0005_agent_workspace.sql`: additive conversation/message tables and indexes.
+- `src/index.ts`: registers chat API routes and owner-session-protected `/agent` page.
+- `src/view.ts`: adds an AI Workspace entry point in the HIO navigation.
+- Chat reuses the existing configured Groq model constant and `GROQ_API_KEY` server binding; provider keys are never sent to the browser.
+- Chat history is stored in HIO D1 and scoped to the existing owner/operator identity. This is a single-owner beta, not yet public multi-tenant SaaS.
+- Requests have a 25-second timeout, 1,200-token output cap, 40 successful assistant answers per UTC day, existing API mutation rate limiting, and explicit no-fake-response errors when the provider is missing or unavailable.
+- The UI uses `textContent` for model output to avoid rendering model output as HTML.
+
+**Verification caveat:** the source changes are committed to the feature branch, but this API-only session did not execute Node/Vitest/TypeScript/Playwright or apply the migration to a local D1. Do not mark the feature production-ready until `npm ci`, `npm run check`, `npm run security:check`, `npm run test:founder`, `npm run test:e2e`, and a local D1 migration test pass. The migration has not been applied to production, and no production deployment was triggered intentionally.
+
+**Next implementation slice:** add automated route tests (provider missing, auth required, conversation ownership, daily cap, upstream timeout/429), then run the full baseline in a verified checkout. After that, add task planning/tool approvals to the chat UI; do not imply agent tools are already executing.
