@@ -2,7 +2,7 @@ import type { Hono } from "hono";
 import type { Env } from "./auth";
 import { z } from "zod";
 import { GROQ_MODEL } from "./research";
-import { DaytonaSandboxAdapter } from "./daytona-sandbox";
+import { DaytonaSandboxAdapter, didSandboxRunPass } from "./daytona-sandbox";
 
 const REPOSITORY = "Sparkmind-obp-off/Holbery-intellegence-os";
 const GITHUB_API = "https://api.github.com";
@@ -1295,10 +1295,7 @@ export function registerCodingAgent(app: Hono<Env>) {
       }
     }
 
-    const passed =
-      !failure &&
-      results.some((result) => result.name === "build") &&
-      results.every((result) => result.exitCode === 0);
+    const passed = didSandboxRunPass(results, failure);
     const timestamp = now();
     const evidence = {
       provider: "daytona",

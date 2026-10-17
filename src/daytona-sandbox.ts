@@ -27,6 +27,30 @@ const DEFAULT_API_URL = "https://app.daytona.io/api";
 const DEFAULT_TOOLBOX_URL = "https://proxy.app.daytona.io/toolbox";
 const MAX_OUTPUT = 12_000;
 
+const REQUIRED_CHECKS = [
+  "install",
+  "typecheck",
+  "lint",
+  "format",
+  "tests",
+  "security",
+  "build",
+] as const;
+
+export function didSandboxRunPass(
+  results: { name: string; exitCode: number }[],
+  failure: string | null,
+): boolean {
+  if (failure) return false;
+  const latest = new Map<string, number>();
+  for (const result of results) {
+    if ((REQUIRED_CHECKS as readonly string[]).includes(result.name)) {
+      latest.set(result.name, result.exitCode);
+    }
+  }
+  return REQUIRED_CHECKS.every((name) => latest.get(name) === 0);
+}
+
 function shellQuote(value: string): string {
   return "'" + value.replace(/'/g, "'\\''") + "'";
 }
