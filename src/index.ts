@@ -34,6 +34,7 @@ import { founderShell, maintenanceShell, notFoundPage } from "./view";
 import { registerFounder, founderNotice, APP_VERSION } from "./founder";
 import { registerResearch, researchReady } from "./research-routes";
 import { registerAgentWorkspace, agentWorkspacePage } from "./agent-workspace";
+import { registerCodingAgent } from "./coding-agent";
 import { briefInput, researchPlan } from "./intelligence";
 import {
   secretInventory,
@@ -301,6 +302,7 @@ app.get("/api/v1/me", (c) =>
 registerFounder(app);
 registerResearch(app);
 registerAgentWorkspace(app);
+registerCodingAgent(app);
 app.delete("/api/session", async (c) => {
   await revokeSession(c);
   await audit(c, "session.logout", "operator");
