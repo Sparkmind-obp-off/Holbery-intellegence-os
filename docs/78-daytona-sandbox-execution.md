@@ -75,3 +75,17 @@ Rendering rules: the seven fixed checks are shown from backend evidence only; re
 Verification: `tests/code-console.test.ts` (route auth, CSP-safe assets, list fields, owner scoping, 404/503 honesty) and `npm run test:console` (local Playwright with stubbed API states: empty, network error, running→passed after repair, running→failed after 2 repairs, 503, 409, connection drop, 401, invalid id, mobile + axe). A real Daytona run remains **NOT VERIFIED** until `DAYTONA_API_KEY` is configured for the Worker.
 
 The toolbox `process/execute` call now sends the Bearer API key (required by the Daytona toolbox API); previously every sandbox command would have been rejected.
+
+## Adapter hardening (aligned with `@daytonaio/sdk` 0.225.0)
+
+Verified against the published SDK/api-client/toolbox-api-client 0.225.0 source (not guessed):
+
+- `POST /api/sandbox` → poll `GET /api/sandbox/{id}` until `state === "started"` (SDK `waitUntilStarted`); `error`/`build_failed`/`destroyed` fail fast; start timeout 90 s. A sandbox that never becomes ready is deleted before the error is returned.
+- Toolbox base URL comes from the sandbox's `toolboxProxyUrl` (or `GET /api/sandbox/{id}/toolbox-proxy-url`), accepted only if HTTPS on a `*.daytona.io` / configured host — the API key is never sent to any other host. Fallback: `https://proxy.app.daytona.io/toolbox`.
+- `POST {toolbox}/{id}/process/execute` with `{command, cwd, timeout}`; response `{exitCode, result}`.
+- Retries: only idempotent GET/DELETE, max 2, on 429/5xx/network. Create and execute are never retried. 401/403 map to `daytona_auth_failed`.
+- Errors and command output are redacted (API key replaced with `[redacted]`), output capped at 12 000 chars.
+- `DELETE` 404 counts as already disposed; other failures surface as `sandbox_cleanup_failed`. Backstops: `autoStopInterval` 15 min, `autoDeleteInterval` 30 min.
+- One running execution per owner (`429 owner_execution_limit`).
+
+Live check: `DAYTONA_API_KEY=… npm run test:daytona-live` creates one sandbox, runs `echo HIO_DAYTONA_OK && node --version`, verifies exit code/output and deletes it. Status at time of writing: **BLOCKED** — no Daytona key is available to HIO (not in Cloudflare Pages secrets, not in the operator workspace).

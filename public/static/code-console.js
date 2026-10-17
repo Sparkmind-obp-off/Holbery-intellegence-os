@@ -46,6 +46,8 @@
       "Konfigurasi sandbox di server tidak valid. Tidak ada sandbox yang dibuat.",
     task_not_executable:
       "Hanya proposal berstatus draft yang boleh diuji di sandbox.",
+    owner_execution_limit:
+      "Sudah ada eksekusi sandbox lain yang sedang berjalan. Tunggu sampai selesai, lalu coba lagi.",
     execution_already_running:
       "Task ini sedang dieksekusi. Konsol akan memantau status; jangan kirim ulang.",
     stored_proposal_invalid:

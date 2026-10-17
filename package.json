@@ -16,6 +16,7 @@
     "test:e2e": "node scripts/e2e.mjs",
     "test:founder": "node scripts/e2e-founder.mjs",
     "test:console": "node scripts/e2e-code-console.mjs",
+    "test:daytona-live": "node scripts/daytona-live-smoke.mjs",
     "test:production": "node scripts/production-smoke.mjs",
     "security:check": "node scripts/security-check.mjs",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm test && npm run build",

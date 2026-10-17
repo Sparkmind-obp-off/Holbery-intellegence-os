@@ -279,4 +279,24 @@ describe("Coding Agent Execution Console", () => {
     );
     expect([400, 403]).toContain(r.status);
   });
+
+  it("limits each owner to one running sandbox execution", async () => {
+    await login();
+    insertTask(ID1);
+    insertTask(ID2);
+    insertRun(ID2, OWNER, "running");
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+    const r = await request(
+      "/api/v1/agent/code-tasks/" + ID1 + "/execute",
+      "POST",
+      undefined,
+      { DAYTONA_API_KEY: "daytona-test-key-never-production" },
+    );
+    expect(r.status).toBe(429);
+    expect(((await r.json()) as { error: string }).error).toBe(
+      "owner_execution_limit",
+    );
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
 });

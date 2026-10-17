@@ -1163,6 +1163,23 @@ export function registerCodingAgent(app: Hono<Env>) {
     const runId = crypto.randomUUID();
     const startedAt = now();
     const staleBefore = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+    // Resource protection: one live Daytona sandbox per owner at a time.
+    const otherRunning = await c.env.DB.prepare(
+      "SELECT task_id FROM agent_code_execution_runs WHERE owner_id=? AND status='running' AND task_id!=? AND updated_at>=? LIMIT 1",
+    )
+      .bind(owner, task.id, staleBefore)
+      .first<{ task_id: string }>();
+    if (otherRunning) {
+      return c.json(
+        {
+          error: "owner_execution_limit",
+          message:
+            "Sudah ada eksekusi sandbox lain yang sedang berjalan. Tunggu sampai selesai.",
+          runningTaskId: otherRunning.task_id,
+        },
+        429,
+      );
+    }
     const claim = await c.env.DB.prepare(
       "INSERT INTO agent_code_execution_runs(task_id,run_id,owner_id,status,current_step,started_at,updated_at) VALUES (?,?,?,'running','preparing_sandbox',?,?) ON CONFLICT(task_id) DO UPDATE SET run_id=excluded.run_id,owner_id=excluded.owner_id,status='running',current_step='preparing_sandbox',started_at=excluded.started_at,updated_at=excluded.updated_at,finished_at=NULL,error_code=NULL,evidence_json=NULL WHERE agent_code_execution_runs.status!='running' OR agent_code_execution_runs.updated_at<?",
     )
