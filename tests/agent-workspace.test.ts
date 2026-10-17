@@ -152,17 +152,15 @@ describe("AI Agent Workspace", () => {
         },
       ],
     };
-    const mockFetch = vi
-      .fn()
-      .mockResolvedValue(
-        new Response(
-          JSON.stringify({
-            choices: [{ message: { content: JSON.stringify(plan) } }],
-            usage: { total_tokens: 99 },
-          }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        ),
-      );
+    const mockFetch = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          choices: [{ message: { content: JSON.stringify(plan) } }],
+          usage: { total_tokens: 99 },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
     vi.stubGlobal("fetch", mockFetch);
     const r = await request(
       "/api/v1/agent/runs",
@@ -192,26 +190,24 @@ describe("AI Agent Workspace", () => {
 
   it("rejects malformed model plans and does not persist them", async () => {
     await login();
-    const mockFetch = vi
-      .fn()
-      .mockResolvedValue(
-        new Response(
-          JSON.stringify({
-            choices: [
-              {
-                message: {
-                  content: JSON.stringify({
-                    title: "Plan",
-                    summary: "Too few steps",
-                    steps: [],
-                  }),
-                },
+    const mockFetch = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          choices: [
+            {
+              message: {
+                content: JSON.stringify({
+                  title: "Plan",
+                  summary: "Too few steps",
+                  steps: [],
+                }),
               },
-            ],
-          }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        ),
-      );
+            },
+          ],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
     vi.stubGlobal("fetch", mockFetch);
     const r = await request(
       "/api/v1/agent/runs",
@@ -254,16 +250,14 @@ describe("AI Agent Workspace", () => {
     };
     vi.stubGlobal(
       "fetch",
-      vi
-        .fn()
-        .mockResolvedValue(
-          new Response(
-            JSON.stringify({
-              choices: [{ message: { content: JSON.stringify(plan) } }],
-            }),
-            { status: 200, headers: { "Content-Type": "application/json" } },
-          ),
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            choices: [{ message: { content: JSON.stringify(plan) } }],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
         ),
+      ),
     );
     const created = await request(
       "/api/v1/agent/runs",
@@ -307,16 +301,14 @@ describe("AI Agent Workspace", () => {
         },
       ],
     };
-    const mockFetch = vi
-      .fn()
-      .mockResolvedValue(
-        new Response(
-          JSON.stringify({
-            choices: [{ message: { content: JSON.stringify(plan) } }],
-          }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        ),
-      );
+    const mockFetch = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          choices: [{ message: { content: JSON.stringify(plan) } }],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
     vi.stubGlobal("fetch", mockFetch);
     const created = await request(
       "/api/v1/agent/runs",
@@ -366,16 +358,14 @@ describe("AI Agent Workspace", () => {
         },
       ],
     };
-    const mockFetch = vi
-      .fn()
-      .mockResolvedValue(
-        new Response(
-          JSON.stringify({
-            choices: [{ message: { content: JSON.stringify(plan) } }],
-          }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        ),
-      );
+    const mockFetch = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          choices: [{ message: { content: JSON.stringify(plan) } }],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
     vi.stubGlobal("fetch", mockFetch);
     const created = await request(
       "/api/v1/agent/runs",
@@ -415,17 +405,15 @@ describe("AI Agent Workspace", () => {
 
   it("calls the configured model and persists both sides of a successful conversation", async () => {
     await login();
-    const mockFetch = vi
-      .fn()
-      .mockResolvedValue(
-        new Response(
-          JSON.stringify({
-            choices: [{ message: { content: "Ini jawaban uji." } }],
-            usage: { total_tokens: 17 },
-          }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        ),
-      );
+    const mockFetch = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          choices: [{ message: { content: "Ini jawaban uji." } }],
+          usage: { total_tokens: 17 },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
     vi.stubGlobal("fetch", mockFetch);
     const r = await request(
       "/api/v1/agent/chat",
