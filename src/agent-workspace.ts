@@ -1,7 +1,7 @@
 import type { Context, Hono } from "hono";
 import type { Env } from "./auth";
 import { z } from "zod";
-import { GROQ_MODEL } from "./research";
+import { GROQ_MODEL, keyFor, usageToday, DAILY_CAP, callsEnabled } from "./research";
 
 const chatInput = z.object({
   conversationId: z.string().uuid().optional(),
@@ -64,9 +64,9 @@ export function registerAgentWorkspace(app: Hono<Env>) {
     }
     const owner = c.get("actor");
     const step = await c.env.DB.prepare(
-      "SELECT s.id,s.sequence,s.title,s.description,s.tool,s.risk,s.status FROM agent_steps s JOIN agent_runs r ON r.id=s.run_id WHERE r.id=? AND r.owner_id=? AND s.sequence=?",
+      "SELECT s.id,s.sequence,s.title,s.description,s.tool,s.risk,s.status,r.objective FROM agent_steps s JOIN agent_runs r ON r.id=s.run_id WHERE r.id=? AND r.owner_id=? AND s.sequence=?",
     ).bind(runId.data, owner, sequence.data).first<{
-      id: string; sequence: number; title: string; description: string; tool: string; risk: string; status: string;
+      id: string; sequence: number; title: string; description: string; tool: string; risk: string; status: string; objective: string;
     }>();
     if (!step) return c.json({ error: "not_found" }, 404);
     if (step.tool !== "research.search" || step.risk !== "read_only") {
@@ -74,9 +74,16 @@ export function registerAgentWorkspace(app: Hono<Env>) {
     }
     if (step.status !== "planned") return c.json({ error: "step_not_runnable", message: "Langkah sudah pernah dimulai atau bukan lagi berstatus planned; eksekusi ulang diblokir agar tidak menggandakan panggilan." }, 409);
 
+    if (!callsEnabled(c.env) || !keyFor(c.env, approval.data.provider) || !keyFor(c.env, "groq")) {
+      return c.json({ error: "provider_missing", message: "Provider riset atau model analisis belum siap; langkah belum dijalankan dan tetap dapat dicoba setelah konfigurasi diperbaiki." }, 503);
+    }
+    const usage = await usageToday(c);
+    if ((usage[approval.data.provider] ?? 0) >= DAILY_CAP[approval.data.provider] || (usage.groq ?? 0) >= DAILY_CAP.groq) {
+      return c.json({ error: "provider_daily_cap", message: "Kuota harian provider riset atau analisis AI habis; langkah belum dijalankan." }, 429);
+    }
     const timestamp = now();
     const claimed = await c.env.DB.prepare(
-      "UPDATE agent_steps SET status='running' WHERE id=? AND status='planned'",
+      "UPDATE agent_steps SET status='running' WHERE id=? AND status='planned',
     ).bind(step.id).run();
     if ((claimed.meta?.changes ?? 0) !== 1) return c.json({ error: "step_not_runnable", message: "Langkah telah diambil oleh proses lain." }, 409);
     await c.env.DB.batch([
@@ -100,7 +107,7 @@ export function registerAgentWorkspace(app: Hono<Env>) {
         method: "POST",
         headers,
         body: JSON.stringify({
-          question: step.description.slice(0, 500),
+          question: step.objective.slice(0, 500),
           segment: "Pengguna sesuai tujuan tugas",
           geography: "Indonesia",
           problem: step.description.slice(0, 500),
