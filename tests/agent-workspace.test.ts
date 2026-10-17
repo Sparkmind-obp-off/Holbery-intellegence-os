@@ -24,7 +24,7 @@ class LocalD1 {
 let storage: LocalD1;
 let cookie = "";
 const secret = "agent-workspace-test-secret-never-production";
-const env = (overrides: Record<string, unknown> = {}) => ({
+const env = (overrides: { OPERATOR_NAME?: string; GROQ_API_KEY?: string } = {}) => ({
   DB: storage as unknown as D1Database,
   OPERATOR_SECRET: secret,
   SESSION_SECRET: "agent-workspace-test-session-secret-never-production",
