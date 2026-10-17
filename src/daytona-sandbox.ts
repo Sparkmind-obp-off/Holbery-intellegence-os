@@ -145,7 +145,7 @@ export class DaytonaSandboxAdapter {
     );
     const exitCode = Number.isInteger(body.exitCode)
       ? body.exitCode!
-      : body.error
+      : body.error || typeof body.result !== "string"
         ? 1
         : 0;
     const output =

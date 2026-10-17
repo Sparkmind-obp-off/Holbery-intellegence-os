@@ -11,7 +11,7 @@ Configure these Worker secrets/variables outside source control:
 - `DAYTONA_API_KEY` (secret, required): Daytona API key.
 - `DAYTONA_API_URL` (optional): API base URL; defaults to `https://app.daytona.io/api`.
 - `DAYTONA_TOOLBOX_URL` (optional): toolbox proxy base URL; defaults to `https://proxy.app.daytona.io/toolbox`.
-- `GROQ_API_KEY` (existing secret): required for proposal generation, not for sandbox adapter initialization.
+- `GROQ_API_KEY` (existing secret): required for proposal generation and automatic repair.
 
 Never put provider credentials in the repository, task payload, sandbox environment, logs, or generated files.
 
@@ -35,7 +35,9 @@ The endpoint has no request body. It verifies ownership and draft status, valida
 6. `npm run security:check`
 7. `npm run build`
 
-Execution stops at the first non-zero exit code. The result includes per-step exit codes and bounded output. Evidence is written to `agent_code_events` and `audit_events`. The sandbox is deleted in a `finally` cleanup path; Daytona's auto-delete interval is also configured as a backstop.
+If a check after dependency installation fails, HIO can ask Groq for a bounded repair proposal, validate its paths against the original approved file set, write it to the sandbox, and rerun checks from typecheck. At most two repair proposals are applied. An invalid repair, failed write, missing provider, or repeated failure stops the loop. The endpoint returns per-step exit codes and bounded output.
+
+Evidence is written to `agent_code_events` and `audit_events`. The sandbox is deleted in a `finally` cleanup path; Daytona's auto-delete interval is also configured as a backstop.
 
 ## Safety boundaries
 
