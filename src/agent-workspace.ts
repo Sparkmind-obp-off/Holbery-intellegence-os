@@ -1,4 +1,4 @@
-import type { Context, Hono } from "hono";
+import type { Hono } from "hono";
 import type { Env } from "./auth";
 import { z } from "zod";
 import { GROQ_MODEL, keyFor, usageToday, DAILY_CAP, callsEnabled } from "./research";
