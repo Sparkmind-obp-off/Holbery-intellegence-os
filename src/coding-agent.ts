@@ -66,8 +66,10 @@ async function currentFile(path: string): Promise<string | null> {
 
 export function registerCodingAgent(app: Hono<Env>) {
   app.get("/api/v1/agent/code-tasks", async (c) => {
+    // Additive fields for the execution console overview: proposal size and the
+    // latest sandbox run (both scoped to the same owner as the task).
     const rows = await c.env.DB.prepare(
-      "SELECT id,objective,status,base_ref,branch_name,title,summary,pr_url,error_code,created_at,updated_at,submitted_at FROM agent_code_tasks WHERE owner_id=? ORDER BY updated_at DESC LIMIT 20",
+      "SELECT t.id,t.objective,t.status,t.base_ref,t.branch_name,t.title,t.summary,t.pr_url,t.error_code,t.created_at,t.updated_at,t.submitted_at,json_array_length(t.files_json) AS file_count,json_array_length(t.checks_json) AS check_count,r.status AS execution_status,r.current_step AS execution_step,r.updated_at AS execution_updated_at FROM agent_code_tasks t LEFT JOIN agent_code_execution_runs r ON r.task_id=t.id AND r.owner_id=t.owner_id WHERE t.owner_id=? ORDER BY t.updated_at DESC LIMIT 20",
     )
       .bind(c.get("actor"))
       .all();
@@ -1077,7 +1079,9 @@ export function registerCodingAgent(app: Hono<Env>) {
     if (!row) return c.json({ error: "execution_not_found" }, 404);
     let evidence: unknown = null;
     try {
-      evidence = row.evidence_json ? JSON.parse(String(row.evidence_json)) : null;
+      evidence = row.evidence_json
+        ? JSON.parse(String(row.evidence_json))
+        : null;
     } catch {
       evidence = null;
     }
@@ -1166,12 +1170,17 @@ export function registerCodingAgent(app: Hono<Env>) {
       .run();
     if ((claim.meta.changes ?? 0) !== 1) {
       return c.json(
-        { error: "execution_already_running", message: "Task ini sedang dieksekusi. Pantau endpoint /execution; jangan kirim ulang." },
+        {
+          error: "execution_already_running",
+          message:
+            "Task ini sedang dieksekusi. Pantau endpoint /execution; jangan kirim ulang.",
+        },
         409,
       );
     }
 
     let sandboxId: string | null = null;
+    let sandboxDisposed: boolean | null = null;
     const results: { name: string; exitCode: number; output: string }[] = [];
     let failure: string | null = null;
     const saveProgress = async (step: string) => {
@@ -1181,7 +1190,9 @@ export function registerCodingAgent(app: Hono<Env>) {
         sandboxCreated: Boolean(sandboxId),
         startedAt,
         updatedAt,
-        repairAttempts: results.filter((result) => result.name === "repair_attempt").length,
+        repairAttempts: results.filter(
+          (result) => result.name === "repair_attempt",
+        ).length,
         steps: results.map((result) => ({
           name: result.name,
           exitCode: result.exitCode,
@@ -1201,7 +1212,9 @@ export function registerCodingAgent(app: Hono<Env>) {
       await saveProgress("cloning_repository");
       const clone = await adapter.execute(
         sandboxId,
-        "git clone --depth 1 https://github.com/" + REPOSITORY + ".git workspace",
+        "git clone --depth 1 https://github.com/" +
+          REPOSITORY +
+          ".git workspace",
         120,
         ".",
       );
@@ -1311,8 +1324,7 @@ export function registerCodingAgent(app: Hono<Env>) {
         if (
           !repair ||
           repair.files.some(
-            (file) =>
-              !expectedPaths.has(file.path) || !allowedPath(file.path),
+            (file) => !expectedPaths.has(file.path) || !allowedPath(file.path),
           ) ||
           new Set(repair.files.map((file) => file.path)).size !==
             repair.files.length
@@ -1345,10 +1357,13 @@ export function registerCodingAgent(app: Hono<Env>) {
         results.push({
           name: "repair_attempt",
           exitCode: 0,
-          output: "Applied validated repair proposal " + repairAttempts + " of 2.",
+          output:
+            "Applied validated repair proposal " + repairAttempts + " of 2.",
         });
         await saveProgress("repair_applied");
-        commandIndex = commands.findIndex((command) => command.name === "typecheck");
+        commandIndex = commands.findIndex(
+          (command) => command.name === "typecheck",
+        );
       }
     } catch (error) {
       failure =
@@ -1359,7 +1374,9 @@ export function registerCodingAgent(app: Hono<Env>) {
       if (sandboxId) {
         try {
           await adapter.dispose(sandboxId);
+          sandboxDisposed = true;
         } catch {
+          sandboxDisposed = false;
           failure = failure || "sandbox_cleanup_failed";
         }
       }
@@ -1371,9 +1388,12 @@ export function registerCodingAgent(app: Hono<Env>) {
       provider: "daytona",
       runId,
       sandboxCreated: Boolean(sandboxId),
+      sandboxDisposed,
       startedAt,
       finishedAt: timestamp,
-      repairAttempts: results.filter((result) => result.name === "repair_attempt").length,
+      repairAttempts: results.filter(
+        (result) => result.name === "repair_attempt",
+      ).length,
       passed,
       failure,
       steps: results.map((result) => ({
@@ -1424,5 +1444,4 @@ export function registerCodingAgent(app: Hono<Env>) {
 
     return c.json({ taskId: task.id, ...evidence }, passed ? 200 : 502);
   });
-
 }

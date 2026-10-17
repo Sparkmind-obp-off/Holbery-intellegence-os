@@ -33,7 +33,11 @@ import {
 import { founderShell, maintenanceShell, notFoundPage } from "./view";
 import { registerFounder, founderNotice, APP_VERSION } from "./founder";
 import { registerResearch, researchReady } from "./research-routes";
-import { registerAgentWorkspace, agentWorkspacePage } from "./agent-workspace";
+import {
+  registerAgentWorkspace,
+  agentWorkspacePage,
+  codeConsolePage,
+} from "./agent-workspace";
 import { registerCodingAgent } from "./coding-agent";
 import { briefInput, researchPlan } from "./intelligence";
 import {
@@ -942,6 +946,11 @@ app.get("/agent", async (c) => {
   return c.html(agentWorkspacePage());
 });
 app.get("/agent/", (c) => c.redirect("/agent", 301));
+app.get("/agent/code", async (c) => {
+  if (!(await authenticated(c))) return c.redirect("/", 302);
+  return c.html(codeConsolePage());
+});
+app.get("/agent/code/", (c) => c.redirect("/agent/code", 301));
 // Owner-only maintenance area: hidden from founder navigation, never the landing page.
 const maintenancePages = [
   "overview",

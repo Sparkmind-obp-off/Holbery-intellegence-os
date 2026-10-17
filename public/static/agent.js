@@ -754,7 +754,8 @@ async function executeCodeTask(id, host) {
       );
       button.disabled = false;
       button.textContent = "Coba jalankan lagi setelah memeriksa event";
-      $("#status").textContent = "Coding agent · hasil eksekusi belum diketahui";
+      $("#status").textContent =
+        "Coding agent · hasil eksekusi belum diketahui";
     }
   };
   host.append(document.createElement("br"), button);

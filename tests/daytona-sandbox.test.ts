@@ -26,9 +26,11 @@ describe("Daytona sandbox adapter", () => {
   });
 
   it("creates a sandbox with the official Daytona API and bearer key", async () => {
-    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(
-      new Response(JSON.stringify({ id: "sandbox-123" }), { status: 201 }),
-    );
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValue(
+        new Response(JSON.stringify({ id: "sandbox-123" }), { status: 201 }),
+      );
     const adapter = new DaytonaSandboxAdapter({
       apiKey: "daytona-test-api-key-123",
       fetcher,
@@ -94,5 +96,14 @@ describe("Daytona sandbox adapter", () => {
       exitCode: 7,
       output: "test failed",
     });
+    // Toolbox calls must carry the API key (toolbox OpenAPI: Bearer).
+    expect(fetcher).toHaveBeenCalledWith(
+      "https://proxy.app.daytona.io/toolbox/sandbox-123/process/execute",
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          Authorization: "Bearer daytona-test-api-key-123",
+        }),
+      }),
+    );
   });
 });

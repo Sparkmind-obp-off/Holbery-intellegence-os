@@ -163,6 +163,9 @@ export class DaytonaSandboxAdapter {
         "/process/execute",
       {
         method: "POST",
+        // The toolbox API requires the same bearer key as the platform API
+        // (toolbox OpenAPI securitySchemes.Bearer); without it every command is rejected.
+        headers: { Authorization: "Bearer " + this.apiKey },
         body: JSON.stringify({ command, cwd, timeout }),
       },
       (timeout + 15) * 1000,

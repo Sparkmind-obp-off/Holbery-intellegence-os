@@ -200,6 +200,8 @@ This is the target architecture, not a claim that every provider is connected or
 
 ## Implementation audit and execution prompt (2026-10-17)
 
+Operator coding tasks can be reviewed and validated in a disposable Daytona sandbox from the **Konsol eksekusi coding** at `/agent/code` (see [docs/78](docs/78-daytona-sandbox-execution.md)). Sandbox validation is not a PR, merge, or deploy; real runs require `DAYTONA_API_KEY`.
+
 The source-based implementation audit is [docs/66](docs/66-implementation-audit-before-commercial-mvp.md), the phased execution plan is [docs/67](docs/67-mvp-implementation-roadmap.md), and the repository-aware coding agent prompt is [docs/68](docs/68-master-system-prompt-hio-mvp.md). These distinguish the current founder/research foundation from the target commercial SaaS. They do not claim that a new audit test run, provider connection, Daytona build, or customer multi-tenancy has already passed.
 
 

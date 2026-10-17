@@ -60,3 +60,18 @@ Unit tests cover path restrictions, missing credentials, sandbox creation header
 - `POST .../{taskId}/execute` claims a run atomically. Concurrent requests for the same task receive `409 execution_already_running` instead of creating duplicate sandboxes.
 - Migration `0010_agent_code_execution_runs.sql` adds the progress record. Apply it only through the reviewed HIO migration process before enabling the endpoint.
 - The execute request is still a synchronous Worker request; progress polling can observe its work while it is active, but this is not a durable background job. A future durable orchestration provider would be needed to guarantee completion beyond request/runtime limits.
+
+## Execution console (`/agent/code`)
+
+The operator UI for this flow is the **Konsol eksekusi coding** at `/agent/code` (linked from the AI Workspace sidebar; anonymous visitors are redirected to `/`). It uses only the existing endpoints:
+
+- `GET /api/v1/agent/code-tasks` — list; now also returns `file_count`, `check_count`, `execution_status`, `execution_step`, `execution_updated_at` (LEFT JOIN on the owner's run record; `null` means no run exists).
+- `GET /api/v1/agent/code-tasks/{id}` — proposal review (files, rationale, AI-suggested checks).
+- `POST /api/v1/agent/code-tasks/{id}/execute` — only after the operator ticks a confirmation checkbox and clicks once; a pending guard blocks duplicate submits. 502 with `runId` is rendered as a recorded failure, 409 as "already running" (monitor, no resubmit), 503 as "sandbox not configured".
+- `GET /api/v1/agent/code-tasks/{id}/execution` — polled every 2 s while running (no overlapping requests, exponential backoff to 15 s on errors, paused while the tab is hidden, stopped on passed/failed or navigation). `404 execution_not_found` is shown as "no execution record", never as success. A dropped connection re-reads status before offering any retry.
+
+Rendering rules: the seven fixed checks are shown from backend evidence only; repaired checks show every attempt in order (`exit 2 → 0`) and the latest attempt decides the state. Evidence now includes `sandboxDisposed` (true/false/null) so the report only claims cleanup when the backend confirmed it. Every final report states that sandbox validation is not a PR, merge, or production deploy. All task and log text is inserted via `textContent`; the page uses same-origin assets only (CSP-compatible, no inline styles).
+
+Verification: `tests/code-console.test.ts` (route auth, CSP-safe assets, list fields, owner scoping, 404/503 honesty) and `npm run test:console` (local Playwright with stubbed API states: empty, network error, running→passed after repair, running→failed after 2 repairs, 503, 409, connection drop, 401, invalid id, mobile + axe). A real Daytona run remains **NOT VERIFIED** until `DAYTONA_API_KEY` is configured for the Worker.
+
+The toolbox `process/execute` call now sends the Bearer API key (required by the Daytona toolbox API); previously every sandbox command would have been rejected.
