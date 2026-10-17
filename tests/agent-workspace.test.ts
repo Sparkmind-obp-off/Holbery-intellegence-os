@@ -69,7 +69,55 @@ describe("AI Agent Workspace", () => {
     expect(readFileSync("public/static/agent.js", "utf8").length).toBeGreaterThan(100);
   });
 
-  it("returns an honest unavailable state when no provider key is configured", async () => {
+
+  it("creates a persisted, schema-validated plan without executing tools", async () => {
+    await login();
+    const plan = {
+      title: "Validasi ide produk",
+      summary: "Rencana terbatas untuk memeriksa masalah dan menyiapkan draft.",
+      steps: [
+        { title: "Cari bukti", description: "Cari sumber publik relevan dan simpan tautan.", tool: "research.search", risk: "read_only" },
+        { title: "Analisis", description: "Bandingkan bukti dan catat ketidakpastian.", tool: "workspace.analyze", risk: "read_only" },
+        { title: "Susun draft", description: "Siapkan draft ringkasan untuk ditinjau pemilik.", tool: "artifact.draft", risk: "draft_only" }
+      ]
+    };
+    const mockFetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(plan) } }], usage: { total_tokens: 99 } }), { status: 200, headers: { "Content-Type": "application/json" } }));
+    vi.stubGlobal("fetch", mockFetch);
+    const r = await request("/api/v1/agent/runs", "POST", { objective: "Validasi ide produk digital untuk penjual online." }, { GROQ_API_KEY: "fake-test-key-only" });
+    expect(r.status).toBe(201);
+    const body = await r.json() as { run: { id: string; status: string }; plan: { steps: unknown[] }; executionStarted: boolean };
+    expect(body.run.status).toBe("planned");
+    expect(body.plan.steps).toHaveLength(3);
+    expect(body.executionStarted).toBe(false);
+    expect(storage.db.prepare("SELECT COUNT(*) AS n FROM agent_runs").get()).toMatchObject({ n: 1 });
+    expect(storage.db.prepare("SELECT COUNT(*) AS n FROM agent_steps").get()).toMatchObject({ n: 3 });
+    expect(storage.db.prepare("SELECT COUNT(*) AS n FROM agent_run_events").get()).toMatchObject({ n: 1 });
+  });
+
+  it("rejects malformed model plans and does not persist them", async () => {
+    await login();
+    const mockFetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ title: "Plan", summary: "Too few steps", steps: [] }) } }] }), { status: 200, headers: { "Content-Type": "application/json" } }));
+    vi.stubGlobal("fetch", mockFetch);
+    const r = await request("/api/v1/agent/runs", "POST", { objective: "Rencanakan riset pasar untuk produk digital." }, { GROQ_API_KEY: "fake-test-key-only" });
+    expect(r.status).toBe(502);
+    expect((await r.json() as { error: string }).error).toBe("invalid_plan");
+    expect(storage.db.prepare("SELECT COUNT(*) AS n FROM agent_runs").get()).toMatchObject({ n: 0 });
+  });
+
+  it("scopes agent run details to the authenticated owner", async () => {
+    await login();
+    const plan = { title: "Rencana", summary: "Rencana uji.", steps: [
+      { title: "Cari", description: "Cari bukti.", tool: "research.search", risk: "read_only" },
+      { title: "Analisis", description: "Analisis bukti.", tool: "workspace.analyze", risk: "read_only" },
+      { title: "Draft", description: "Tulis draft.", tool: "artifact.draft", risk: "draft_only" }
+    ] };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(plan) } }] }), { status: 200, headers: { "Content-Type": "application/json" } })));
+    const created = await request("/api/v1/agent/runs", "POST", { objective: "Rencanakan tugas validasi produk." }, { GROQ_API_KEY: "fake-test-key-only" });
+    const body = await created.json() as { run: { id: string } };
+    const otherOwner = await request("/api/v1/agent/runs/" + body.run.id, "GET", undefined, { OPERATOR_NAME: "different-owner" });
+    expect(otherOwner.status).toBe(404);
+  });
+\n  it("returns an honest unavailable state when no provider key is configured", async () => {
     await login();
     const r = await request("/api/v1/agent/chat", "POST", { message: "Bantu rancang produk digital." });
     expect(r.status).toBe(503);
