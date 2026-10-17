@@ -176,7 +176,6 @@ export function registerCodingAgent(app: Hono<Env>) {
     const files = z.array(fileSchema).min(1).max(3).parse(JSON.parse(task.files_json));
     if (files.some((file) => !allowedPath(file.path))) return c.json({ error: "path_not_allowed", message: "Validasi path gagal; proposal tidak dikirim." }, 409);
     const branch = "hio-agent/" + task.id.slice(0, 8);
-    const headers = { Authorization: "Bearer " + c.env.GITHUB_TOKEN };
     try {
       const baseResponse = await github("/repos/" + REPOSITORY + "/git/ref/heads/" + task.base_ref, c.env.GITHUB_TOKEN);
       if (!baseResponse.ok) return c.json({ error: "github_base_unavailable", message: "Branch dasar GitHub tidak dapat dibaca." }, 502);
