@@ -57,6 +57,18 @@ describe("AI Agent Workspace", () => {
     expect((await request("/api/v1/agent/conversations")).status).toBe(200);
   });
 
+  it("serves workspace styles and behavior as same-origin assets compatible with the global CSP", async () => {
+    await login();
+    const r = await request("/agent");
+    const html = await r.text();
+    expect(html).toContain('href="/static/agent.css"');
+    expect(html).toContain('src="/static/agent.js" defer');
+    expect(html).not.toContain("<style>");
+    expect(html).not.toContain("<script>");
+    expect(readFileSync("public/static/agent.css", "utf8").length).toBeGreaterThan(100);
+    expect(readFileSync("public/static/agent.js", "utf8").length).toBeGreaterThan(100);
+  });
+
   it("returns an honest unavailable state when no provider key is configured", async () => {
     await login();
     const r = await request("/api/v1/agent/chat", "POST", { message: "Bantu rancang produk digital." });
