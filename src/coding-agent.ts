@@ -1164,7 +1164,7 @@ export function registerCodingAgent(app: Hono<Env>) {
       let commandIndex = 0;
       let repairAttempts = 0;
       while (commandIndex < commands.length) {
-        const step = commands[commandIndex];
+        const step = commands[commandIndex]!;
         const result = await adapter.execute(
           sandboxId,
           step.command,
