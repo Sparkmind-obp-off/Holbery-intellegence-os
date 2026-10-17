@@ -200,3 +200,17 @@ An initial authenticated AI chat vertical slice has now been added on the featur
 **Verification caveat:** the source changes are committed to the feature branch, but this API-only session did not execute Node/Vitest/TypeScript/Playwright or apply the migration to a local D1. Do not mark the feature production-ready until `npm ci`, `npm run check`, `npm run security:check`, `npm run test:founder`, `npm run test:e2e`, and a local D1 migration test pass. The migration has not been applied to production, and no production deployment was triggered intentionally.
 
 **Next implementation slice:** run the new route tests and full baseline in a verified checkout; add tests for daily-cap and upstream timeout/429 handling. After that, add task planning/tool approvals to the chat UI; do not imply agent tools are already executing.
+
+## 10. Agent runtime implementation update (2026-10-17)
+
+PR #8 adds the first bounded runtime slice on `feat/agent-runtime-v1`:
+- Additive migration `0008_agent_runs.sql` persists owner-scoped agent runs, ordered steps, step results, and run events.
+- `POST /api/v1/agent/runs` uses the configured Groq provider to generate a structured plan, validates the output with Zod (including tool/risk class), and persists it. Missing providers and invalid model output are explicit failures; no fake plan is stored.
+- `GET /api/v1/agent/runs` and `GET /api/v1/agent/runs/:id` expose only the current authenticated owner’s run history and result receipts.
+- `POST /api/v1/agent/runs/:id/steps/:sequence/execute` currently allows only the existing HIO research pipeline for an allowlisted `research.search` read-only step. It requires `approve: true`, preflights provider configuration and daily quota, atomically claims a planned step to prevent duplicate calls, and records approval/result/failure events plus audit receipts.
+- The UI has a separate “Rencanakan tugas” action, a persistent run-history list, run detail, and an explicit browser confirmation before invoking the research provider. Provider quota or account charges may apply, so no research is triggered automatically when a plan is generated.
+- `workspace.analyze`, `artifact.draft`, and `quality.check` are still planning labels only. They are not executable tools. There is no coding sandbox, arbitrary shell execution, autonomous loop, cancellation, or production delivery yet.
+
+**Acceptance status:** PR #8 remains a draft. GitHub currently reports no commit status checks or workflow runs for its head commit. The environment could not resolve `github.com` for a local checkout, so Node/Vitest/typecheck/lint/format/build/browser/migration tests have not been executed. Production deployment metadata still points to commit `59d4fa93b41366c290782e503c77dd952624ac0a` from 2026-10-16, before PRs #6 and #7 merged; this branch has not been deployed and migration `0008` has not been applied to production.
+
+**Next gates:** obtain a working checkout/CI execution environment; run the full documented baseline; fix all failing tests and formatting; verify the plan and explicitly approved research tool end-to-end in preview with mocked providers first; then consider additional read-only tools, task-state recovery/cancellation, and a sandboxed build adapter only after access/cost verification.
