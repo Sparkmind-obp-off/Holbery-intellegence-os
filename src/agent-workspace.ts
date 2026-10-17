@@ -54,6 +54,92 @@ export function registerAgentWorkspace(app: Hono<Env>) {
     return c.json({ run: { ...run, plan_json: undefined }, plan: JSON.parse(run.plan_json), steps: steps.results, events: events.results.map((e: Record<string, unknown>) => ({ ...e, details_json: undefined, details: JSON.parse(String(e.details_json)) })) });
   });
 
+
+  app.post("/api/v1/agent/runs/:id/steps/:sequence/execute", async (c) => {
+    const runId = z.string().uuid().safeParse(c.req.param("id"));
+    const sequence = z.coerce.number().int().min(1).max(8).safeParse(c.req.param("sequence"));
+    const approval = z.object({ approve: z.literal(true), provider: z.enum(["tavily", "firecrawl", "apify"]).default("tavily") }).strict().safeParse(await c.req.json().catch(() => null));
+    if (!runId.success || !sequence.success || !approval.success) {
+      return c.json({ error: "invalid_input", message: "Run, urutan langkah, dan persetujuan eksplisit wajib valid." }, 400);
+    }
+    const owner = c.get("actor");
+    const step = await c.env.DB.prepare(
+      "SELECT s.id,s.sequence,s.title,s.description,s.tool,s.risk,s.status FROM agent_steps s JOIN agent_runs r ON r.id=s.run_id WHERE r.id=? AND r.owner_id=? AND s.sequence=?",
+    ).bind(runId.data, owner, sequence.data).first<{
+      id: string; sequence: number; title: string; description: string; tool: string; risk: string; status: string;
+    }>();
+    if (!step) return c.json({ error: "not_found" }, 404);
+    if (step.tool !== "research.search" || step.risk !== "read_only") {
+      return c.json({ error: "tool_not_enabled", message: "Tool ini belum tersedia untuk eksekusi. Langkah tetap hanya rencana." }, 409);
+    }
+    if (step.status !== "planned") return c.json({ error: "step_not_runnable", message: "Langkah sudah pernah dimulai atau bukan lagi berstatus planned; eksekusi ulang diblokir agar tidak menggandakan panggilan." }, 409);
+
+    const timestamp = now();
+    const claimed = await c.env.DB.prepare(
+      "UPDATE agent_steps SET status='running' WHERE id=? AND status='planned'",
+    ).bind(step.id).run();
+    if ((claimed.meta?.changes ?? 0) !== 1) return c.json({ error: "step_not_runnable", message: "Langkah telah diambil oleh proses lain." }, 409);
+    await c.env.DB.batch([
+      c.env.DB.prepare("INSERT INTO agent_run_events(id,run_id,actor_id,event_type,details_json,created_at) VALUES (?,?,?,'tool.approved',?,?)")
+        .bind(crypto.randomUUID(), runId.data, owner, JSON.stringify({ stepId: step.id, tool: step.tool, provider: approval.data.provider, explicitApproval: true }), timestamp),
+      c.env.DB.prepare("INSERT INTO audit_events VALUES (?,?,?,?,?,?,?,?)")
+        .bind(crypto.randomUUID(), owner, "agent.tool.approved", runId.data, c.get("requestId"), "ok", timestamp, JSON.stringify({ stepId: step.id, tool: step.tool, provider: approval.data.provider })),
+    ]);
+
+    let response: Response;
+    try {
+      const url = new URL("/api/founder/research", c.req.url);
+      const headers = new Headers({
+        "Content-Type": "application/json",
+        "Origin": url.origin,
+        "X-HIO-Request": "operator",
+      });
+      const cookie = c.req.header("Cookie");
+      if (cookie) headers.set("Cookie", cookie);
+      response = await app.fetch(new Request(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          question: step.description.slice(0, 500),
+          segment: "Pengguna sesuai tujuan tugas",
+          geography: "Indonesia",
+          problem: step.description.slice(0, 500),
+          provider: approval.data.provider,
+          maxResults: 6,
+          approve: true,
+        }),
+      }), c.env, c.executionCtx);
+    } catch {
+      response = new Response(null, { status: 503 });
+    }
+
+    let result: Record<string, unknown> = {};
+    try { result = await response.json() as Record<string, unknown>; } catch { /* safe fallback below */ }
+    const failed = !response.ok || result.gagal === true;
+    const completedAt = now();
+    const safeResult = {
+      status: typeof result.status === "string" ? result.status : (response.ok ? "unknown" : "provider_unavailable"),
+      masalah: typeof result.masalah === "string" ? result.masalah.slice(0, 500) : null,
+      evidenceCount: Array.isArray(result.bukti) ? result.bukti.length : 0,
+      sources: Array.isArray(result.bukti) ? (result.bukti as Record<string, unknown>[]).slice(0, 8).map((item) => ({
+        judul: typeof item.judul === "string" ? item.judul.slice(0, 200) : "",
+        tautanSumber: typeof item.tautanSumber === "string" ? item.tautanSumber.slice(0, 600) : "",
+        kutipan: typeof item.kutipan === "string" ? item.kutipan.slice(0, 600) : "",
+      })) : [],
+    };
+    await c.env.DB.batch([
+      c.env.DB.prepare("UPDATE agent_steps SET status=?,result_json=?,completed_at=? WHERE id=? AND status='running'")
+        .bind(failed ? "failed" : "completed", JSON.stringify(safeResult), completedAt, step.id),
+      c.env.DB.prepare("INSERT INTO agent_run_events(id,run_id,actor_id,event_type,details_json,created_at) VALUES (?,?,?,?,?,?)")
+        .bind(crypto.randomUUID(), runId.data, owner, failed ? "tool.failed" : "tool.completed", JSON.stringify({ stepId: step.id, tool: step.tool, provider: approval.data.provider, status: safeResult.status, evidenceCount: safeResult.evidenceCount }), completedAt),
+      c.env.DB.prepare("UPDATE agent_runs SET updated_at=? WHERE id=? AND owner_id=?")
+        .bind(completedAt, runId.data, owner),
+      c.env.DB.prepare("INSERT INTO audit_events VALUES (?,?,?,?,?,?,?,?)")
+        .bind(crypto.randomUUID(), owner, failed ? "agent.tool.failed" : "agent.tool.completed", runId.data, c.get("requestId"), failed ? "failed" : "ok", completedAt, JSON.stringify({ stepId: step.id, tool: step.tool, provider: approval.data.provider, status: safeResult.status })),
+    ]);
+    return c.json({ runId: runId.data, step: { id: step.id, sequence: step.sequence, title: step.title, status: failed ? "failed" : "completed", result: safeResult }, executionStarted: true, approvalRecorded: true }, failed ? 502 : 200);
+  });
+
   app.post("/api/v1/agent/runs", async (c) => {
     const parsed = runInput.safeParse(await c.req.json().catch(() => null));
     if (!parsed.success) return c.json({ error: "invalid_input", message: "Tujuan wajib diisi, maksimal 1.000 karakter." }, 400);
