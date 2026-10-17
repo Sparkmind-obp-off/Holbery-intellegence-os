@@ -182,14 +182,13 @@ Do not ask the owner to paste secrets into chat. Ask only for a decision or acce
 
 - Source inspected: HIO docs 62–70, package.json, wrangler.jsonc, ORDVELA unified-platform architecture doc.
 - Cloudflare read-only inventory inspected: HIO Pages project, latest deployment metadata, and dedicated D1 identity/table count.
-- No production resource was mutated.
-- No application code, database migration, secret, or production deployment was changed in this blueprint pass.
-- Test commands were not executed because this session has GitHub/Cloudflare API access but no verified local checkout/Node execution environment. Treat this as a documented audit and phased implementation plan, not a passing test report.
+- The initial audit itself was read-only. Subsequent feature-branch commits add the first chat vertical slice; no production resource, secret, migration, or deployment was changed.
+- Test commands were not executed because this session has GitHub/Cloudflare API access but no verified local checkout/Node execution environment. Treat this as a feature-branch implementation pending tests, not a passing test report.
 ## 9. Implementation update (2026-10-17)
 
 An initial authenticated AI chat vertical slice has now been added on the feature branch:
 - `src/agent-workspace.ts`: standalone AI Workspace UI and authenticated chat/history APIs.
-- `migrations/0005_agent_workspace.sql`: additive conversation/message tables and indexes.
+- `migrations/0007_agent_workspace.sql`: additive conversation/message tables and indexes.
 - `src/index.ts`: registers chat API routes and owner-session-protected `/agent` page.
 - `src/view.ts`: adds an AI Workspace entry point in the HIO navigation.
 - Chat reuses the existing configured Groq model constant and `GROQ_API_KEY` server binding; provider keys are never sent to the browser.
