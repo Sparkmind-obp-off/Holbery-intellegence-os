@@ -1,7 +1,7 @@
 # HIO Coding Agent v1 — bounded implementation
 
 **Status:** draft implementation; verification and deployment are pending.  
-**Scope:** HIO repository only. No Commerce, Bozq One System, ORDVELA, or other project is touched.
+**Scope:** HIO repository only. No Commerce, Bozqu One System, ORDVELA, or other project is touched.
 
 ## What this slice does
 
@@ -31,13 +31,15 @@ The code hard-codes the HIO repository identifier and does not accept a reposito
 ## Current limitations — do not overclaim
 
 - This is **a bounded coding-agent v1**, not a fully autonomous software engineer. It drafts whole-file replacements for up to three user-selected files; it does not yet discover the right files automatically, execute a sandbox, run tests itself, repair failing tests, or autonomously iterate.
-- Proposed checks are instructions, not evidence that checks passed. GitHub Actions must run and report results; reviewers must inspect the diff before merge.
+- Proposed checks are instructions, not evidence that checks passed.
 - The initial path allowlist excludes dependency files, migrations, authentication/security modules, workflows, and deployment configuration.
 - GitHub submission is a multi-request operation. If GitHub fails mid-operation, inspect the task and branch before retrying; the task is marked failed to avoid an automatic duplicate.
 - Public-source retrieval assumes this repository remains publicly readable. A future private-repository implementation should use a narrowly scoped read token and a reviewed file index.
 - The D1 migration is additive and must be tested locally before any production migration. No production migration, deployment, PR merge, or secret update is performed by this feature branch.
 
-## Required verification before release
+## Required verification before release — manual, no GitHub Actions
+
+Run these commands in the coding environment or a verified local checkout and preserve the actual output:
 
 1. `npm ci`
 2. `npm run check`
@@ -46,4 +48,5 @@ The code hard-codes the HIO repository identifier and does not accept a reposito
 5. `npm run test:e2e`
 6. Local D1 migration and route tests.
 7. Review the GitHub API permission scope and test submission against a temporary branch.
-8. Confirm CI results, then separately approve production migration/deployment.
+
+**Repository policy:** Do not add, invoke, or rely on GitHub Actions or any `.github/workflows/*` automation. Verification is performed manually by the coding environment/operator. Production migration and deployment require separate authorization.
