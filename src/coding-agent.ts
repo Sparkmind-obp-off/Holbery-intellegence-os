@@ -181,11 +181,11 @@ export function registerCodingAgent(app: Hono<Env>) {
     const branch = "hio-agent/" + task.id.slice(0, 8);
     try {
       const baseResponse = await github("/repos/" + REPOSITORY + "/git/ref/heads/" + task.base_ref, c.env.GITHUB_TOKEN);
-      if (!baseResponse.ok) return c.json({ error: "github_base_unavailable", message: "Branch dasar GitHub tidak dapat dibaca." }, 502);
+      if (!baseResponse.ok) throw new Error("github_base_unavailable");
       const baseData = await baseResponse.json() as { object: { sha: string } };
       const baseSha = baseData.object.sha;
       const commitResponse = await github("/repos/" + REPOSITORY + "/git/commits/" + baseSha, c.env.GITHUB_TOKEN);
-      if (!commitResponse.ok) return c.json({ error: "github_base_unavailable", message: "Commit dasar GitHub tidak dapat dibaca." }, 502);
+      if (!commitResponse.ok) throw new Error("github_base_unavailable");
       const commitData = await commitResponse.json() as { tree: { sha: string } };
       const treeEntries = [];
       for (const file of files) {
@@ -223,7 +223,7 @@ export function registerCodingAgent(app: Hono<Env>) {
       if (!prResponse.ok || !pr.html_url) throw new Error("github_pull_request_failed");
       const timestamp = now();
       await c.env.DB.batch([
-        c.env.DB.prepare("UPDATE agent_code_tasks SET status='submitted',branch_name=?,pr_url=?,updated_at=?,submitted_at=? WHERE id=? AND owner_id=? AND status='draft'")
+        c.env.DB.prepare("UPDATE agent_code_tasks SET status='submitted',branch_name=?,pr_url=?,updated_at=?,submitted_at=? WHERE id=? AND owner_id=? AND status='approved'")
           .bind(branch, pr.html_url, timestamp, timestamp, task.id, owner),
         c.env.DB.prepare("INSERT INTO agent_code_events(id,task_id,actor_id,event_type,details_json,created_at) VALUES (?,?,?,'code.submitted',?,?)")
           .bind(crypto.randomUUID(), task.id, owner, JSON.stringify({ branch, prUrl: pr.html_url, pullRequest: pr.number }), timestamp),
