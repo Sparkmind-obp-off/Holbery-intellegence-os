@@ -296,7 +296,7 @@ export function registerCodingAgent(app: Hono<Env>) {
       const timestamp = now();
       await c.env.DB.prepare("UPDATE agent_code_tasks SET status='failed',error_code='github_submission_failed',updated_at=? WHERE id=? AND owner_id=? AND status='approved'").bind(timestamp, task.id, owner).run();
       await c.env.DB.prepare("INSERT INTO agent_code_events(id,task_id,actor_id,event_type,details_json,created_at) VALUES (?,?,?,'code.submit_failed',?,?)")
-        .bind(crypto.randomUUID(), task.id, owner, JSON.stringify({ code: "github_submission_failed" }), timestamp).catch(() => null);
+        .bind(crypto.randomUUID(), task.id, owner, JSON.stringify({ code: "github_submission_failed" }), timestamp).run().catch(() => null);
       return c.json({ error: "github_submission_failed", message: "GitHub submission gagal atau berhenti di tengah proses. Periksa branch dan pull request sebelum mengulang; task ditandai failed agar tidak membuat duplikat." }, 502);
     }
   });
