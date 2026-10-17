@@ -176,3 +176,16 @@ Do not mark a gate complete based on code existence, documentation, mocks, a gre
 ## 11. Required implementation report
 
 Report exact branch/commit and changed files; implemented versus mocked versus blocked; actual manual commands and exit codes; test/migration/security findings; provider capabilities tested without revealing credentials; known risks and next gate; and confirmation that no workflows, production deployment, production migration or unrelated project was touched.
+
+
+## 12. Static-review findings in v1 to address
+
+These are source-review findings, not runtime-tested defects. Confirm each against the latest branch and add regression tests before claiming it is fixed.
+
+1. **No immutable proposal base:** v1 reads source from raw repository main but persists base_ref as the string main, not the commit SHA or file blob hashes. Submission later resolves the then-current main head and builds the commit on that tree. A proposal can therefore be stale while overwriting a file changed after generation. v2 must persist the exact base commit and selected-file hashes at task creation and reject or explicitly rebase/review if the base changed.
+2. **Path denylist needs adversarial tests:** the current allowlist blocks several exact path names and path segments, but names such as auth-helper.ts or security-utils.ts may not match exact-name patterns. Define a reviewed sensitive-file policy and test near-miss names, nested paths, case variants, encoded paths, dot segments and symlink escapes. The real sandbox must re-check paths at write time.
+3. **Daily cap concurrency:** v1 counts today's tasks before calling the model and inserting the new task. Concurrent requests can pass the same count check. Implement an atomic reservation/transaction or equivalent concurrency-safe quota mechanism before provider calls.
+4. **Multi-step GitHub side effects:** draft-PR submission creates Git objects, a branch and a PR through several API calls. A failure partway through may leave orphaned objects/branches or an ambiguous task. Add idempotency keys, side-effect receipts and reconciliation for retries; never blindly retry the whole sequence.
+5. **Execution evidence does not exist yet:** v1 stores suggested checks only. A v2 report must distinguish suggested commands from commands actually executed and must bind results to a specific base commit and final patch hash.
+
+No test suite was run as part of this static review. These findings are implementation priorities, not proof that production is vulnerable or that a fix has been deployed.
