@@ -540,4 +540,22 @@ describe("AI Agent Workspace", () => {
       "github_not_configured",
     );
   });
+
+  it("requires an owned submitted coding task before requesting a repair", async () => {
+    expect((await request("/api/v1/agent/code-tasks/00000000-0000-4000-8000-000000000001/repair", "POST", { failureSummary: "The build failed due to a type error in the proposal." })).status).toBe(401);
+    await login();
+    const missing = await request("/api/v1/agent/code-tasks/00000000-0000-4000-8000-000000000001/repair", "POST", { failureSummary: "The build failed due to a type error in the proposal." });
+    expect(missing.status).toBe(404);
+  });
+
+  it("does not fetch a PR branch or call the model when repair credentials are missing", async () => {
+    await login();
+    const id = "00000000-0000-4000-8000-000000000003";
+    storage.db.prepare("INSERT INTO agent_code_tasks(id,owner_id,objective,status,base_ref,branch_name,title,summary,files_json,checks_json,pr_url,created_at,updated_at,submitted_at) VALUES (?,?,?,'submitted','main',?,?,?,?,?,?,?,?,?)")
+      .run(id, "agent-test-owner", "Repair a submitted coding task after CI failure", "hio-agent/00000000", "Task repair", "Ringkasan repair", JSON.stringify([{ path: "src/agent-workspace.ts", content: "export const x = 1;", rationale: "test" }]), "[]", "https://github.com/Sparkmind-obp-off/Holbery-intellegence-os/pull/99998", new Date().toISOString(), new Date().toISOString(), new Date().toISOString());
+    const r = await request("/api/v1/agent/code-tasks/" + id + "/repair", "POST", { failureSummary: "TypeScript check failed in the workspace component." });
+    expect(r.status).toBe(503);
+    expect((await r.json() as { error: string }).error).toBe("github_not_configured");
+  });
+
 });
