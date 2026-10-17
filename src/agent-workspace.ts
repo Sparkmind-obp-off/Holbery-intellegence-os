@@ -83,7 +83,7 @@ export function registerAgentWorkspace(app: Hono<Env>) {
     }
     const timestamp = now();
     const claimed = await c.env.DB.prepare(
-      "UPDATE agent_steps SET status='running' WHERE id=? AND status='planned',
+      "UPDATE agent_steps SET status='running' WHERE id=? AND status='planned'",
     ).bind(step.id).run();
     if ((claimed.meta?.changes ?? 0) !== 1) return c.json({ error: "step_not_runnable", message: "Langkah telah diambil oleh proses lain." }, 409);
     await c.env.DB.batch([
