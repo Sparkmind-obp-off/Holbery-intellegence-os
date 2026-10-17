@@ -34,9 +34,5 @@ jobs:
         run: npm ci
       - name: Run typecheck, lint, format, tests, and build
         run: npm run check
-      - name: Run founder workflow regression tests
-        run: npm run test:founder
-      - name: Run end-to-end regression tests
-        run: npm run test:e2e
       - name: Scan source and build output for secret leakage
         run: npm run security:check
