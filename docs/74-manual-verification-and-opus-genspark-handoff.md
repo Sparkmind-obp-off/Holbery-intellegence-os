@@ -93,3 +93,31 @@ Do not use npm run test:production unless separately authorized because it may c
 ## Voice / multimodal features
 
 Voice input/output can be a later workspace capability, but it is not a substitute for the coding engine and should not be mixed into this release gate. Before implementation, specify browser permission handling, transcription provider, text-to-speech provider, latency, consent, retention, cost controls, accessibility and fallback-to-text. Do not claim live voice or real-time audio until a provider path is implemented and tested. Prioritize a reliable coding engine first unless a separate product decision changes the scope.
+
+
+## Existing PR #10 compatibility decision — important
+
+PR #10 (`feat(agent): add coding PR validation loop`) must **not** be merged or used as-is under the no-GitHub-Actions policy. Its current validation endpoint reads GitHub Actions check runs, and its branch changes the existing Actions workflow. This is a policy conflict even if its earlier CI run was green.
+
+Port only the useful product behavior into a manual runner / sandbox evidence system:
+- validation status must come from commands actually executed in an isolated development sandbox, not from GitHub Actions;
+- store the command, pinned base SHA, final patch hash, environment/provider, start/end times, exit code, bounded sanitized output, and result classification;
+- expose an owner-scoped validation report from HIO;
+- repair only from bounded real failure output and the approved diff, with a fixed attempt budget;
+- keep PR creation as a separate explicit approval step.
+
+Do not invoke GitHub Actions APIs, poll workflow/check runs, add workflow files, or use a CI result as the acceptance mechanism. A GitHub draft PR may be the delivery destination, but validation is owned by the HIO manual/sandbox runner.
+
+## End-to-end workspace acceptance flow
+
+The finished workspace should feel like one continuous task, not a collection of disconnected screens:
+
+1. **Understand:** accept the user's goal and clarify only if a required input is genuinely missing.
+2. **Plan:** persist an ordered, typed plan with tool name, risk, required permission and expected output.
+3. **Find:** execute only explicitly enabled research tools; preserve source URLs, timestamps, provider and retrieval status.
+4. **Build:** create an isolated workspace pinned to a base commit; inspect files; propose and apply bounded patches; never run arbitrary model output in the Worker.
+5. **Validate:** run the server-approved command set in the sandbox, save actual exit codes, repair within budget and rerun.
+6. **Deliver:** package diff, test report, logs and artifacts; request explicit approval only when a consequential side effect is about to occur (such as publishing a draft PR).
+7. **Learn:** persist outcomes and failures as task events so a reopened task can resume or explain exactly why it stopped.
+
+For each step, the UI must display one honest state: queued, running, awaiting approval, passed, failed, blocked, cancelled or review-ready. Never use “done” for a plan-only step or a mocked execution.
