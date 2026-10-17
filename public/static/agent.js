@@ -505,26 +505,49 @@ async function submitRepairProposal(task, host) {
   b.className = "plan-button";
   b.textContent = "Setujui & buat draft PR perbaikan";
   b.onclick = async () => {
-    if (!window.confirm("Kirim proposal perbaikan ini sebagai draft PR yang menargetkan branch PR asal? Tidak ada merge atau deployment otomatis.")) return;
+    if (
+      !window.confirm(
+        "Kirim proposal perbaikan ini sebagai draft PR yang menargetkan branch PR asal? Tidak ada merge atau deployment otomatis.",
+      )
+    )
+      return;
     b.disabled = true;
     b.textContent = "Mengirim draft PR…";
     try {
-      const r = await fetch("/api/v1/agent/code-tasks/" + encodeURIComponent(task.id) + "/submit", {
-        method: "POST", headers: headers(), body: JSON.stringify({ approve: true }),
-      });
+      const r = await fetch(
+        "/api/v1/agent/code-tasks/" + encodeURIComponent(task.id) + "/submit",
+        {
+          method: "POST",
+          headers: headers(),
+          body: JSON.stringify({ approve: true }),
+        },
+      );
       const d = await r.json();
       if (!r.ok) {
-        showMessage("assistant", d.message || "Draft PR perbaikan belum berhasil dibuat.");
+        showMessage(
+          "assistant",
+          d.message || "Draft PR perbaikan belum berhasil dibuat.",
+        );
         b.disabled = false;
         b.textContent = "Coba submit lagi setelah pemeriksaan";
         return;
       }
-      showMessage("assistant", "Draft PR perbaikan dibuat.\n" + d.pullRequest + "\nBranch: " + d.branch + "\nTarget: branch PR asal. Tidak di-merge atau di-deploy.");
+      showMessage(
+        "assistant",
+        "Draft PR perbaikan dibuat.\n" +
+          d.pullRequest +
+          "\nBranch: " +
+          d.branch +
+          "\nTarget: branch PR asal. Tidak di-merge atau di-deploy.",
+      );
       b.textContent = "Draft PR perbaikan dibuat";
       $("#status").textContent = "Repair · draft PR dibuat";
       await loadCodeTasks();
     } catch {
-      showMessage("assistant", "Koneksi terputus saat mengirim repair. Periksa GitHub sebelum mencoba ulang.");
+      showMessage(
+        "assistant",
+        "Koneksi terputus saat mengirim repair. Periksa GitHub sebelum mencoba ulang.",
+      );
       b.disabled = true;
     }
   };
@@ -538,28 +561,56 @@ async function requestCodeRepair(parentId, failureSummary, host) {
     b.disabled = true;
     b.textContent = "Menganalisis kegagalan dan menyusun repair…";
     try {
-      const r = await fetch("/api/v1/agent/code-tasks/" + encodeURIComponent(parentId) + "/repair", {
-        method: "POST", headers: headers(), body: JSON.stringify({ failureSummary }),
-      });
+      const r = await fetch(
+        "/api/v1/agent/code-tasks/" + encodeURIComponent(parentId) + "/repair",
+        {
+          method: "POST",
+          headers: headers(),
+          body: JSON.stringify({ failureSummary }),
+        },
+      );
       const d = await r.json();
       if (!r.ok) {
-        showMessage("assistant", d.message || "Proposal repair belum bisa dibuat.");
+        showMessage(
+          "assistant",
+          d.message || "Proposal repair belum bisa dibuat.",
+        );
         b.disabled = false;
         b.textContent = "Coba buat proposal repair lagi";
         return;
       }
-      const proposalHost = showMessage("assistant",
-        d.task.title + "\n" + d.task.summary + "\n\nStatus: DRAFT — belum mengubah repository.\nParent task: " + d.task.parentTaskId +
-        "\nTarget branch: " + d.task.baseBranch + "\nTask ID: " + d.task.id + "\n\n" +
-        d.files.map(f => "FILE: " + f.path + "\n" + f.rationale + "\n\n" + f.content).join("\n\n--- FILE BERIKUTNYA ---\n\n") +
-        "\n\nCHECKS YANG HARUS DILAKUKAN:\n" + d.checks.map(s => "• " + s).join("\n") +
-        "\n\n" + d.note);
+      const proposalHost = showMessage(
+        "assistant",
+        d.task.title +
+          "\n" +
+          d.task.summary +
+          "\n\nStatus: DRAFT — belum mengubah repository.\nParent task: " +
+          d.task.parentTaskId +
+          "\nTarget branch: " +
+          d.task.baseBranch +
+          "\nTask ID: " +
+          d.task.id +
+          "\n\n" +
+          d.files
+            .map(
+              (f) =>
+                "FILE: " + f.path + "\n" + f.rationale + "\n\n" + f.content,
+            )
+            .join("\n\n--- FILE BERIKUTNYA ---\n\n") +
+          "\n\nCHECKS YANG HARUS DILAKUKAN:\n" +
+          d.checks.map((s) => "• " + s).join("\n") +
+          "\n\n" +
+          d.note,
+      );
       submitRepairProposal(d.task, proposalHost);
       b.textContent = "Proposal repair tersimpan";
       $("#status").textContent = "Repair proposal · review diperlukan";
       await loadCodeTasks();
     } catch {
-      showMessage("assistant", "Koneksi gagal saat membuat repair. Repository belum diubah.");
+      showMessage(
+        "assistant",
+        "Koneksi gagal saat membuat repair. Repository belum diubah.",
+      );
       b.disabled = false;
       b.textContent = "Coba buat proposal repair lagi";
     }
@@ -574,9 +625,13 @@ async function validateCodeTask(id, host) {
     b.disabled = true;
     b.textContent = "Memeriksa status…";
     try {
-      const r = await fetch("/api/v1/agent/code-tasks/" + encodeURIComponent(id) + "/validate", {
-        method: "POST", headers: headers(),
-      });
+      const r = await fetch(
+        "/api/v1/agent/code-tasks/" + encodeURIComponent(id) + "/validate",
+        {
+          method: "POST",
+          headers: headers(),
+        },
+      );
       const d = await r.json();
       if (!r.ok) {
         showMessage("assistant", d.message || "Status CI belum tersedia.");
@@ -585,8 +640,23 @@ async function validateCodeTask(id, host) {
         return;
       }
       const failed = [
-        ...d.checkRuns.filter(x => x.status === "completed" && ["failure", "cancelled", "timed_out", "action_required"].includes(x.conclusion)).map(x => x.name + ": " + x.conclusion + (x.url ? " (" + x.url + ")" : "")),
-        ...d.commitStatuses.filter(x => ["failure", "error"].includes(x.status)).map(x => x.name + ": " + x.status + (x.url ? " (" + x.url + ")" : "")),
+        ...d.checkRuns
+          .filter(
+            (x) =>
+              x.status === "completed" &&
+              ["failure", "cancelled", "timed_out", "action_required"].includes(
+                x.conclusion,
+              ),
+          )
+          .map(
+            (x) =>
+              x.name + ": " + x.conclusion + (x.url ? " (" + x.url + ")" : ""),
+          ),
+        ...d.commitStatuses
+          .filter((x) => ["failure", "error"].includes(x.status))
+          .map(
+            (x) => x.name + ": " + x.status + (x.url ? " (" + x.url + ")" : ""),
+          ),
       ];
       const lines = [
         "Validasi CI GitHub: " + d.state.toUpperCase(),
@@ -594,8 +664,17 @@ async function validateCodeTask(id, host) {
         "Head commit: " + d.headSha,
         "Waktu cek: " + d.checkedAt,
         "",
-        ...d.checkRuns.map(x => x.name + ": " + x.status + (x.conclusion ? " / " + x.conclusion : "") + (x.url ? " — " + x.url : "")),
-        ...d.commitStatuses.map(x => x.name + ": " + x.status + (x.url ? " — " + x.url : "")),
+        ...d.checkRuns.map(
+          (x) =>
+            x.name +
+            ": " +
+            x.status +
+            (x.conclusion ? " / " + x.conclusion : "") +
+            (x.url ? " — " + x.url : ""),
+        ),
+        ...d.commitStatuses.map(
+          (x) => x.name + ": " + x.status + (x.url ? " — " + x.url : ""),
+        ),
         "",
         "Langkah berikutnya: " + d.nextAction,
       ];
@@ -603,11 +682,17 @@ async function validateCodeTask(id, host) {
       b.textContent = "Status CI: " + d.state.toUpperCase();
       $("#status").textContent = "Validasi coding · " + d.state;
       if (d.state === "failure") {
-        const summary = failed.length ? failed.join("\n") : "GitHub CI melaporkan failure; periksa seluruh check runs pada " + d.pullRequest;
+        const summary = failed.length
+          ? failed.join("\n")
+          : "GitHub CI melaporkan failure; periksa seluruh check runs pada " +
+            d.pullRequest;
         requestCodeRepair(id, summary, resultHost);
       }
     } catch {
-      showMessage("assistant", "Gagal membaca status CI. Tidak ada perubahan repository dilakukan.");
+      showMessage(
+        "assistant",
+        "Gagal membaca status CI. Tidak ada perubahan repository dilakukan.",
+      );
       b.disabled = false;
       b.textContent = "Coba periksa lagi";
     }
