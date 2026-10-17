@@ -15,7 +15,12 @@ const plannedStepSchema = z.object({
   description: z.string().trim().min(1).max(1000),
   tool: z.enum(["research.search", "workspace.analyze", "artifact.draft", "quality.check"]),
   risk: z.enum(["read_only", "draft_only"]),
-}).strict();
+}).strict().superRefine((step, ctx) => {
+  const expectedRisk = step.tool === "artifact.draft" ? "draft_only" : "read_only";
+  if (step.risk !== expectedRisk) {
+    ctx.addIssue({ code: "custom", path: ["risk"], message: "Risk must match the allowlisted tool's side-effect class." });
+  }
+});
 const planSchema = z.object({
   title: z.string().trim().min(1).max(120),
   summary: z.string().trim().min(1).max(2000),
