@@ -175,6 +175,9 @@ export function registerCodingAgent(app: Hono<Env>) {
 
     const files = z.array(fileSchema).min(1).max(3).parse(JSON.parse(task.files_json));
     if (files.some((file) => !allowedPath(file.path))) return c.json({ error: "path_not_allowed", message: "Validasi path gagal; proposal tidak dikirim." }, 409);
+    const claim = await c.env.DB.prepare("UPDATE agent_code_tasks SET status='approved',updated_at=? WHERE id=? AND owner_id=? AND status='draft'")
+      .bind(now(), task.id, owner).run();
+    if ((claim.meta?.changes ?? 0) !== 1) return c.json({ error: "task_not_submittable", message: "Task sudah diambil proses lain; duplikasi diblokir." }, 409);
     const branch = "hio-agent/" + task.id.slice(0, 8);
     try {
       const baseResponse = await github("/repos/" + REPOSITORY + "/git/ref/heads/" + task.base_ref, c.env.GITHUB_TOKEN);
@@ -230,7 +233,7 @@ export function registerCodingAgent(app: Hono<Env>) {
       return c.json({ taskId: task.id, status: "submitted", branch, pullRequest: pr.html_url, draft: true, deploymentTriggered: false }, 201);
     } catch {
       const timestamp = now();
-      await c.env.DB.prepare("UPDATE agent_code_tasks SET status='failed',error_code='github_submission_failed',updated_at=? WHERE id=? AND owner_id=? AND status='draft'").bind(timestamp, task.id, owner).run();
+      await c.env.DB.prepare("UPDATE agent_code_tasks SET status='failed',error_code='github_submission_failed',updated_at=? WHERE id=? AND owner_id=? AND status='approved'").bind(timestamp, task.id, owner).run();
       await c.env.DB.prepare("INSERT INTO agent_code_events(id,task_id,actor_id,event_type,details_json,created_at) VALUES (?,?,?,'code.submit_failed',?,?)")
         .bind(crypto.randomUUID(), task.id, owner, JSON.stringify({ code: "github_submission_failed" }), timestamp).catch(() => null);
       return c.json({ error: "github_submission_failed", message: "GitHub submission gagal atau berhenti di tengah proses. Periksa branch dan pull request sebelum mengulang; task ditandai failed agar tidak membuat duplikat." }, 502);
