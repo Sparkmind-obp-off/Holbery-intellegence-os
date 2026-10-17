@@ -63,8 +63,8 @@ describe("AI Agent Workspace", () => {
     const html = await r.text();
     expect(html).toContain('href="/static/agent.css"');
     expect(html).toContain('src="/static/agent.js" defer');
-    expect(html).not.toMatch(/<style[>\\s]/i);
-    expect(html).not.toMatch(/<script>(?!\\s*\\/script)/i);
+    expect(html).not.toContain("<style>");
+    expect(html).not.toContain("<script>");
     expect(readFileSync("public/static/agent.css", "utf8").length).toBeGreaterThan(100);
     expect(readFileSync("public/static/agent.js", "utf8").length).toBeGreaterThan(100);
   });
