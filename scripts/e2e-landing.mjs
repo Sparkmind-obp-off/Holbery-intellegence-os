@@ -20,6 +20,8 @@ for (const [name, viewport] of [
     (m) =>
       m.type() === "error" &&
       !/Failed to load resource/.test(m.text()) &&
+      // Cloudflare zone-injected Web Analytics beacon, blocked by our CSP by design.
+      !/static\.cloudflareinsights\.com\/beacon/.test(m.text()) &&
       errs.push(m.text()),
   );
   const r = await p.goto(base + "/");
