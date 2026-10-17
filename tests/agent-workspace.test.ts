@@ -181,4 +181,24 @@ describe("AI Agent Workspace", () => {
     const otherOwner = await request("/api/v1/agent/conversations/" + body.conversationId + "/messages", "GET", undefined, { OPERATOR_NAME: "different-owner" });
     expect(otherOwner.status).toBe(404);
   });
+  it("rejects coding proposals that target protected source paths", async () => {
+    await login();
+    const r = await request("/api/v1/agent/code-tasks", "POST", {
+      objective: "Ubah validasi autentikasi untuk mempermudah login.",
+      targetFiles: ["src/auth.ts"],
+    }, { GROQ_API_KEY: "fake-test-key-only" });
+    expect(r.status).toBe(400);
+    expect((await r.json() as { error: string }).error).toBe("path_not_allowed");
+  });
+
+  it("does not create a fake code proposal when the model provider is missing", async () => {
+    await login();
+    const r = await request("/api/v1/agent/code-tasks", "POST", {
+      objective: "Tambahkan fitur daftar coding task.",
+      targetFiles: ["src/agent-workspace.ts"],
+    });
+    expect(r.status).toBe(503);
+    expect((await r.json() as { error: string }).error).toBe("provider_missing");
+    expect(storage.db.prepare("SELECT COUNT(*) AS n FROM agent_code_tasks").get()).toMatchObject({ n: 0 });
+  });
 });
