@@ -151,7 +151,8 @@ describe("AI Agent Workspace", () => {
     expect(mockFetch).toHaveBeenCalledOnce();
     expect(storage.db.prepare("SELECT status FROM agent_steps WHERE run_id=? AND sequence=1").get(body.run.id)).toMatchObject({ status: "planned" });
   });
-\n  it("returns an honest unavailable state when no provider key is configured", async () => {
+
+  it("returns an honest unavailable state when no provider key is configured", async () => {
     await login();
     const r = await request("/api/v1/agent/chat", "POST", { message: "Bantu rancang produk digital." });
     expect(r.status).toBe(503);
