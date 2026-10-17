@@ -1,6 +1,7 @@
 import type { Context, Hono } from "hono";
 import type { Env } from "./auth";
 import { z } from "zod";
+import { GROQ_MODEL } from "./research";
 
 const chatInput = z.object({
   conversationId: z.string().uuid().optional(),
@@ -36,6 +37,12 @@ export function registerAgentWorkspace(app: Hono<Env>) {
     if (!c.env.GROQ_API_KEY) return c.json({ error: "provider_missing", message: "Provider AI belum dikonfigurasi. Chat tidak menjalankan jawaban palsu." }, 503);
     const { message } = parsed.data;
     const owner = c.get("actor");
+    const dayStart = new Date();
+    dayStart.setUTCHours(0, 0, 0, 0);
+    const usedToday = await c.env.DB.prepare(
+      "SELECT COUNT(*) AS count FROM agent_messages m JOIN agent_conversations c ON c.id=m.conversation_id WHERE c.owner_id=? AND m.role=? AND m.created_at>=?",
+    ).bind(owner, "assistant", dayStart.toISOString()).first<{ count: number }>();
+    if ((usedToday?.count ?? 0) >= 40) return c.json({ error: "daily_cap", message: "Batas beta 40 jawaban AI per hari tercapai untuk menjaga penggunaan tetap gratis. Coba lagi besok." }, 429);
     let conversationId = parsed.data.conversationId;
     if (conversationId) {
       const existing = await c.env.DB.prepare(
@@ -65,7 +72,7 @@ export function registerAgentWorkspace(app: Hono<Env>) {
       const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: { Authorization: `Bearer ${c.env.GROQ_API_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages, temperature: 0.4, max_tokens: 1200 }),
+        body: JSON.stringify({ model: GROQ_MODEL, messages, temperature: 0.4, max_tokens: 1200 }),
         signal: controller.signal,
       });
       if (!response.ok) {
