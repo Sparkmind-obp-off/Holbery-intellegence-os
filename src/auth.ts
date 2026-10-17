@@ -14,6 +14,7 @@ export type Env = {
     FIRECRAWL_API_KEY?: string;
     APIFY_TOKEN?: string;
     GROQ_API_KEY?: string;
+    GITHUB_TOKEN?: string;
     HIO_RESEARCH_ENABLED?: string;
   };
   Variables: { requestId: string; actor: string; role: string };

@@ -5,6 +5,7 @@ on:
     branches:
       - feat/agent-runtime-v1
       - fix/agent-workspace-csp-assets
+      - feat/hio-coding-agent-v1
   pull_request:
     branches:
       - main
