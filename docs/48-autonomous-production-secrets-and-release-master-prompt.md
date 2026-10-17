@@ -121,3 +121,30 @@ Begin now with the live repo/account preflight, then execute the work in this sa
 ## Product direction synchronization (2026-10-12)
 
 HIO's target is an evidence-to-execution business workspace, not a generic chatbot. This target does not imply shipped parity. Use docs/50 for capability states and release truth, docs/51 for Genspark/G2 benchmark, docs/52 for target architecture, docs/53 for production/commercial gates, and docs/54 for market validation. Keep fixtures distinct from live data. Production login remains blocked pending secure Owner configuration of distinct OPERATOR_SECRET and SESSION_SECRET values and verified authenticated production tests.
+
+## 12. HIO coding console, Groq, GitHub source-of-truth — mandatory continuation
+
+This addendum is the active continuation rule for the October 17 coding-console release. It does not override security controls or authorize unrelated projects.
+
+### Source of truth and GitHub requirement
+- Canonical source is `main` in `Sparkmind-obp-off/Holbery-intellegence-os`. A Cloudflare deployment, local branch, Genspark workspace, or commit hash mentioned in a report is not proof that the source exists in GitHub.
+- Before claiming completion, verify the exact commit and every required source file through GitHub. Never force-push, rewrite history, or overwrite unrelated commits. Never create or enable GitHub Actions/workflows; do not depend on Actions/Checks to validate work.
+- The deployed coding-console report identifies commit `dac6fdf714be2bbfc79e0cbecfccaadb5b30ceb6`, but that SHA was not found in GitHub at the time this addendum was written. Recover the exact source from the authorized implementation workspace, inspect the diff against current `main`, run the repository checks, and push a normal fast-forward commit to `main`. If that workspace/source is inaccessible, report that exact blocker; do not reconstruct or claim to push code you do not possess.
+- Keep the HIO repository separate from HOLBERY Commerce, Bozq One System, ORDVELA, and other projects.
+
+### Groq integration — prove runtime, do not just see a secret name
+- Existing HIO research and coding-agent code uses Groq's OpenAI-compatible endpoint and `GROQ_API_KEY`; the configured research model is `openai/gpt-oss-120b`. Groq is not Grok Console/xAI. Do not silently swap one provider for the other.
+- Inspect `src/research.ts`, `src/coding-agent.ts`, provider limits, request validation, error mapping, timeouts, audit events, and tests before changing code. Reuse the existing integration where it is correct; avoid duplicate clients and hard-coded credentials.
+- Verify whether the Production secret is actually configured without attempting to read or print its value. A masked/empty value in Cloudflare metadata is not proof that a key is valid.
+- Use a low-risk, bounded, authenticated test that makes one real Groq request only if the configured key is present and the provider is enabled. Record only provider name, model, HTTP outcome, latency, and sanitized error category. Never log prompts containing secrets, the key, or raw authorization headers. Do not run up billable or quota-consuming loops.
+- A missing, invalid, unauthorized, or quota-exhausted key must be reported truthfully. Do not claim Groq is connected until a real provider request succeeds. Keep the application usable when Groq is unavailable and return clear, non-sensitive errors.
+
+### Daytona coding execution
+- Confirm `DAYTONA_API_KEY` is configured as a Cloudflare Production Secret before attempting a live sandbox. If absent, do not fabricate a sandbox run.
+- Create one minimal, disposable test task only after reviewing the exact proposed file paths. Verify clone, file write, seven fixed checks, bounded repair behavior (at most two attempts), per-step evidence, and confirmed sandbox disposal. No automatic PR, merge, or deployment from a sandbox result.
+- Keep the current human approval gate, file allowlist, output caps, request timeouts, concurrency guard, and audit trail. Do not broaden path permissions to make a test pass.
+
+### Product outcome and honest readiness
+- Preserve the product flow **FIND → BUILD → VALIDATE → LAUNCH**. Findings must include source URLs/timestamps and uncertainty; generated ideas are hypotheses until validated. Do not create fake demand evidence, customers, sales, or provider connections.
+- Deliver product artifacts in the right format (for example spreadsheet, document, or working web demo) only after the objective and evidence justify that format. Prioritize low/no-cost providers and clearly label unavailable integrations. No paid service, new infrastructure, production migration, secret rotation, or deployment unless separately authorized.
+- Completion report must separate: (1) code in GitHub `main`, (2) production deployment, (3) configured secret presence, (4) real provider test, (5) Daytona runtime test, and (6) product readiness. Each claim needs observable evidence; list unresolved blockers without calling the whole system complete.
