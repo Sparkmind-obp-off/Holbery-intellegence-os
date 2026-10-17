@@ -1069,47 +1069,169 @@ export function registerCodingAgent(app: Hono<Env>) {
   app.post("/api/v1/agent/code-tasks/:id/execute", async (c) => {
     const parsedId = z.string().uuid().safeParse(c.req.param("id"));
     if (!parsedId.success) return c.json({ error: "invalid_task_id" }, 400);
-    if (!c.env.DAYTONA_API_KEY || c.env.DAYTONA_API_KEY.length < 16) return c.json({ error: "daytona_not_configured", message: "DAYTONA_API_KEY belum dikonfigurasi; sandbox tidak dibuat." }, 503);
+    if (!c.env.DAYTONA_API_KEY || c.env.DAYTONA_API_KEY.length < 16) {
+      return c.json(
+        {
+          error: "daytona_not_configured",
+          message: "DAYTONA_API_KEY belum dikonfigurasi; sandbox tidak dibuat.",
+        },
+        503,
+      );
+    }
+
     const owner = c.get("actor");
-    const task = await c.env.DB.prepare("SELECT id,objective,status,files_json FROM agent_code_tasks WHERE id=? AND owner_id=?").bind(parsedId.data, owner).first<{id:string;objective:string;status:string;files_json:string}>();
+    const task = await c.env.DB.prepare(
+      "SELECT id,objective,status,files_json FROM agent_code_tasks WHERE id=? AND owner_id=?",
+    )
+      .bind(parsedId.data, owner)
+      .first<{
+        id: string;
+        objective: string;
+        status: string;
+        files_json: string;
+      }>();
     if (!task) return c.json({ error: "not_found" }, 404);
-    if (task.status !== "draft") return c.json({ error: "task_not_executable", message: "Hanya proposal draft yang boleh diuji di sandbox." }, 409);
+    if (task.status !== "draft") {
+      return c.json(
+        {
+          error: "task_not_executable",
+          message: "Hanya proposal draft yang boleh diuji di sandbox.",
+        },
+        409,
+      );
+    }
+
     let files: z.infer<typeof fileSchema>[];
-    try { files = z.array(fileSchema).min(1).max(3).parse(JSON.parse(task.files_json)); if (files.some((file) => !allowedPath(file.path))) return c.json({ error: "path_not_allowed" }, 409); }
-    catch { return c.json({ error: "stored_proposal_invalid" }, 409); }
+    try {
+      files = z
+        .array(fileSchema)
+        .min(1)
+        .max(3)
+        .parse(JSON.parse(task.files_json));
+      if (files.some((file) => !allowedPath(file.path))) {
+        return c.json({ error: "path_not_allowed" }, 409);
+      }
+    } catch {
+      return c.json({ error: "stored_proposal_invalid" }, 409);
+    }
+
     let adapter: DaytonaSandboxAdapter;
-    try { adapter = new DaytonaSandboxAdapter({ apiKey: c.env.DAYTONA_API_KEY, apiUrl: c.env.DAYTONA_API_URL, toolboxUrl: c.env.DAYTONA_TOOLBOX_URL }); }
-    catch { return c.json({ error: "daytona_configuration_invalid" }, 503); }
-    let sandboxId: string | null = null; const startedAt = now();
-    const results: {name:string;exitCode:number;output:string}[] = []; let failure: string | null = null;
+    try {
+      adapter = new DaytonaSandboxAdapter({
+        apiKey: c.env.DAYTONA_API_KEY,
+        apiUrl: c.env.DAYTONA_API_URL,
+        toolboxUrl: c.env.DAYTONA_TOOLBOX_URL,
+      });
+    } catch {
+      return c.json({ error: "daytona_configuration_invalid" }, 503);
+    }
+
+    let sandboxId: string | null = null;
+    const startedAt = now();
+    const results: { name: string; exitCode: number; output: string }[] = [];
+    let failure: string | null = null;
+
     try {
       sandboxId = await adapter.create();
-      const clone = await adapter.execute(sandboxId, "git clone --depth 1 https://github.com/" + REPOSITORY + ".git workspace", 120, ".");
-      results.push({ name: "clone", ...clone }); if (clone.exitCode !== 0) throw new Error("repository_clone_failed");
+      const clone = await adapter.execute(
+        sandboxId,
+        "git clone --depth 1 https://github.com/" + REPOSITORY + ".git workspace",
+        120,
+        ".",
+      );
+      results.push({ name: "clone", ...clone });
+      if (clone.exitCode !== 0) throw new Error("repository_clone_failed");
+
       for (const file of files) {
-        const write = await adapter.writeTextFile(sandboxId, file.path, file.content);
-        results.push({ name: "write:" + file.path, ...write }); if (write.exitCode !== 0) throw new Error("sandbox_file_write_failed");
+        const write = await adapter.writeTextFile(
+          sandboxId,
+          file.path,
+          file.content,
+        );
+        results.push({ name: "write:" + file.path, ...write });
+        if (write.exitCode !== 0) throw new Error("sandbox_file_write_failed");
       }
+
       const commands = [
-        {name:"install",command:"npm ci",timeout:300},{name:"typecheck",command:"npm run typecheck",timeout:180},
-        {name:"lint",command:"npm run lint",timeout:180},{name:"format",command:"npm run format:check",timeout:180},
-        {name:"tests",command:"npm test",timeout:300},{name:"security",command:"npm run security:check",timeout:180},
-        {name:"build",command:"npm run build",timeout:300},
+        { name: "install", command: "npm ci", timeout: 300 },
+        { name: "typecheck", command: "npm run typecheck", timeout: 180 },
+        { name: "lint", command: "npm run lint", timeout: 180 },
+        { name: "format", command: "npm run format:check", timeout: 180 },
+        { name: "tests", command: "npm test", timeout: 300 },
+        { name: "security", command: "npm run security:check", timeout: 180 },
+        { name: "build", command: "npm run build", timeout: 300 },
       ];
       for (const step of commands) {
-        const result = await adapter.execute(sandboxId, step.command, step.timeout);
-        results.push({name:step.name,...result}); if (result.exitCode !== 0) { failure = step.name + "_failed"; break; }
+        const result = await adapter.execute(
+          sandboxId,
+          step.command,
+          step.timeout,
+        );
+        results.push({ name: step.name, ...result });
+        if (result.exitCode !== 0) {
+          failure = step.name + "_failed";
+          break;
+        }
       }
-    } catch (error) { failure = error instanceof Error ? error.message.slice(0,180) : "sandbox_execution_failed"; }
-    finally { if (sandboxId) { try { await adapter.dispose(sandboxId); } catch { failure = failure || "sandbox_cleanup_failed"; } } }
-    const passed = !failure && results.some((result) => result.name === "build") && results.every((result) => result.exitCode === 0);
+    } catch (error) {
+      failure =
+        error instanceof Error
+          ? error.message.slice(0, 180)
+          : "sandbox_execution_failed";
+    } finally {
+      if (sandboxId) {
+        try {
+          await adapter.dispose(sandboxId);
+        } catch {
+          failure = failure || "sandbox_cleanup_failed";
+        }
+      }
+    }
+
+    const passed =
+      !failure &&
+      results.some((result) => result.name === "build") &&
+      results.every((result) => result.exitCode === 0);
     const timestamp = now();
-    const evidence = {provider:"daytona",sandboxCreated:Boolean(sandboxId),startedAt,finishedAt:timestamp,passed,failure,steps:results.map((result)=>({name:result.name,exitCode:result.exitCode,output:result.output.slice(0,4000)})),note:"Executed in a disposable Daytona sandbox. This does not submit, merge, or deploy code."};
+    const evidence = {
+      provider: "daytona",
+      sandboxCreated: Boolean(sandboxId),
+      startedAt,
+      finishedAt: timestamp,
+      passed,
+      failure,
+      steps: results.map((result) => ({
+        name: result.name,
+        exitCode: result.exitCode,
+        output: result.output.slice(0, 4000),
+      })),
+      note: "Executed in a disposable Daytona sandbox. This does not submit, merge, or deploy code.",
+    };
     await c.env.DB.batch([
-      c.env.DB.prepare("INSERT INTO agent_code_events(id,task_id,actor_id,event_type,details_json,created_at) VALUES (?,?,?,'code.sandbox_executed',?,?)").bind(crypto.randomUUID(),task.id,owner,JSON.stringify(evidence),timestamp),
-      c.env.DB.prepare("INSERT INTO audit_events VALUES (?,?,?,?,?,?,?,?)").bind(crypto.randomUUID(),owner,"agent.code.sandbox_executed",task.id,c.get("requestId"),passed?"ok":"failed",timestamp,JSON.stringify({provider:"daytona",passed,failure})),
+      c.env.DB.prepare(
+        "INSERT INTO agent_code_events(id,task_id,actor_id,event_type,details_json,created_at) VALUES (?,?,?,'code.sandbox_executed',?,?)",
+      ).bind(
+        crypto.randomUUID(),
+        task.id,
+        owner,
+        JSON.stringify(evidence),
+        timestamp,
+      ),
+      c.env.DB.prepare(
+        "INSERT INTO audit_events VALUES (?,?,?,?,?,?,?,?)",
+      ).bind(
+        crypto.randomUUID(),
+        owner,
+        "agent.code.sandbox_executed",
+        task.id,
+        c.get("requestId"),
+        passed ? "ok" : "failed",
+        timestamp,
+        JSON.stringify({ provider: "daytona", passed, failure }),
+      ),
     ]);
-    return c.json({taskId:task.id,...evidence},passed?200:502);
+
+    return c.json({ taskId: task.id, ...evidence }, passed ? 200 : 502);
   });
 
 }
