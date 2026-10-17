@@ -699,6 +699,66 @@ async function validateCodeTask(id, host) {
   };
   host.append(document.createElement("br"), b);
 }
+async function executeCodeTask(id, host) {
+  const button = document.createElement("button");
+  button.className = "plan-button";
+  button.textContent = "Jalankan di sandbox Daytona";
+  button.onclick = async () => {
+    if (
+      !window.confirm(
+        "Jalankan proposal ini di sandbox Daytona terisolasi? Ini dapat memakai kuota/biaya akun Daytona. Kode tidak akan dikirim ke GitHub, di-merge, atau di-deploy.",
+      )
+    ) {
+      return;
+    }
+    button.disabled = true;
+    button.textContent = "Menyiapkan sandbox dan menjalankan pemeriksaan…";
+    $("#status").textContent = "Coding agent · eksekusi Daytona";
+    try {
+      const response = await fetch(
+        "/api/v1/agent/code-tasks/" + encodeURIComponent(id) + "/execute",
+        {
+          method: "POST",
+          headers: headers(),
+        },
+      );
+      const data = await response.json();
+      const lines = [
+        "HASIL EKSEKUSI DAYTONA: " + (data.passed ? "PASS" : "FAIL"),
+        "Task: " + id,
+        "Sandbox dibuat: " + Boolean(data.sandboxCreated),
+        "Repair attempts: " + Number(data.repairAttempts || 0),
+        "Mulai: " + (data.startedAt || "—"),
+        "Selesai: " + (data.finishedAt || "—"),
+        data.failure ? "Kegagalan: " + data.failure : "",
+        "",
+        ...(data.steps || []).flatMap((step) => [
+          step.name + " — exit code " + step.exitCode,
+          (step.output || "").slice(0, 2500),
+          "",
+        ]),
+        data.note || data.message || "",
+      ].filter((line) => line !== undefined);
+      showMessage("assistant", lines.join("\n"));
+      button.textContent = data.passed
+        ? "Sandbox selesai · semua pemeriksaan lulus"
+        : "Eksekusi selesai · periksa log";
+      $("#status").textContent = data.passed
+        ? "Coding agent · sandbox PASS"
+        : "Coding agent · sandbox FAIL";
+      await loadCodeTasks();
+    } catch {
+      showMessage(
+        "assistant",
+        "Koneksi terputus saat eksekusi Daytona. Periksa event task sebelum mengulang agar tidak membuat sandbox ganda.",
+      );
+      button.disabled = false;
+      button.textContent = "Coba jalankan lagi setelah memeriksa event";
+      $("#status").textContent = "Coding agent · hasil eksekusi belum diketahui";
+    }
+  };
+  host.append(document.createElement("br"), button);
+}
 async function openCodeTask(id) {
   try {
     const r = await fetch("/api/v1/agent/code-tasks/" + encodeURIComponent(id));
@@ -722,6 +782,7 @@ async function openCodeTask(id) {
         d.checks.join("\n"),
     );
     $("#status").textContent = "Coding task · " + d.task.status;
+    if (d.task.status === "draft") executeCodeTask(d.task.id, host);
     if (d.task.status === "submitted") validateCodeTask(d.task.id, host);
   } catch {
     $("#status").textContent = "Coding task tidak bisa dimuat";
