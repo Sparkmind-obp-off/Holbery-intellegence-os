@@ -66,7 +66,7 @@ const env = (o: Record<string, unknown> = {}) => ({
   HIO_ENVIRONMENT: "local",
   HIO_CUSTOMER_AUTH: "enabled",
   CLERK_PUBLISHABLE_KEY: PK,
-  CLERK_SECRET_KEY: "sk_test_unit_test_secret_never_production",
+  CLERK_SECRET_KEY: "sk_test_unitTestSecretNeverProduction0000",
   ...o,
 });
 const b64u = (b: ArrayBuffer | Uint8Array | string) =>
@@ -591,5 +591,64 @@ describe("Clerk Phase 1 — customer identity and tenant isolation (offline)", (
         )
       ).status,
     ).toBe(401);
+  });
+
+  it("fails closed on mismatched or wrong-environment Clerk keys", async () => {
+    const { clerkConfig } = await import("../src/clerk");
+    const livePk = "pk_live_" + btoa("clerk.example.com$");
+    const liveSk = "sk_live_" + "x".repeat(40);
+    const base = { HIO_CUSTOMER_AUTH: "enabled" } as never as Record<
+      string,
+      string
+    >;
+    const cfg = (o: Record<string, string | undefined>) =>
+      clerkConfig({ ...base, ...o } as never, "https://hio.test");
+    // live pair in production: accepted; dev override is irrelevant
+    expect(
+      cfg({
+        HIO_ENVIRONMENT: "production",
+        CLERK_PUBLISHABLE_KEY: livePk,
+        CLERK_SECRET_KEY: liveSk,
+      }),
+    ).not.toBeNull();
+    expect(
+      cfg({
+        HIO_ENVIRONMENT: "production",
+        CLERK_PUBLISHABLE_KEY: livePk,
+        CLERK_SECRET_KEY: liveSk,
+        HIO_ALLOW_DEV_CLERK_IN_PROD: "yes",
+      })?.issuer,
+    ).toBe("https://clerk.example.com");
+    // live keys outside production: refused
+    expect(
+      cfg({
+        HIO_ENVIRONMENT: "local",
+        CLERK_PUBLISHABLE_KEY: livePk,
+        CLERK_SECRET_KEY: liveSk,
+      }),
+    ).toBeNull();
+    // mismatched pairs: refused
+    expect(
+      cfg({
+        HIO_ENVIRONMENT: "production",
+        CLERK_PUBLISHABLE_KEY: livePk,
+        CLERK_SECRET_KEY: "sk_test_" + "y".repeat(40),
+      }),
+    ).toBeNull();
+    expect(
+      cfg({
+        HIO_ENVIRONMENT: "local",
+        CLERK_PUBLISHABLE_KEY: PK,
+        CLERK_SECRET_KEY: liveSk,
+      }),
+    ).toBeNull();
+    // dev keys in production without the override: refused
+    expect(
+      cfg({
+        HIO_ENVIRONMENT: "production",
+        CLERK_PUBLISHABLE_KEY: PK,
+        CLERK_SECRET_KEY: "sk_test_" + "y".repeat(40),
+      }),
+    ).toBeNull();
   });
 });

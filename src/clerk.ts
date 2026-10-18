@@ -40,12 +40,18 @@ export function clerkConfig(
   requestOrigin: string,
 ): ClerkConfig | null {
   if (env.HIO_CUSTOMER_AUTH !== "enabled") return null;
-  if (!env.CLERK_SECRET_KEY || env.CLERK_SECRET_KEY.length < 20) return null;
   const derived = issuerFromPublishableKey(env.CLERK_PUBLISHABLE_KEY);
   if (!derived) return null;
+  // Publishable and secret keys must belong to the same environment.
+  const skLive = /^sk_live_[A-Za-z0-9]{20,}$/.test(env.CLERK_SECRET_KEY ?? "");
+  const skTest = /^sk_test_[A-Za-z0-9]{20,}$/.test(env.CLERK_SECRET_KEY ?? "");
+  if (derived.live ? !skLive : !skTest) return null;
   // Live keys must never be used by a non-production environment and vice versa.
+  // The development override is honoured only while production still runs a
+  // test (development) instance; once live keys are installed it is ignored.
   const prod = env.HIO_ENVIRONMENT === "production";
-  if (derived.live !== prod && env.HIO_ALLOW_DEV_CLERK_IN_PROD !== "yes")
+  if (derived.live && !prod) return null;
+  if (!derived.live && prod && env.HIO_ALLOW_DEV_CLERK_IN_PROD !== "yes")
     return null;
   const parties = (env.CLERK_AUTHORIZED_PARTIES ?? "")
     .split(",")

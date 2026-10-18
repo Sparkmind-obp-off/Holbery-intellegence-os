@@ -29,3 +29,27 @@ Secrets: `CLERK_SECRET_KEY`. Plain/secret: `CLERK_PUBLISHABLE_KEY`, `HIO_CUSTOME
 | `/agent`, `/agent/code`, `/pemeliharaan/*` | founder | server redirect to `/founder/login` (`/pemeliharaan` → `/pengaturan`) when no session |
 
 A Clerk token never authenticates founder routes (401), and the founder cookie never authenticates `/api/customer/*` (401). Founder logout calls `DELETE /api/session` (server-side session deleted) and returns to `/founder/login`; customer logout is Clerk's UserButton sign-out → `/masuk`.
+
+## Production cutover (Clerk Production instance)
+
+Production instance: Frontend API `clerk.holbery.biz.id` (derived from the live publishable key), environment `production` (verified via Backend API `GET /v1/instance`).
+
+Gates (`npm run clerk:preflight`, read-only): live key pair, Backend API auth, `environment_type=production`, every required Clerk CNAME resolves to its Clerk target, JWKS reachable with an RS256 key.
+
+Required DNS in zone `holbery.biz.id` (DNS-only / grey cloud, as Clerk requires):
+
+| Host | CNAME target |
+|---|---|
+| `clerk.holbery.biz.id` | `frontend-api.clerk.services` |
+| `accounts.holbery.biz.id` | `accounts.clerk.services` |
+| `clkmail.holbery.biz.id` | `mail.qsl44gc2shn2.clerk.services` |
+| `clk._domainkey.holbery.biz.id` | `dkim1.qsl44gc2shn2.clerk.services` |
+| `clk2._domainkey.holbery.biz.id` | `dkim2.qsl44gc2shn2.clerk.services` |
+
+Cutover: `HIO_CLERK_CUTOVER_APPROVED=yes HIO_CLERK_LIVE_PK_FILE=… HIO_CLERK_LIVE_SK_FILE=… node scripts/clerk-cutover.mjs` (re-runs preflight, refuses on failure, then sets `CLERK_PUBLISHABLE_KEY`/`CLERK_SECRET_KEY` and deletes `HIO_ALLOW_DEV_CLERK_IN_PROD`), then redeploy and run `test:clerk-live` against `https://hio.holbery.biz.id`.
+
+Runtime fail-closed rules (`clerkConfig`): publishable and secret key must be the same environment; live keys are refused outside `HIO_ENVIRONMENT=production`; test keys in production are refused unless `HIO_ALLOW_DEV_CLERK_IN_PROD=yes`; the override has no effect on live keys. Any refusal makes `/api/customer/*` return 503 while `/` and founder login stay up.
+
+Note: `CLERK_AUTHORIZED_PARTIES` must list `https://hio.holbery.biz.id` (Clerk production instances are bound to the `holbery.biz.id` domain; sessions minted on `*.pages.dev` will not exist).
+
+Rollback: re-put the development `CLERK_PUBLISHABLE_KEY`/`CLERK_SECRET_KEY` and `HIO_ALLOW_DEV_CLERK_IN_PROD=yes`, redeploy (no schema change involved). Users/workspaces in D1 are keyed by `clerk_user_id`; production-instance users are new IDs, so dev-instance test users simply stop matching.
